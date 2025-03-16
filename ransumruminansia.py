@@ -1159,8 +1159,11 @@ elif mode == "Optimalisasi Otomatis":
         for feed in all_available_feeds:
             if feed in df_pakan['Nama Pakan'].values:
                 feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-            else:
+            elif feed in mineral_df['Nama Pakan'].values:
                 feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+            else:
+                st.error(f"Feed '{feed}' not found in either df_pakan or mineral_df. Please check your input.")
+                continue
             c.append(feed_data['Harga (Rp/kg)'])
 
         # Protein minimum constraint
@@ -1214,36 +1217,48 @@ elif mode == "Optimalisasi Otomatis":
         result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0, None), method='highs')
 
         if result.success:
+        else:
+            st.error("Optimasi gagal. Silakan periksa kembali input dan batasan.")
             st.success("Optimasi berhasil!")
+            if result.success and result.x is not None:
+                optimized_amounts = result.x
+            else:
+                st.error("Optimasi gagal atau menghasilkan data yang tidak valid. Silakan periksa kembali input dan batasan.")
+                return
+            def calculate_opt_data(all_available_feeds, optimized_amounts, df_pakan, mineral_df):
+                """Helper function to calculate optimized data."""
+                opt_data = {
+                    'Bahan Pakan': all_available_feeds,
+                    'Jumlah (kg)': optimized_amounts,
+                    'Protein (kg)': [],
+                    'TDN (kg)': [],
+                    'Ca (kg)': [],
+                    'P (kg)': [],
+                    'Mg (kg)': [],
+                    'Fe (g)': [],
+                    'Cu (g)': [],
+                    'Zn (g)': [],
+                    'Biaya (Rp)': []
+                }
 
-            # Tampilkan hasil optimasi
-            optimized_amounts = result.x
+                for i, feed in enumerate(all_available_feeds):
+                    if feed in df_pakan['Nama Pakan'].values:
+                        feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    else:
+                        feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                    opt_data['Protein (kg)'].append(optimized_amounts[i] * feed_data['Protein (%)'] / 100)
+                    opt_data['TDN (kg)'].append(optimized_amounts[i] * feed_data['TDN (%)'] / 100)
+                    opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data.get('Fe (ppm)', 0) / 1000)
+                    opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data.get('Cu (ppm)', 0) / 1000)
+                    opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data.get('Zn (ppm)', 0) / 1000)
+                    opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
+                    opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
+                    opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
+                    opt_data['Biaya (Rp)'].append(optimized_amounts[i] * feed_data['Harga (Rp/kg)'])
 
-            # Buat dataframe untuk hasil optimasi
-            opt_data = {
-                'Bahan Pakan': all_available_feeds,
-                'Jumlah (kg)': optimized_amounts,
-                'Protein (kg)': [],
-                'TDN (kg)': [],
-                'Ca (kg)': [],
-                'P (kg)': [],
-                'Mg (kg)': [],
-                'Fe (g)': [],
-                'Cu (g)': [],
-                'Zn (g)': [],
-                'Biaya (Rp)': []
-            }
+                return opt_data
 
-            for i, feed in enumerate(all_available_feeds):
-                if feed in df_pakan['Nama Pakan'].values:
-                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                else:
-                    feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
-                opt_data['Protein (kg)'].append(optimized_amounts[i] * feed_data['Protein (%)'] / 100)
-                opt_data['TDN (kg)'].append(optimized_amounts[i] * feed_data['TDN (%)'] / 100)
-                opt_data['Ca (kg)'].append(optimized_amounts[i] * feed_data['Ca (%)'] / 100)
-                opt_data['P (kg)'].append(optimized_amounts[i] * feed_data['P (%)'] / 100)
-                opt_data['Mg (kg)'].append(optimized_amounts[i] * feed_data['Mg (%)'] / 100)
+            opt_data = calculate_opt_data(all_available_feeds, optimized_amounts, df_pakan, mineral_df)
                 opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
                 opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
                 opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
