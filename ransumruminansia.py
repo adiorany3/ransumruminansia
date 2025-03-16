@@ -1388,13 +1388,31 @@ elif mode == "Mineral Supplement":
                 # Filter based on mineral type
                 if mineral_type != "Semua":
                     if mineral_type == "Makro":
-                        filtered_minerals = mineral_df[(mineral_df['Ca (%)'] > 5) | (mineral_df['P (%)'] > 5) | (mineral_df['Mg (%)'] > 2)]
+                        filtered_minerals = mineral_df[
+                            (mineral_df['Ca (%)'] > 5) | 
+                            (mineral_df['P (%)'] > 5) | 
+                            (mineral_df['Mg (%)'] > 2)
+                        ]
                     elif mineral_type == "Mikro":
-                        filtered_minerals = mineral_df[(mineral_df['Fe (ppm)'] > 1000) | (mineral_df['Cu (ppm)'] > 500) | (mineral_df['Zn (ppm)'] > 500)]
-                    else: # Premix
-                        filtered_minerals = mineral_df[(mineral_df['Fe (ppm)'] > 1000) & (mineral_df['Cu (ppm)'] > 1000) & (mineral_df['Zn (ppm)'] > 1000)]
+                        filtered_minerals = mineral_df[
+                            (mineral_df['Fe (ppm)'] > 1000) | 
+                            (mineral_df['Cu (ppm)'] > 500) | 
+                            (mineral_df['Zn (ppm)'] > 500)
+                        ]
+                    elif mineral_type == "Premix":
+                        filtered_minerals = mineral_df[
+                            (mineral_df['Fe (ppm)'] > 1000) & 
+                            (mineral_df['Cu (ppm)'] > 1000) & 
+                            (mineral_df['Zn (ppm)'] > 1000)
+                        ]
+                    else:
+                        filtered_minerals = pd.DataFrame()  # Fallback to an empty DataFrame if type is invalid
                 else:
                     filtered_minerals = mineral_df
+
+                # Ensure filtered_minerals is not None or empty
+                if filtered_minerals is None or filtered_minerals.empty:
+                    st.warning(f"Tidak ada mineral yang termasuk kategori {mineral_type}.")
                 
                 # If filtering resulted in empty DataFrame, show a message
                 if filtered_minerals.empty:
