@@ -1264,10 +1264,10 @@ elif mode == "Optimalisasi Otomatis":
                 return opt_data
 
             opt_data = calculate_opt_data(all_available_feeds, optimized_amounts, df_pakan, mineral_df)
-                opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
-                opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
-                opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
-                opt_data['Biaya (Rp)'].append(optimized_amounts[i] * feed_data['Harga (Rp/kg)'])
+            opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
+            opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
+            opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
+            opt_data['Biaya (Rp)'].append(optimized_amounts[i] * feed_data['Harga (Rp/kg)'])
 
             df_opt = pd.DataFrame(opt_data)
             df_opt.loc['Total'] = [
