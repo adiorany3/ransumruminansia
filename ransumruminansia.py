@@ -1295,6 +1295,22 @@ elif mode == "Optimalisasi Otomatis":
 
             # Total biaya
             st.metric("Total Biaya", f"Rp {sum(opt_data['Biaya (Rp)']):,.0f}")
+            st.metric("Biaya per kg", f"Rp {sum(opt_data['Biaya (Rp)']) / total_amt:,.0f}")
+            
+            # Add explanation for optimal nutrient content and cost
+            st.subheader("Keterangan Hasil Kandungan Nutrisi Optimal dan Harganya")
+            st.write("""
+            **Penjelasan Kandungan Nutrisi Optimal:**
+            - Kandungan nutrisi optimal dihitung berdasarkan kebutuhan minimum nutrisi ternak yang dipilih.
+            - Hasil menunjukkan bahwa ransum yang dioptimalkan memenuhi kebutuhan protein, TDN, dan mineral dengan biaya terendah.
+            - Kandungan nutrisi seperti protein, TDN, dan mineral lainnya dihitung sebagai rata-rata dari semua bahan pakan yang digunakan.
+
+            **Penjelasan Biaya:**
+            - Total biaya dihitung berdasarkan jumlah bahan pakan yang digunakan dikalikan dengan harga per kilogram masing-masing bahan.
+            - Biaya per kilogram ransum menunjukkan efisiensi biaya untuk setiap kilogram pakan yang dihasilkan.
+            - Dengan menggunakan hasil optimasi, Anda dapat mengurangi biaya pakan tanpa mengorbankan kualitas nutrisi yang dibutuhkan ternak.
+            """)
+
         else:
             st.error("Optimasi gagal. Silakan periksa kembali input dan batasan.")
             
@@ -1342,7 +1358,7 @@ elif mode == "Optimalisasi Otomatis":
             # Display the formatted dataframe
             st.dataframe(df_display)
             
-                        # Tampilkan ringkasan nutrisi
+            # Tampilkan ringkasan nutrisi
             total_amt = sum(opt_data['Jumlah (kg)'])
             avg_protein = sum(opt_data['Protein (kg)']) * 100 / total_amt
             avg_tdn = sum(opt_data['TDN (kg)']) * 100 / total_amt
