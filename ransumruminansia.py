@@ -1276,8 +1276,10 @@ elif mode == "Optimalisasi Otomatis":
             avg_mg = sum(opt_data['Mg (kg)']) * 100 / total_amt
 
             st.subheader("Kandungan Nutrisi Ransum Optimal")
+            st.write("Berikut adalah kandungan nutrisi ransum yang telah dihitung berdasarkan bahan pakan yang dipilih. "
+                     "Nilai-nilai ini mencerminkan rata-rata kandungan nutrisi seperti protein, TDN, dan mineral dalam ransum.")
             cols = st.columns(5)
-
+                st.metric("Protein (%)", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
             with cols[0]:
                 st.metric("Protein", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
 
@@ -1763,7 +1765,7 @@ elif mode == "Mineral Supplement":
                     
                     with col1:
                         st.metric("Kalsium (Ca)", f"{format_id(base_ca, 3)} kg", 
-                                 f"{format_id(base_ca - req_ca, 3)} kg")
+                                 f"{format_id(base_ca - req_ca, 3)} kg" + " %")
                         if base_ca < req_ca:
                             st.warning(f"Kekurangan Ca: {format_id(req_ca - base_ca, 3)} kg")
                         else:
