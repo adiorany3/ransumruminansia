@@ -1279,9 +1279,8 @@ elif mode == "Optimalisasi Otomatis":
             st.write("Berikut adalah kandungan nutrisi ransum yang telah dihitung berdasarkan bahan pakan yang dipilih. "
                      "Nilai-nilai ini mencerminkan rata-rata kandungan nutrisi seperti protein, TDN, dan mineral dalam ransum.")
             cols = st.columns(5)
-                st.metric("Protein (%)", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
             with cols[0]:
-                st.metric("Protein", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
+                st.metric("Protein (%)", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
 
             with cols[1]:
                 st.metric("TDN", f"{avg_tdn:.2f}%", f"{avg_tdn - required_tdn:.2f}%")
