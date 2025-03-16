@@ -6,6 +6,13 @@ from scipy.optimize import linprog
 import altair as alt
 import datetime
 
+# Tambahkan favicon ke aplikasi
+st.set_page_config(
+    page_title="Aplikasi Perhitungan Ransum Ruminansia",
+    page_icon="favicon.ico",  # Ganti dengan nama file favicon Anda
+    layout="wide"
+)
+
 # Helper function for formatting numbers with Indonesian style (comma for decimal separator, dot for thousands)
 def format_id(value, precision=2):
     """
