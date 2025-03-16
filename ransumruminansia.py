@@ -1287,12 +1287,18 @@ elif mode == "Optimalisasi Otomatis":
 
             with cols[2]:
                 st.metric("Kalsium (Ca)", f"{avg_ca:.2f}%", f"{avg_ca - nutrient_req.get('Ca (%)', 0):.2f}%")
+                if avg_ca < nutrient_req.get('Ca (%)', 0):
+                    st.warning("⚠️ Kandungan Kalsium (Ca) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan yang kaya Kalsium, seperti kapur (CaCO3) atau tepung tulang.")
 
             with cols[3]:
                 st.metric("Fosfor (P)", f"{avg_p:.2f}%", f"{avg_p - nutrient_req.get('P (%)', 0):.2f}%")
+                if avg_p < nutrient_req.get('P (%)', 0):
+                    st.warning("⚠️ Kandungan Fosfor (P) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan seperti tepung tulang atau mineral mix yang mengandung Fosfor.")
 
             with cols[4]:
                 st.metric("Magnesium (Mg)", f"{avg_mg:.2f}%", f"{avg_mg - nutrient_req.get('Mg (%)', 0):.2f}%")
+                if avg_mg < nutrient_req.get('Mg (%)', 0):
+                    st.warning("⚠️ Kandungan Magnesium (Mg) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan seperti dolomit atau mineral mix yang mengandung Magnesium.")
 
             # Total biaya
             st.metric("Total Biaya", f"Rp {sum(opt_data['Biaya (Rp)']):,.0f}")
