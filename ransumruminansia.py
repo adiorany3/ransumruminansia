@@ -1285,13 +1285,13 @@ elif mode == "Optimalisasi Otomatis":
                 st.metric("TDN", f"{avg_tdn:.2f}%", f"{avg_tdn - required_tdn:.2f}%")
 
             with cols[2]:
-                st.metric("Kalsium (Ca)", f"{avg_ca:.2f}%", f"{avg_ca - nutrient_req.get('Ca (%)', 0)::.2f}%")
+                st.metric("Kalsium (Ca)", f"{avg_ca:.2f}%", f"{avg_ca - nutrient_req.get('Ca (%)', 0):.2f}%")
 
             with cols[3]:
-                st.metric("Fosfor (P)", f"{avg_p:.2f}%", f"{avg_p - nutrient_req.get('P (%)', 0)::.2f}%")
+                st.metric("Fosfor (P)", f"{avg_p:.2f}%", f"{avg_p - nutrient_req.get('P (%)', 0):.2f}%")
 
             with cols[4]:
-                st.metric("Magnesium (Mg)", f"{avg_mg:.2f}%", f"{avg_mg - nutrient_req.get('Mg (%)', 0)::.2f}%")
+                st.metric("Magnesium (Mg)", f"{avg_mg:.2f}%", f"{avg_mg - nutrient_req.get('Mg (%)', 0):.2f}%")
 
             # Total biaya
             st.metric("Total Biaya", f"Rp {sum(opt_data['Biaya (Rp)']):,.0f}")
