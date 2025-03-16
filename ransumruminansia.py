@@ -893,6 +893,9 @@ if mode == "Formulasi Manual":
             if total_amount <= 0:
                 st.error("Total jumlah pakan harus lebih dari 0 kg.")
             else:
+                # Initialize avg_protein and avg_tdn to avoid undefined variable errors
+                avg_protein = 0
+                avg_tdn = 0
                 avg_protein, avg_tdn, avg_ca, avg_p, avg_mg, total_cost, total_amount, total_cost_all, total_amount_all = calculate_nutrition_content(feed_data, feed_amounts, jumlah_ternak)
                 
                 required_protein = nutrient_req.get('Protein (%)', 0)
@@ -1263,8 +1266,8 @@ elif mode == "Optimalisasi Otomatis":
                             feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                         else:
                             feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
-                        # Convert ppm to % for consistent calculations
-                        fe_constraint.append(-(feed_data['Fe (ppm)'] / 10000))
+                        fe_value = feed_data['Fe (ppm)'] / 10000 if 'Fe (ppm)' in feed_data else 0
+                        fe_constraint.append(-fe_value)
                     A_ub.append(fe_constraint)
                     required_fe = nutrient_req.get('Fe (ppm)', 0)
                     b_ub.append(-(required_fe / 10000) * min_amount)
@@ -1276,7 +1279,8 @@ elif mode == "Optimalisasi Otomatis":
                             feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                         else:
                             feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
-                        cu_constraint.append(-(feed_data['Cu (ppm)'] / 10000))
+                        cu_value = feed_data['Cu (ppm)'] / 10000 if 'Cu (ppm)' in feed_data else 0
+                        cu_constraint.append(-cu_value)
                     A_ub.append(cu_constraint)
                     required_cu = nutrient_req.get('Cu (ppm)', 0)
                     b_ub.append(-(required_cu / 10000) * min_amount)
@@ -1288,7 +1292,8 @@ elif mode == "Optimalisasi Otomatis":
                             feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                         else:
                             feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
-                        zn_constraint.append(-(feed_data['Zn (ppm)'] / 10000))
+                        zn_value = feed_data['Zn (ppm)'] / 10000 if 'Zn (ppm)' in feed_data else 0
+                        zn_constraint.append(-zn_value)
                     A_ub.append(zn_constraint)
                     required_zn = nutrient_req.get('Zn (ppm)', 0)
                     b_ub.append(-(required_zn / 10000) * min_amount)
@@ -1304,230 +1309,213 @@ elif mode == "Optimalisasi Otomatis":
                 
                 # Minimum proportion for feed types (optional)
                 if len(available_feeds) > 0 and len(all_available_feeds) > len(available_feeds):
-                    # Limit mineral supplements to max 5% of total feed
-                    mineral_constraint = []
+                    # Ensure at least 70% comes from regular feeds, not mineral supplements
+                    feed_proportion_constraint = []
                     for feed in all_available_feeds:
                         if feed in available_feeds:
-                            mineral_constraint.append(0)  # Regular feed
+                            feed_proportion_constraint.append(-0.7)
                         else:
-                            mineral_constraint.append(1)  # Mineral supplement
-                    A_ub.append(mineral_constraint)
-                    b_ub.append(0.05 * max_amount)  # Max 5% of total can be mineral supplements
+                            feed_proportion_constraint.append(0.3)
+                    A_ub.append(feed_proportion_constraint)
+                    b_ub.append(0)
                 
                 # Solve the linear programming problem
                 result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0, None), method='highs')
                 
                 # Process optimization results
                 if result.success:
-                    st.success("✅ Optimasi berhasil!")
+                    st.success("✅ Optimasi ransum berhasil!")
                     
-                    # [Process and display results as in existing code]
-                    optimized_amounts = result.x
-                    
-                    # Display the optimized ration formulation
-                    st.subheader("Formulasi Ransum Optimal")
-                    
-                    # Create a dataframe with the results
-                    opt_data = {
-                        'Bahan Pakan': all_available_feeds,
-                        'Jumlah (kg)': optimized_amounts
-                    }
-                    
-                    # Add columns for each nutrient
-                    opt_data['Protein (kg)'] = []
-                    opt_data['TDN (kg)'] = []
-                    opt_data['Biaya (Rp)'] = []
-                    
-                    if include_ca:
-                        opt_data['Ca (kg)'] = []
-                    if include_p:
-                        opt_data['P (kg)'] = []
-                    if include_mg:
-                        opt_data['Mg (kg)'] = []
-                    if include_fe:
-                        opt_data['Fe (g)'] = []
-                    if include_cu:
-                        opt_data['Cu (g)'] = []
-                    if include_zn:
-                        opt_data['Zn (g)'] = []
-                    
-                    # Calculate nutrient contribution from each feed
+                    # Create dictionary of feed amounts
+                    optimized_amounts = {}
                     for i, feed in enumerate(all_available_feeds):
+                        if result.x[i] > 0.001:  # Only show feeds with non-zero amounts
+                            optimized_amounts[feed] = result.x[i]
+                    
+                    # Display results
+                    st.subheader("Hasil Optimasi Ransum")
+                    
+                    # Prepare data for display
+                    feeds_used = []
+                    amounts_used = []
+                    feed_type_list = []
+                    nutrition_data = {}
+                    
+                    # Initialize nutrition columns
+                    nutrition_columns = ['Protein (%)', 'TDN (%)']
+                    if include_ca:
+                        nutrition_columns.append('Ca (%)')
+                    if include_p:
+                        nutrition_columns.append('P (%)')
+                    if include_mg:
+                        nutrition_columns.append('Mg (%)')
+                    if include_fe:
+                        nutrition_columns.append('Fe (ppm)')
+                    if include_cu:
+                        nutrition_columns.append('Cu (ppm)')
+                    if include_zn:
+                        nutrition_columns.append('Zn (ppm)')
+                    
+                    for column in nutrition_columns:
+                        nutrition_data[column] = []
+                    
+                    nutrition_data['Harga (Rp/kg)'] = []
+                    total_cost = 0
+                    total_amount = 0
+                    
+                    # Collect data for each feed in the optimal solution
+                    for feed, amount in optimized_amounts.items():
+                        feeds_used.append(feed)
+                        amounts_used.append(amount)
+                        total_amount += amount
+                        
+                        # Get feed data and type
                         if feed in df_pakan['Nama Pakan'].values:
                             feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            feed_type_list.append("Pakan")
                         else:
                             feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
-                            
-                        opt_data['Protein (kg)'].append(optimized_amounts[i] * feed_data['Protein (%)'] / 100)
-                        opt_data['TDN (kg)'].append(optimized_amounts[i] * feed_data['TDN (%)'] / 100)
-                        opt_data['Biaya (Rp)'].append(optimized_amounts[i] * feed_data['Harga (Rp/kg)'])
+                            feed_type_list.append("Mineral")
                         
-                        if include_ca:
-                            opt_data['Ca (kg)'].append(optimized_amounts[i] * feed_data['Ca (%)'] / 100)
-                        if include_p:
-                            opt_data['P (kg)'].append(optimized_amounts[i] * feed_data['P (%)'] / 100)
-                        if include_mg:
-                            opt_data['Mg (kg)'].append(optimized_amounts[i] * feed_data['Mg (%)'] / 100)
-                        if include_fe:
-                            opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
-                        if include_cu:
-                            opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
-                        if include_zn:
-                            opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
+                        # Collect nutrition data
+                        for column in nutrition_columns:
+                            if column in feed_data:
+                                nutrition_data[column].append(feed_data[column])
+                            else:
+                                nutrition_data[column].append(0)
+                        
+                        # Calculate cost
+                        feed_cost = feed_data['Harga (Rp/kg)']
+                        nutrition_data['Harga (Rp/kg)'].append(feed_cost)
+                        total_cost += amount * feed_cost
                     
-                    # Create a DataFrame and add a total row
-                    df_opt = pd.DataFrame(opt_data)
-                    
-                    # Create a total row with appropriate columns
-                    total_row = {
-                        'Bahan Pakan': 'Total',
-                        'Jumlah (kg)': sum(opt_data['Jumlah (kg)']),
-                        'Protein (kg)': sum(opt_data['Protein (kg)']),
-                        'TDN (kg)': sum(opt_data['TDN (kg)']),
-                        'Biaya (Rp)': sum(opt_data['Biaya (Rp)'])
+                    # Create dataframe for display
+                    result_data = {
+                        'Bahan': feeds_used,
+                        'Jenis': feed_type_list,
+                        'Jumlah (kg)': amounts_used,
+                        'Persentase (%)': [amount/total_amount*100 for amount in amounts_used]
                     }
                     
-                    if include_ca:
-                        total_row['Ca (kg)'] = sum(opt_data['Ca (kg)'])
-                    if include_p:
-                        total_row['P (kg)'] = sum(opt_data['P (kg)'])
-                    if include_mg:
-                        total_row['Mg (kg)'] = sum(opt_data['Mg (kg)'])
-                    if include_fe:
-                        total_row['Fe (g)'] = sum(opt_data['Fe (g)'])
-                    if include_cu:
-                        total_row['Cu (g)'] = sum(opt_data['Cu (g)'])
-                    if include_zn:
-                        total_row['Zn (g)'] = sum(opt_data['Zn (g)'])
+                    # Add nutrition columns
+                    for column in nutrition_columns:
+                        result_data[column] = nutrition_data[column]
                     
-                    # Add the total row to the DataFrame
-                    df_opt.loc['Total'] = total_row
+                    # Add cost column
+                    result_data['Harga (Rp/kg)'] = nutrition_data['Harga (Rp/kg)']
+                    result_data['Biaya (Rp)'] = [amounts_used[i] * nutrition_data['Harga (Rp/kg)'][i] for i in range(len(feeds_used))]
                     
-                    # Display the results
-                    st.dataframe(df_opt)
+                    df_result = pd.DataFrame(result_data)
+                    st.dataframe(df_result)
                     
-                    # Calculate nutrient percentages
-                    total_amt = sum(opt_data['Jumlah (kg)'])
-                    avg_protein = sum(opt_data['Protein (kg)']) * 100 / total_amt
-                    avg_tdn = sum(opt_data['TDN (kg)']) * 100 / total_amt
+                    # Calculate and display total nutrition content
+                    st.subheader("Kandungan Nutrisi Ransum")
                     
-                    # Display nutrient summary
-                    st.subheader("Kandungan Nutrisi Ransum Optimal")
-                    
-                    # Create columns for showing metrics
-                    metrics_columns = []
-                    num_metrics = 2 + (1 if include_ca else 0) + (1 if include_p else 0) + (1 if include_mg else 0)
-                    metrics_columns = st.columns(min(5, num_metrics))
-                    
-                    col_idx = 0
-                    with metrics_columns[col_idx]:
-                        st.metric("Protein (%)", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
-                    col_idx += 1
-                    
-                    with metrics_columns[col_idx]:
-                        st.metric("TDN (%)", f"{avg_tdn:.2f}%", f"{avg_tdn - required_tdn:.2f}%")
-                    col_idx += 1
-                    
-                    if include_ca and col_idx < len(metrics_columns):
-                        avg_ca = sum(opt_data['Ca (kg)']) * 100 / total_amt
-                        with metrics_columns[col_idx]:
-                            st.metric("Ca (%)", f"{avg_ca:.2f}%", f"{avg_ca - required_ca:.2f}%")
-                        col_idx += 1
-                    
-                    if include_p and col_idx < len(metrics_columns):
-                        avg_p = sum(opt_data['P (kg)']) * 100 / total_amt
-                        with metrics_columns[col_idx]:
-                            st.metric("P (%)", f"{avg_p:.2f}%", f"{avg_p - required_p:.2f}%")
-                        col_idx += 1
-                    
-                    if include_mg and col_idx < len(metrics_columns):
-                        avg_mg = sum(opt_data['Mg (kg)']) * 100 / total_amt
-                        with metrics_columns[col_idx]:
-                            st.metric("Mg (%)", f"{avg_mg:.2f}%", f"{avg_mg - required_mg:.2f}%")
-                    
-                    # Use another row of columns for micro minerals if needed
-                    if include_fe or include_cu or include_zn:
-                        st.write("#### Mineral Mikro")
-                        micro_columns = st.columns(3)
-                        
-                        col_idx = 0
-                        if include_fe:
-                            avg_fe = sum(opt_data['Fe (g)']) * 1000 / total_amt  # Convert to ppm
-                            with micro_columns[col_idx]:
-                                st.metric("Fe (ppm)", f"{avg_fe:.2f}", f"{avg_fe - required_fe:.2f}")
-                            col_idx += 1
-                        
-                        if include_cu:
-                            avg_cu = sum(opt_data['Cu (g)']) * 1000 / total_amt  # Convert to ppm
-                            with micro_columns[col_idx]:
-                                st.metric("Cu (ppm)", f"{avg_cu:.2f}", f"{avg_cu - required_cu:.2f}")
-                            col_idx += 1
-                        
-                        if include_zn:
-                            avg_zn = sum(opt_data['Zn (g)']) * 1000 / total_amt  # Convert to ppm
-                            with micro_columns[col_idx]:
-                                st.metric("Zn (ppm)", f"{avg_zn:.2f}", f"{avg_zn - required_zn:.2f}")
-                    
-                    # Display cost information
-                    st.subheader("Analisis Biaya")
                     col1, col2 = st.columns(2)
                     
                     with col1:
-                        total_cost = sum(opt_data['Biaya (Rp)'])
-                        st.metric("Total Biaya", f"Rp {format_id(total_cost, 0)}")
-                    
+                        # Calculate protein percentage
+                        protein_amount = sum(df_result['Jumlah (kg)'] * df_result['Protein (%)']) / total_amount
+                        st.metric(
+                            label="Protein Ransum", 
+                            value=f"{protein_amount:.2f}%",
+                            delta=f"{protein_amount - required_protein:.2f}%" 
+                        )
+                        
                     with col2:
-                        cost_per_kg = total_cost / total_amt
-                        st.metric("Biaya per kg", f"Rp {format_id(cost_per_kg, 0)}")
+                        # Calculate TDN percentage
+                        tdn_amount = sum(df_result['Jumlah (kg)'] * df_result['TDN (%)']) / total_amount
+                        st.metric(
+                            label="TDN Ransum", 
+                            value=f"{tdn_amount:.2f}%",
+                            delta=f"{tdn_amount - required_tdn:.2f}%" 
+                        )
                     
-                    # Add Ca:P ratio analysis if both are included
-                    if include_ca and include_p:
-                        ca_amount = sum(opt_data['Ca (kg)'])
-                        p_amount = sum(opt_data['P (kg)'])
-                        ca_p_ratio = ca_amount / p_amount if p_amount > 0 else 0
+                    # Display mineral content if included
+                    if include_ca or include_p or include_mg:
+                        st.subheader("Kandungan Mineral Makro")
+                        cols = st.columns(3)
+                        col_idx = 0
                         
-                        st.subheader("Rasio Mineral")
-                        st.metric("Rasio Ca:P", f"{ca_p_ratio:.2f}:1")
+                        if include_ca:
+                            with cols[col_idx]:
+                                ca_amount = sum(df_result['Jumlah (kg)'] * df_result['Ca (%)']) / total_amount
+                                st.metric(
+                                    label="Kalsium (Ca)", 
+                                    value=f"{ca_amount:.2f}%",
+                                    delta=f"{ca_amount - required_ca:.2f}%" 
+                                )
+                            col_idx += 1
+                            
+                        if include_p:
+                            with cols[col_idx]:
+                                p_amount = sum(df_result['Jumlah (kg)'] * df_result['P (%)']) / total_amount
+                                st.metric(
+                                    label="Fosfor (P)", 
+                                    value=f"{p_amount:.2f}%",
+                                    delta=f"{p_amount - required_p:.2f}%" 
+                                )
+                            col_idx += 1
+                            
+                        if include_mg:
+                            with cols[col_idx]:
+                                mg_amount = sum(df_result['Jumlah (kg)'] * df_result['Mg (%)']) / total_amount
+                                st.metric(
+                                    label="Magnesium (Mg)", 
+                                    value=f"{mg_amount:.2f}%",
+                                    delta=f"{mg_amount - required_mg:.2f}%" 
+                                )
+                    
+                    # Display mineral micro content if included
+                    if include_fe or include_cu or include_zn:
+                        st.subheader("Kandungan Mineral Mikro")
+                        cols = st.columns(3)
+                        col_idx = 0
                         
-                        if 1.5 <= ca_p_ratio <= 2.0:
-                            st.success("✅ Rasio Ca:P ideal (1.5-2.0:1)")
-                        elif ca_p_ratio < 1.5:
-                            st.warning("⚠️ Rasio Ca:P terlalu rendah (ideal: 1.5-2.0:1)")
-                        else:
-                            st.warning("⚠️ Rasio Ca:P terlalu tinggi (ideal: 1.5-2.0:1)")
+                        if include_fe:
+                            with cols[col_idx]:
+                                fe_amount = sum(df_result['Jumlah (kg)'] * df_result['Fe (ppm)']) / total_amount
+                                st.metric(
+                                    label="Besi (Fe)", 
+                                    value=f"{fe_amount:.2f} ppm",
+                                    delta=f"{fe_amount - required_fe:.2f} ppm" 
+                                )
+                            col_idx += 1
+                            
+                        if include_cu:
+                            with cols[col_idx]:
+                                cu_amount = sum(df_result['Jumlah (kg)'] * df_result['Cu (ppm)']) / total_amount
+                                st.metric(
+                                    label="Tembaga (Cu)", 
+                                    value=f"{cu_amount:.2f} ppm",
+                                    delta=f"{cu_amount - required_cu:.2f} ppm" 
+                                )
+                            col_idx += 1
+                            
+                        if include_zn:
+                            with cols[col_idx]:
+                                zn_amount = sum(df_result['Jumlah (kg)'] * df_result['Zn (ppm)']) / total_amount
+                                st.metric(
+                                    label="Zinc (Zn)", 
+                                    value=f"{zn_amount:.2f} ppm",
+                                    delta=f"{zn_amount - required_zn:.2f} ppm" 
+                                )
                     
-                    # Visualization of feed composition
-                    st.subheader("Visualisasi Komposisi Pakan")
+                    # Cost summary
+                    st.subheader("Biaya Ransum")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("Biaya per kg", f"Rp {total_cost/total_amount:,.2f}")
+                    with col2:
+                        st.metric("Total Biaya", f"Rp {total_cost:,.2f}")
                     
-                    # Create a pie chart of feed composition
-                    feed_chart_data = pd.DataFrame({
-                        'Bahan Pakan': opt_data['Bahan Pakan'],
-                        'Proporsi': opt_data['Jumlah (kg)'] / sum(opt_data['Jumlah (kg)']) * 100
-                    })
-                    
-                    # Filter out very small proportions for better visualization
-                    feed_chart_data = feed_chart_data[feed_chart_data['Proporsi'] >= 1]
-                    
-                    feed_chart = alt.Chart(feed_chart_data).mark_arc().encode(
-                        theta=alt.Theta(field="Proporsi", type="quantitative"),
-                        color=alt.Color(field="Bahan Pakan", type="nominal"),
-                        tooltip=['Bahan Pakan', alt.Tooltip('Proporsi', format='.1f')]
-                    ).properties(
-                        title='Komposisi Ransum Optimal (%)',
-                        width=500,
-                        height=300
-                    )
-                    
-                    st.altair_chart(feed_chart, use_container_width=True)
+                    # Total for all animals
+                    if jumlah_ternak > 1:
+                        st.metric("Total Biaya untuk Semua Ternak", f"Rp {total_cost * jumlah_ternak:,.2f}")
                     
                 else:
-                    st.error("❌ Optimasi gagal! Tidak dapat menemukan solusi yang memenuhi semua batasan.")
-                    st.info("""
-                    **Saran untuk mengatasi kegagalan optimasi:**
-                    1. Tambahkan lebih banyak jenis pakan atau mineral supplement
-                    2. Longgarkan batasan jumlah pakan minimum/maksimum
-                    3. Kurangi jumlah mineral yang dioptimalkan (uncheck beberapa mineral)
-                    """)
+                    st.error(f"❌ Optimasi ransum gagal: {result.message}")
+                    st.warning("Coba ubah batasan atau tambahkan lebih banyak pilihan pakan")
 
 elif mode == "Mineral Supplement":
     st.header("Perhitungan Mineral Supplement")
