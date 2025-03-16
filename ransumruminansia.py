@@ -169,8 +169,6 @@ def load_nutrition_requirements():
 
 def default_nutrition_requirements():
     """Return default nutrition requirements if CSV doesn't exist"""
-    # This would contain the hardcoded dictionary like kebutuhan_nutrisi_umur
-    # For brevity, only returning the structure here
     return {
         "Sapi Potong": {
             "Pedet (<6 bulan)": {
@@ -178,11 +176,178 @@ def default_nutrition_requirements():
                 "Ca (%)": 0.70, "P (%)": 0.45, "Mg (%)": 0.10,
                 "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
             },
-            # Other categories would be included here...
+            "Muda (6-12 bulan)": {
+                "Protein (%)": 12.5, "TDN (%)": 65.0,
+                "Ca (%)": 0.55, "P (%)": 0.35, "Mg (%)": 0.10,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Dewasa (>12 bulan)": {
+                "Protein (%)": 10.5, "TDN (%)": 60.0,
+                "Ca (%)": 0.35, "P (%)": 0.25, "Mg (%)": 0.10,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Bunting": {
+                "Protein (%)": 11.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.45, "P (%)": 0.30, "Mg (%)": 0.12,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Penggemukan": {
+                "Protein (%)": 14.0, "TDN (%)": 70.0,
+                "Ca (%)": 0.50, "P (%)": 0.30, "Mg (%)": 0.10,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            }
         },
-        # Other animal types would be included here...
+        "Sapi Perah": {
+            "Pedet (<6 bulan)": {
+                "Protein (%)": 18.0, "TDN (%)": 72.0,
+                "Ca (%)": 0.70, "P (%)": 0.45, "Mg (%)": 0.10,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Dara (6-12 bulan)": {
+                "Protein (%)": 15.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.60, "P (%)": 0.40, "Mg (%)": 0.10,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Dara Bunting": {
+                "Protein (%)": 12.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.60, "P (%)": 0.40, "Mg (%)": 0.16,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Laktasi (Produksi Rendah)": {
+                "Protein (%)": 14.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.60, "P (%)": 0.40, "Mg (%)": 0.20,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Laktasi (Produksi Tinggi)": {
+                "Protein (%)": 16.0, "TDN (%)": 75.0,
+                "Ca (%)": 0.80, "P (%)": 0.50, "Mg (%)": 0.25,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Kering": {
+                "Protein (%)": 12.0, "TDN (%)": 60.0,
+                "Ca (%)": 0.45, "P (%)": 0.35, "Mg (%)": 0.16,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            }
+        },
+        "Kambing Potong": {
+            "Anak (<6 bulan)": {
+                "Protein (%)": 16.0, "TDN (%)": 68.0,
+                "Ca (%)": 0.60, "P (%)": 0.40, "Mg (%)": 0.10,
+                "Fe (ppm)": 40, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Muda (6-12 bulan)": {
+                "Protein (%)": 14.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.45, "P (%)": 0.35, "Mg (%)": 0.10,
+                "Fe (ppm)": 40, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Dewasa (>12 bulan)": {
+                "Protein (%)": 12.0, "TDN (%)": 60.0,
+                "Ca (%)": 0.35, "P (%)": 0.25, "Mg (%)": 0.10,
+                "Fe (ppm)": 40, "Cu (ppm)": 8, "Zn (ppm)": 40
+            },
+            "Bunting": {
+                "Protein (%)": 14.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.50, "P (%)": 0.35, "Mg (%)": 0.12,
+                "Fe (ppm)": 50, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Penggemukan": {
+                "Protein (%)": 16.0, "TDN (%)": 70.0,
+                "Ca (%)": 0.50, "P (%)": 0.30, "Mg (%)": 0.10,
+                "Fe (ppm)": 40, "Cu (ppm)": 10, "Zn (ppm)": 40
+            }
+        },
+        "Kambing Perah": {
+            "Anak (<6 bulan)": {
+                "Protein (%)": 18.0, "TDN (%)": 70.0,
+                "Ca (%)": 0.70, "P (%)": 0.45, "Mg (%)": 0.10,
+                "Fe (ppm)": 45, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Dara (6-12 bulan)": {
+                "Protein (%)": 14.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.55, "P (%)": 0.40, "Mg (%)": 0.10,
+                "Fe (ppm)": 45, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Dara Bunting": {
+                "Protein (%)": 12.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.60, "P (%)": 0.40, "Mg (%)": 0.16,
+                "Fe (ppm)": 45, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Laktasi (Produksi Rendah)": {
+                "Protein (%)": 16.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.75, "P (%)": 0.45, "Mg (%)": 0.20,
+                "Fe (ppm)": 45, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Laktasi (Produksi Tinggi)": {
+                "Protein (%)": 18.0, "TDN (%)": 75.0,
+                "Ca (%)": 0.90, "P (%)": 0.55, "Mg (%)": 0.25,
+                "Fe (ppm)": 45, "Cu (ppm)": 10, "Zn (ppm)": 40
+            },
+            "Kering": {
+                "Protein (%)": 12.0, "TDN (%)": 60.0,
+                "Ca (%)": 0.45, "P (%)": 0.35, "Mg (%)": 0.16,
+                "Fe (ppm)": 45, "Cu (ppm)": 10, "Zn (ppm)": 40
+            }
+        },
+        "Domba Potong": {
+            "Anak (<6 bulan)": {
+                "Protein (%)": 16.0, "TDN (%)": 68.0,
+                "Ca (%)": 0.60, "P (%)": 0.40, "Mg (%)": 0.10,
+                "Fe (ppm)": 40, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Muda (6-12 bulan)": {
+                "Protein (%)": 14.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.45, "P (%)": 0.35, "Mg (%)": 0.10,
+                "Fe (ppm)": 40, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Dewasa (>12 bulan)": {
+                "Protein (%)": 12.0, "TDN (%)": 60.0,
+                "Ca (%)": 0.35, "P (%)": 0.25, "Mg (%)": 0.10,
+                "Fe (ppm)": 40, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Bunting": {
+                "Protein (%)": 14.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.50, "P (%)": 0.35, "Mg (%)": 0.12,
+                "Fe (ppm)": 50, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Penggemukan": {
+                "Protein (%)": 16.0, "TDN (%)": 70.0,
+                "Ca (%)": 0.50, "P (%)": 0.30, "Mg (%)": 0.10,
+                "Fe (ppm)": 40, "Cu (ppm)": 7, "Zn (ppm)": 35
+            }
+        },
+        "Domba Perah": {
+            "Anak (<6 bulan)": {
+                "Protein (%)": 18.0, "TDN (%)": 70.0,
+                "Ca (%)": 0.70, "P (%)": 0.45, "Mg (%)": 0.10,
+                "Fe (ppm)": 45, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Dara (6-12 bulan)": {
+                "Protein (%)": 14.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.55, "P (%)": 0.40, "Mg (%)": 0.10,
+                "Fe (ppm)": 45, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Dara Bunting": {
+                "Protein (%)": 12.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.60, "P (%)": 0.40, "Mg (%)": 0.16,
+                "Fe (ppm)": 45, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Laktasi (Produksi Rendah)": {
+                "Protein (%)": 16.0, "TDN (%)": 65.0,
+                "Ca (%)": 0.75, "P (%)": 0.45, "Mg (%)": 0.20,
+                "Fe (ppm)": 45, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Laktasi (Produksi Tinggi)": {
+                "Protein (%)": 18.0, "TDN (%)": 75.0,
+                "Ca (%)": 0.90, "P (%)": 0.55, "Mg (%)": 0.25,
+                "Fe (ppm)": 45, "Cu (ppm)": 7, "Zn (ppm)": 35
+            },
+            "Kering": {
+                "Protein (%)": 12.0, "TDN (%)": 60.0,
+                "Ca (%)": 0.45, "P (%)": 0.35, "Mg (%)": 0.16,
+                "Fe (ppm)": 45, "Cu (ppm)": 7, "Zn (ppm)": 35
+            }
+        }
     }
-
 # Function to get nutrition requirement for specific animal and category
 def get_nutrition_requirement(jenis_hewan, kategori_umur, nutrition_data):
     """Get nutrition requirements for specific animal type and age category"""
