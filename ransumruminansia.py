@@ -1588,7 +1588,7 @@ elif mode == "Mineral Supplement":
         st.subheader("Pilih Mineral Supplement")
         selected_minerals = st.multiselect(
             "Pilih mineral supplement yang tersedia:", 
-            mineral_df['Nama Pakan'].tolist()
+            mineral_df['Nama Mineral'].tolist()
         )
         
         # Analisis kebutuhan mineral
