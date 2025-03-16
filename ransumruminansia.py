@@ -1216,130 +1216,122 @@ elif mode == "Optimalisasi Otomatis":
         # Solve the linear programming problem
         result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0, None), method='highs')
 
+        # Check if optimization was successful
         if result.success:
             st.success("Optimasi berhasil!")
             if result.x is not None:
                 optimized_amounts = result.x
+                
+                # Helper function to calculate optimized data
+                def calculate_opt_data(all_available_feeds, optimized_amounts, df_pakan, mineral_df):
+                    """Helper function to calculate optimized data."""
+                    opt_data = {
+                        'Bahan Pakan': all_available_feeds,
+                        'Jumlah (kg)': optimized_amounts,
+                        'Protein (kg)': [],
+                        'TDN (kg)': [],
+                        'Ca (kg)': [],
+                        'P (kg)': [],
+                        'Mg (kg)': [],
+                        'Fe (g)': [],
+                        'Cu (g)': [],
+                        'Zn (g)': [],
+                        'Biaya (Rp)': []
+                    }
+
+                    for i, feed in enumerate(all_available_feeds):
+                        if feed in df_pakan['Nama Pakan'].values:
+                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                        else:
+                            feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                        opt_data['Protein (kg)'].append(optimized_amounts[i] * feed_data['Protein (%)'] / 100)
+                        opt_data['TDN (kg)'].append(optimized_amounts[i] * feed_data['TDN (%)'] / 100)
+                        opt_data['Ca (kg)'].append(optimized_amounts[i] * feed_data.get('Ca (%)', 0) / 100)
+                        opt_data['P (kg)'].append(optimized_amounts[i] * feed_data.get('P (%)', 0) / 100)
+                        opt_data['Mg (kg)'].append(optimized_amounts[i] * feed_data.get('Mg (%)', 0) / 100)
+                        opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
+                        opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
+                        opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
+                        opt_data['Biaya (Rp)'].append(optimized_amounts[i] * feed_data['Harga (Rp/kg)'])
+
+                    return opt_data
+
+                # Calculate the optimized data
+                opt_data = calculate_opt_data(all_available_feeds, optimized_amounts, df_pakan, mineral_df)
+                
+                # Create DataFrame from optimized data
+                df_opt = pd.DataFrame(opt_data)
+                df_opt.loc['Total'] = [
+                    'Total',
+                    sum(opt_data['Jumlah (kg)']),
+                    sum(opt_data['Protein (kg)']),
+                    sum(opt_data['TDN (kg)']),
+                    sum(opt_data['Ca (kg)']),
+                    sum(opt_data['P (kg)']),
+                    sum(opt_data['Mg (kg)']),
+                    sum(opt_data['Fe (g)']),
+                    sum(opt_data['Cu (g)']),
+                    sum(opt_data['Zn (g)']),
+                    sum(opt_data['Biaya (Rp)'])
+                ]
+
+                # Display results
+                st.dataframe(df_opt)
+
+                # Display nutrition summary
+                total_amt = sum(opt_data['Jumlah (kg)'])
+                avg_protein = sum(opt_data['Protein (kg)']) * 100 / total_amt
+                avg_tdn = sum(opt_data['TDN (kg)']) * 100 / total_amt
+                avg_ca = sum(opt_data['Ca (kg)']) * 100 / total_amt
+                avg_p = sum(opt_data['P (kg)']) * 100 / total_amt
+                avg_mg = sum(opt_data['Mg (kg)']) * 100 / total_amt
+
+                st.subheader("Kandungan Nutrisi Ransum Optimal")
+                st.write("Berikut adalah kandungan nutrisi ransum yang telah dihitung berdasarkan bahan pakan yang dipilih. "
+                         "Nilai-nilai ini mencerminkan rata-rata kandungan nutrisi seperti protein, TDN, dan mineral dalam ransum.")
+                
+                # Display nutrition metrics
+                cols = st.columns(5)
+                with cols[0]:
+                    st.metric("Protein (%)", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
+
+                with cols[1]:
+                    st.metric("TDN", f"{avg_tdn:.2f}%", f"{avg_tdn - required_tdn:.2f}%")
+
+                with cols[2]:
+                    st.metric("Kalsium (Ca)", f"{avg_ca:.2f}%", f"{avg_ca - nutrient_req.get('Ca (%)', 0):.2f}%")
+                    if avg_ca < nutrient_req.get('Ca (%)', 0):
+                        st.warning("⚠️ Kandungan Kalsium (Ca) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan yang kaya Kalsium, seperti kapur (CaCO3) atau tepung tulang.")
+
+                with cols[3]:
+                    st.metric("Fosfor (P)", f"{avg_p:.2f}%", f"{avg_p - nutrient_req.get('P (%)', 0):.2f}%")
+                    if avg_p < nutrient_req.get('P (%)', 0):
+                        st.warning("⚠️ Kandungan Fosfor (P) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan seperti tepung tulang atau mineral mix yang mengandung Fosfor.")
+
+                with cols[4]:
+                    st.metric("Magnesium (Mg)", f"{avg_mg:.2f}%", f"{avg_mg - nutrient_req.get('Mg (%)', 0):.2f}%")
+                    if avg_mg < nutrient_req.get('Mg (%)', 0):
+                        st.warning("⚠️ Kandungan Magnesium (Mg) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan seperti dolomit atau mineral mix yang mengandung Magnesium.")
+
+                # Display cost information
+                st.metric("Total Biaya", f"Rp {sum(opt_data['Biaya (Rp)']):,.0f}")
+                st.metric("Biaya per kg", f"Rp {sum(opt_data['Biaya (Rp)']) / total_amt:,.0f}")
+                
+                # Add explanation for optimal nutrient content and cost
+                st.subheader("Keterangan Hasil Kandungan Nutrisi Optimal dan Harganya")
+                st.write("""
+                **Penjelasan Kandungan Nutrisi Optimal:**
+                - Kandungan nutrisi optimal dihitung berdasarkan kebutuhan minimum nutrisi ternak yang dipilih.
+                - Hasil menunjukkan bahwa ransum yang dioptimalkan memenuhi kebutuhan protein, TDN, dan mineral dengan biaya terendah.
+                - Kandungan nutrisi seperti protein, TDN, dan mineral lainnya dihitung sebagai rata-rata dari semua bahan pakan yang digunakan.
+
+                **Penjelasan Biaya:**
+                - Total biaya dihitung berdasarkan jumlah bahan pakan yang digunakan dikalikan dengan harga per kilogram masing-masing bahan.
+                - Biaya per kilogram ransum menunjukkan efisiensi biaya untuk setiap kilogram pakan yang dihasilkan.
+                - Dengan menggunakan hasil optimasi, Anda dapat mengurangi biaya pakan tanpa mengorbankan kualitas nutrisi yang dibutuhkan ternak.
+                """)
             else:
                 st.error("Optimasi gagal atau menghasilkan data yang tidak valid. Silakan periksa kembali input dan batasan.")
-                return
-        if result.success:
-            st.success("Optimasi berhasil!")
-        else:
-            st.error("Optimasi gagal. Silakan periksa kembali input dan batasan.")
-            if result.success and result.x is not None:
-                optimized_amounts = result.x
-            else:
-                st.error("Optimasi gagal atau menghasilkan data yang tidak valid. Silakan periksa kembali input dan batasan.")
-                return
-            def calculate_opt_data(all_available_feeds, optimized_amounts, df_pakan, mineral_df):
-                """Helper function to calculate optimized data."""
-                opt_data = {
-                    'Bahan Pakan': all_available_feeds,
-                    'Jumlah (kg)': optimized_amounts,
-                    'Protein (kg)': [],
-                    'TDN (kg)': [],
-                    'Ca (kg)': [],
-                    'P (kg)': [],
-                    'Mg (kg)': [],
-                    'Fe (g)': [],
-                    'Cu (g)': [],
-                    'Zn (g)': [],
-                    'Biaya (Rp)': []
-                }
-
-                for i, feed in enumerate(all_available_feeds):
-                    if feed in df_pakan['Nama Pakan'].values:
-                        feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                    else:
-                        feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
-                    opt_data['Protein (kg)'].append(optimized_amounts[i] * feed_data['Protein (%)'] / 100)
-                    opt_data['TDN (kg)'].append(optimized_amounts[i] * feed_data['TDN (%)'] / 100)
-                    opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data.get('Fe (ppm)', 0) / 1000)
-                    opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data.get('Cu (ppm)', 0) / 1000)
-                    opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data.get('Zn (ppm)', 0) / 1000)
-                    opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
-                    opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
-                    opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
-                    opt_data['Biaya (Rp)'].append(optimized_amounts[i] * feed_data['Harga (Rp/kg)'])
-
-                return opt_data
-
-            opt_data = calculate_opt_data(all_available_feeds, optimized_amounts, df_pakan, mineral_df)
-            opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
-            opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
-            opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
-            opt_data['Biaya (Rp)'].append(optimized_amounts[i] * feed_data['Harga (Rp/kg)'])
-
-            df_opt = pd.DataFrame(opt_data)
-            df_opt.loc['Total'] = [
-                'Total',
-                sum(opt_data['Jumlah (kg)']),
-                sum(opt_data['Protein (kg)']),
-                sum(opt_data['TDN (kg)']),
-                sum(opt_data['Ca (kg)']),
-                sum(opt_data['P (kg)']),
-                sum(opt_data['Mg (kg)']),
-                sum(opt_data['Fe (g)']),
-                sum(opt_data['Cu (g)']),
-                sum(opt_data['Zn (g)']),
-                sum(opt_data['Biaya (Rp)'])
-            ]
-
-            # Tampilkan hasil
-            st.dataframe(df_opt)
-
-            # Tampilkan ringkasan nutrisi
-            total_amt = sum(opt_data['Jumlah (kg)'])
-            avg_protein = sum(opt_data['Protein (kg)']) * 100 / total_amt
-            avg_tdn = sum(opt_data['TDN (kg)']) * 100 / total_amt
-            avg_ca = sum(opt_data['Ca (kg)']) * 100 / total_amt
-            avg_p = sum(opt_data['P (kg)']) * 100 / total_amt
-            avg_mg = sum(opt_data['Mg (kg)']) * 100 / total_amt
-
-            st.subheader("Kandungan Nutrisi Ransum Optimal")
-            st.write("Berikut adalah kandungan nutrisi ransum yang telah dihitung berdasarkan bahan pakan yang dipilih. "
-                     "Nilai-nilai ini mencerminkan rata-rata kandungan nutrisi seperti protein, TDN, dan mineral dalam ransum.")
-            cols = st.columns(5)
-            with cols[0]:
-                st.metric("Protein (%)", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
-
-            with cols[1]:
-                st.metric("TDN", f"{avg_tdn:.2f}%", f"{avg_tdn - required_tdn:.2f}%")
-
-            with cols[2]:
-                st.metric("Kalsium (Ca)", f"{avg_ca:.2f}%", f"{avg_ca - nutrient_req.get('Ca (%)', 0):.2f}%")
-                if avg_ca < nutrient_req.get('Ca (%)', 0):
-                    st.warning("⚠️ Kandungan Kalsium (Ca) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan yang kaya Kalsium, seperti kapur (CaCO3) atau tepung tulang.")
-
-            with cols[3]:
-                st.metric("Fosfor (P)", f"{avg_p:.2f}%", f"{avg_p - nutrient_req.get('P (%)', 0):.2f}%")
-                if avg_p < nutrient_req.get('P (%)', 0):
-                    st.warning("⚠️ Kandungan Fosfor (P) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan seperti tepung tulang atau mineral mix yang mengandung Fosfor.")
-
-            with cols[4]:
-                st.metric("Magnesium (Mg)", f"{avg_mg:.2f}%", f"{avg_mg - nutrient_req.get('Mg (%)', 0):.2f}%")
-                if avg_mg < nutrient_req.get('Mg (%)', 0):
-                    st.warning("⚠️ Kandungan Magnesium (Mg) kurang dari kebutuhan. Pertimbangkan untuk menambahkan bahan pakan seperti dolomit atau mineral mix yang mengandung Magnesium.")
-
-            # Total biaya
-            st.metric("Total Biaya", f"Rp {sum(opt_data['Biaya (Rp)']):,.0f}")
-            st.metric("Biaya per kg", f"Rp {sum(opt_data['Biaya (Rp)']) / total_amt:,.0f}")
-            
-            # Add explanation for optimal nutrient content and cost
-            st.subheader("Keterangan Hasil Kandungan Nutrisi Optimal dan Harganya")
-            st.write("""
-            **Penjelasan Kandungan Nutrisi Optimal:**
-            - Kandungan nutrisi optimal dihitung berdasarkan kebutuhan minimum nutrisi ternak yang dipilih.
-            - Hasil menunjukkan bahwa ransum yang dioptimalkan memenuhi kebutuhan protein, TDN, dan mineral dengan biaya terendah.
-            - Kandungan nutrisi seperti protein, TDN, dan mineral lainnya dihitung sebagai rata-rata dari semua bahan pakan yang digunakan.
-
-            **Penjelasan Biaya:**
-            - Total biaya dihitung berdasarkan jumlah bahan pakan yang digunakan dikalikan dengan harga per kilogram masing-masing bahan.
-            - Biaya per kilogram ransum menunjukkan efisiensi biaya untuk setiap kilogram pakan yang dihasilkan.
-            - Dengan menggunakan hasil optimasi, Anda dapat mengurangi biaya pakan tanpa mengorbankan kualitas nutrisi yang dibutuhkan ternak.
-            """)
-
         else:
             st.error("Optimasi gagal. Silakan periksa kembali input dan batasan.")
             
@@ -1800,6 +1792,14 @@ elif mode == "Mineral Supplement":
                     
                     with col2:
                         st.metric("Fosfor (P)", f"{format_id(base_p, 3)} kg",
+                                 f"{format_id(base_p - req_p, 3)} kg")
+                        if base_p < req_p:
+                            st.warning(f"Kekurangan P: {format_id(req_p - base_p, 3)} kg")
+                        else:
+                            st.success(f"P mencukupi kebutuhan")
+                    
+                    with col3:
+                        st.metric("Magnesium (Mg)", f"{format_id(base_mg, 3)} kg",
                                  f"{format_id(base_p - req_p, 3)} kg")
                         if base_p < req_p:
                             st.warning(f"Kekurangan P: {format_id(req_p - base_p, 3)} kg")
