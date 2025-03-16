@@ -1114,6 +1114,9 @@ if mode == "Formulasi Manual":
 elif mode == "Optimalisasi Otomatis":
     st.header("Optimalisasi Ransum")
     st.write("Mengoptimalkan komposisi pakan untuk memenuhi kebutuhan nutrisi dengan biaya minimal, termasuk mineral")
+    
+    # Load mineral data before using it
+    mineral_df = load_mineral_data()
 
     # Pilih bahan pakan yang tersedia untuk optimasi
     available_feeds = st.multiselect(
