@@ -59,9 +59,14 @@ header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# Title and header
-st.title("Aplikasi Perhitungan Ransum Ruminansia")
-st.subheader("Sapi, Kambing, Domba")
+# Title and header with emojis for better visual appeal
+st.title("🐄 Aplikasi Perhitungan Ransum Ruminansia 🐐")
+st.subheader("✨ Solusi Nutrisi untuk Sapi, Kambing, dan Domba 🐑")
+st.markdown("""
+<div style="text-align: center; font-size: 16px; color: #555;">
+    🌾 **Optimalkan pakan ternak Anda dengan mudah dan efisien!** 🌟
+</div>
+""", unsafe_allow_html=True)
 
 # Function to load feed data from CSV
 @st.cache_data(ttl=3600)
@@ -1122,25 +1127,27 @@ elif mode == "Optimalisasi Otomatis":
     available_feeds = st.multiselect(
         "Pilih bahan pakan yang tersedia:", 
         df_pakan['Nama Pakan'].tolist(), 
-        default=df_pakan['Nama Pakan'].tolist()[:3]
+        default=df_pakan['Nama Pakan'].tolist()[:3],
+        key="feed_selection"  # Add unique key
     )
 
     # Pilih mineral supplement yang tersedia
     available_minerals = st.multiselect(
         "Pilih mineral supplement yang tersedia:", 
         mineral_df['Nama Pakan'].tolist(), 
-        default=mineral_df['Nama Pakan'].tolist()[:2]
+        default=mineral_df['Nama Pakan'].tolist()[:2],
+        key="mineral_selection"  # Add unique key
     )
 
     # Gabungkan bahan pakan dan mineral supplement
     all_available_feeds = available_feeds + available_minerals
 
     # Batasan jumlah pakan
-    min_amount = st.number_input("Jumlah pakan minimal (kg)", min_value=1.0, value=5.0)
-    max_amount = st.number_input("Jumlah pakan maksimal (kg)", min_value=1.0, value=10.0)
+    min_amount = st.number_input("Jumlah pakan minimal (kg)", min_value=1.0, value=5.0, key="min_amount")
+    max_amount = st.number_input("Jumlah pakan maksimal (kg)", min_value=1.0, value=10.0, key="max_amount")
 
     # Fungsi optimasi
-    if st.button("Optimasi Ransum") and all_available_feeds:
+    if st.button("Optimasi Ransum", key="optimize_button") and all_available_feeds:
         # Persiapkan data untuk optimasi
         c = []  # Biaya per kg
         A_ub = []  # Matriks ketidaksetaraan
@@ -1278,13 +1285,13 @@ elif mode == "Optimalisasi Otomatis":
                 st.metric("TDN", f"{avg_tdn:.2f}%", f"{avg_tdn - required_tdn:.2f}%")
 
             with cols[2]:
-                st.metric("Kalsium (Ca)", f"{avg_ca:.2f}%", f"{avg_ca - nutrient_req.get('Ca (%)', 0):.2f}%")
+                st.metric("Kalsium (Ca)", f"{avg_ca:.2f}%", f"{avg_ca - nutrient_req.get('Ca (%)', 0)::.2f}%")
 
             with cols[3]:
-                st.metric("Fosfor (P)", f"{avg_p:.2f}%", f"{avg_p - nutrient_req.get('P (%)', 0):.2f}%")
+                st.metric("Fosfor (P)", f"{avg_p:.2f}%", f"{avg_p - nutrient_req.get('P (%)', 0)::.2f}%")
 
             with cols[4]:
-                st.metric("Magnesium (Mg)", f"{avg_mg:.2f}%", f"{avg_mg - nutrient_req.get('Mg (%)', 0):.2f}%")
+                st.metric("Magnesium (Mg)", f"{avg_mg:.2f}%", f"{avg_mg - nutrient_req.get('Mg (%)', 0)::.2f}%")
 
             # Total biaya
             st.metric("Total Biaya", f"Rp {sum(opt_data['Biaya (Rp)']):,.0f}")
