@@ -1217,9 +1217,14 @@ elif mode == "Optimalisasi Otomatis":
         result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0, None), method='highs')
 
         if result.success:
+            st.success("Optimasi berhasil!")
+            if result.x is not None:
+                optimized_amounts = result.x
+            else:
+                st.error("Optimasi gagal atau menghasilkan data yang tidak valid. Silakan periksa kembali input dan batasan.")
+                return
         else:
             st.error("Optimasi gagal. Silakan periksa kembali input dan batasan.")
-            st.success("Optimasi berhasil!")
             if result.success and result.x is not None:
                 optimized_amounts = result.x
             else:
