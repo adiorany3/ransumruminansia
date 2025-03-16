@@ -1390,14 +1390,32 @@ elif mode == "Optimalisasi Otomatis":
             
             # Tambahkan saran dan keterangan
             st.subheader("Analisis dan Saran")
-            
-            # Penjelasan optimasi
-            st.info("""
-            ℹ️ **Tentang Hasil Optimasi**
-            
-            Formula di atas adalah hasil optimasi dengan biaya terendah yang memenuhi kebutuhan nutrisi minimal. 
-            Optimasi dilakukan dengan memperhatikan batasan protein, TDN, dan jumlah total ransum.
+
+            # Analisis hasil optimasi
+            st.write("""
+            **Hasil Analisis:**
+            - Ransum yang dihasilkan telah dioptimalkan untuk memenuhi kebutuhan nutrisi dengan biaya minimal.
+            - Kandungan nutrisi seperti protein, TDN, dan mineral telah disesuaikan dengan kebutuhan ternak berdasarkan jenis, umur, dan fase produksi.
+            - Biaya per kilogram ransum menunjukkan efisiensi yang tinggi, sehingga dapat membantu mengurangi pengeluaran pakan.
+
+            **Saran Perbaikan:**
+            - Jika hasil optimasi belum memuaskan, pertimbangkan langkah berikut:
+                1. Tambahkan lebih banyak jenis bahan pakan untuk memberikan fleksibilitas dalam optimasi.
+                2. Gunakan bahan pakan dengan kandungan protein atau TDN yang lebih tinggi jika kebutuhan nutrisi belum terpenuhi.
+                3. Perhatikan rasio hijauan dan konsentrat sesuai dengan fase produksi ternak.
+                4. Pastikan bahan pakan yang digunakan memiliki palatabilitas yang baik agar ternak mau mengonsumsinya.
+            - Jika terdapat kekurangan mineral, tambahkan mineral supplement yang sesuai untuk memenuhi kebutuhan mikro dan makro mineral.
             """)
+
+            # Rekomendasi tambahan
+            st.write("""
+            **Rekomendasi Tambahan:**
+            - Lakukan evaluasi berkala terhadap performa ternak untuk memastikan ransum yang diberikan memberikan hasil yang optimal.
+            - Simpan bahan pakan di tempat yang kering dan terlindung dari kelembaban untuk mencegah kerusakan atau kontaminasi.
+            - Jika memungkinkan, gunakan analisis laboratorium untuk memastikan kandungan nutrisi bahan pakan yang digunakan.
+            - Pertimbangkan penggunaan premix atau mineral mix untuk memastikan kebutuhan mikro mineral terpenuhi, terutama pada ternak laktasi atau penggemukan.
+            """)
+            
             
             # Saran perbaikan atau alternatif
             st.subheader("Saran Penyesuaian")
