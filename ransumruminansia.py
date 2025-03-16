@@ -1113,7 +1113,180 @@ if mode == "Formulasi Manual":
 
 elif mode == "Optimalisasi Otomatis":
     st.header("Optimalisasi Ransum")
-    st.write("Mengoptimalkan komposisi pakan untuk memenuhi kebutuhan nutrisi dengan biaya minimal")
+    st.write("Mengoptimalkan komposisi pakan untuk memenuhi kebutuhan nutrisi dengan biaya minimal, termasuk mineral")
+
+    # Pilih bahan pakan yang tersedia untuk optimasi
+    available_feeds = st.multiselect(
+        "Pilih bahan pakan yang tersedia:", 
+        df_pakan['Nama Pakan'].tolist(), 
+        default=df_pakan['Nama Pakan'].tolist()[:3]
+    )
+
+    # Pilih mineral supplement yang tersedia
+    available_minerals = st.multiselect(
+        "Pilih mineral supplement yang tersedia:", 
+        mineral_df['Nama Pakan'].tolist(), 
+        default=mineral_df['Nama Pakan'].tolist()[:2]
+    )
+
+    # Gabungkan bahan pakan dan mineral supplement
+    all_available_feeds = available_feeds + available_minerals
+
+    # Batasan jumlah pakan
+    min_amount = st.number_input("Jumlah pakan minimal (kg)", min_value=1.0, value=5.0)
+    max_amount = st.number_input("Jumlah pakan maksimal (kg)", min_value=1.0, value=10.0)
+
+    # Fungsi optimasi
+    if st.button("Optimasi Ransum") and all_available_feeds:
+        # Persiapkan data untuk optimasi
+        c = []  # Biaya per kg
+        A_ub = []  # Matriks ketidaksetaraan
+        b_ub = []  # Batas kanan ketidaksetaraan
+        A_eq = []  # Matriks kesetaraan
+        b_eq = []  # Batas kanan kesetaraan
+
+        # Biaya tiap pakan (fungsi objektif)
+        for feed in all_available_feeds:
+            if feed in df_pakan['Nama Pakan'].values:
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+            else:
+                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+            c.append(feed_data['Harga (Rp/kg)'])
+
+        # Protein minimum constraint
+        protein_constraint = []
+        for feed in all_available_feeds:
+            if feed in df_pakan['Nama Pakan'].values:
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+            else:
+                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+            protein_constraint.append(-feed_data['Protein (%)'])
+        A_ub.append(protein_constraint)
+        required_protein = nutrient_req.get('Protein (%)', 0)
+        b_ub.append(-required_protein * min_amount)
+
+        # TDN minimum constraint
+        tdn_constraint = []
+        for feed in all_available_feeds:
+            if feed in df_pakan['Nama Pakan'].values:
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+            else:
+                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+            tdn_constraint.append(-feed_data['TDN (%)'])
+        A_ub.append(tdn_constraint)
+        required_tdn = nutrient_req.get('TDN (%)', 0)
+        b_ub.append(-required_tdn * min_amount)
+
+        # Mineral constraints
+        for mineral, key in zip(['Ca (%)', 'P (%)', 'Mg (%)', 'Fe (ppm)', 'Cu (ppm)', 'Zn (ppm)'], 
+                                ['Ca (%)', 'P (%)', 'Mg (%)', 'Fe (ppm)', 'Cu (ppm)', 'Zn (ppm)']):
+            mineral_constraint = []
+            for feed in all_available_feeds:
+                if feed in df_pakan['Nama Pakan'].values:
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                else:
+                    feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                mineral_constraint.append(-feed_data.get(mineral, 0))
+            A_ub.append(mineral_constraint)
+            required_mineral = nutrient_req.get(key, 0)
+            b_ub.append(-required_mineral * min_amount if 'ppm' not in key else -required_mineral * min_amount / 1000)
+
+        # Total amount constraint
+        total_min_constraint = [-1] * len(all_available_feeds)
+        A_ub.append(total_min_constraint)
+        b_ub.append(-min_amount)
+
+        total_max_constraint = [1] * len(all_available_feeds)
+        A_ub.append(total_max_constraint)
+        b_ub.append(max_amount)
+
+        # Solve the linear programming problem
+        result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0, None), method='highs')
+
+        if result.success:
+            st.success("Optimasi berhasil!")
+
+            # Tampilkan hasil optimasi
+            optimized_amounts = result.x
+
+            # Buat dataframe untuk hasil optimasi
+            opt_data = {
+                'Bahan Pakan': all_available_feeds,
+                'Jumlah (kg)': optimized_amounts,
+                'Protein (kg)': [],
+                'TDN (kg)': [],
+                'Ca (kg)': [],
+                'P (kg)': [],
+                'Mg (kg)': [],
+                'Fe (g)': [],
+                'Cu (g)': [],
+                'Zn (g)': [],
+                'Biaya (Rp)': []
+            }
+
+            for i, feed in enumerate(all_available_feeds):
+                if feed in df_pakan['Nama Pakan'].values:
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                else:
+                    feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                opt_data['Protein (kg)'].append(optimized_amounts[i] * feed_data['Protein (%)'] / 100)
+                opt_data['TDN (kg)'].append(optimized_amounts[i] * feed_data['TDN (%)'] / 100)
+                opt_data['Ca (kg)'].append(optimized_amounts[i] * feed_data['Ca (%)'] / 100)
+                opt_data['P (kg)'].append(optimized_amounts[i] * feed_data['P (%)'] / 100)
+                opt_data['Mg (kg)'].append(optimized_amounts[i] * feed_data['Mg (%)'] / 100)
+                opt_data['Fe (g)'].append(optimized_amounts[i] * feed_data['Fe (ppm)'] / 1000)
+                opt_data['Cu (g)'].append(optimized_amounts[i] * feed_data['Cu (ppm)'] / 1000)
+                opt_data['Zn (g)'].append(optimized_amounts[i] * feed_data['Zn (ppm)'] / 1000)
+                opt_data['Biaya (Rp)'].append(optimized_amounts[i] * feed_data['Harga (Rp/kg)'])
+
+            df_opt = pd.DataFrame(opt_data)
+            df_opt.loc['Total'] = [
+                'Total',
+                sum(opt_data['Jumlah (kg)']),
+                sum(opt_data['Protein (kg)']),
+                sum(opt_data['TDN (kg)']),
+                sum(opt_data['Ca (kg)']),
+                sum(opt_data['P (kg)']),
+                sum(opt_data['Mg (kg)']),
+                sum(opt_data['Fe (g)']),
+                sum(opt_data['Cu (g)']),
+                sum(opt_data['Zn (g)']),
+                sum(opt_data['Biaya (Rp)'])
+            ]
+
+            # Tampilkan hasil
+            st.dataframe(df_opt)
+
+            # Tampilkan ringkasan nutrisi
+            total_amt = sum(opt_data['Jumlah (kg)'])
+            avg_protein = sum(opt_data['Protein (kg)']) * 100 / total_amt
+            avg_tdn = sum(opt_data['TDN (kg)']) * 100 / total_amt
+            avg_ca = sum(opt_data['Ca (kg)']) * 100 / total_amt
+            avg_p = sum(opt_data['P (kg)']) * 100 / total_amt
+            avg_mg = sum(opt_data['Mg (kg)']) * 100 / total_amt
+
+            st.subheader("Kandungan Nutrisi Ransum Optimal")
+            cols = st.columns(5)
+
+            with cols[0]:
+                st.metric("Protein", f"{avg_protein:.2f}%", f"{avg_protein - required_protein:.2f}%")
+
+            with cols[1]:
+                st.metric("TDN", f"{avg_tdn:.2f}%", f"{avg_tdn - required_tdn:.2f}%")
+
+            with cols[2]:
+                st.metric("Kalsium (Ca)", f"{avg_ca:.2f}%", f"{avg_ca - nutrient_req.get('Ca (%)', 0):.2f}%")
+
+            with cols[3]:
+                st.metric("Fosfor (P)", f"{avg_p:.2f}%", f"{avg_p - nutrient_req.get('P (%)', 0):.2f}%")
+
+            with cols[4]:
+                st.metric("Magnesium (Mg)", f"{avg_mg:.2f}%", f"{avg_mg - nutrient_req.get('Mg (%)', 0):.2f}%")
+
+            # Total biaya
+            st.metric("Total Biaya", f"Rp {sum(opt_data['Biaya (Rp)']):,.0f}")
+        else:
+            st.error("Optimasi gagal. Silakan periksa kembali input dan batasan.")
     
     # Pilih bahan pakan yang tersedia untuk optimasi
     available_feeds = st.multiselect(
