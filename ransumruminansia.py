@@ -1875,46 +1875,46 @@ elif mode == "Mineral Supplement":
                                 provides_needed = False
                                 
                                 if base_ca < req_ca and mineral_data['Ca (%)'] > 0:
-                                    ca_needed = (req_ca - base_ca) / (mineral_data['Ca (%)'] / 100)
+                                    ca_needed = max(0, (req_ca - base_ca) / (mineral_data['Ca (%)'] / 100))
                                     required_amount = max(required_amount, ca_needed)
                                     rationale.append(f"- Untuk memenuhi Ca: {ca_needed:.2f} kg")
                                     provides_needed = True
                                     
                                 if base_p < req_p and mineral_data['P (%)'] > 0:
-                                    p_needed = (req_p - base_p) / (mineral_data['P (%)'] / 100)
+                                    p_needed = max(0, (req_p - base_p) / (mineral_data['P (%)'] / 100))
                                     required_amount = max(required_amount, p_needed)
                                     rationale.append(f"- Untuk memenuhi P: {p_needed:.2f} kg")
                                     provides_needed = True
                                     
                                 if base_mg < req_mg and mineral_data['Mg (%)'] > 0:
-                                    mg_needed = (req_mg - base_mg) / (mineral_data['Mg (%)'] / 100)
+                                    mg_needed = max(0, (req_mg - base_mg) / (mineral_data['Mg (%)'] / 100))
                                     required_amount = max(required_amount, mg_needed)
                                     rationale.append(f"- Untuk memenuhi Mg: {mg_needed:.2f} kg")
                                     provides_needed = True
                                 
                                 if base_fe < req_fe and mineral_data['Fe (ppm)'] > 0:
                                     # Convert ppm to absolute amounts
-                                    fe_needed = (req_fe - base_fe) * 1000000 / mineral_data['Fe (ppm)']
+                                    fe_needed = max(0, (req_fe - base_fe) * 1000000 / mineral_data['Fe (ppm)'])
                                     fe_needed = fe_needed / 1000  # Convert to kg
                                     required_amount = max(required_amount, fe_needed)
                                     rationale.append(f"- Untuk memenuhi Fe: {fe_needed:.2f} kg")
                                     provides_needed = True
                                     
                                 if base_cu < req_cu and mineral_data['Cu (ppm)'] > 0:
-                                    cu_needed = (req_cu - base_cu) * 1000000 / mineral_data['Cu (ppm)']
+                                    cu_needed = max(0, (req_cu - base_cu) * 1000000 / mineral_data['Cu (ppm)'])
                                     cu_needed = cu_needed / 1000  # Convert to kg
                                     required_amount = max(required_amount, cu_needed)
                                     rationale.append(f"- Untuk memenuhi Cu: {cu_needed:.2f} kg")
                                     provides_needed = True
                                     
                                 if base_zn < req_zn and mineral_data['Zn (ppm)'] > 0:
-                                    zn_needed = (req_zn - base_zn) * 1000000 / mineral_data['Zn (ppm)']
+                                    zn_needed = max(0, (req_zn - base_zn) * 1000000 / mineral_data['Zn (ppm)'])
                                     zn_needed = zn_needed / 1000  # Convert to kg
                                     required_amount = max(required_amount, zn_needed)
                                     rationale.append(f"- Untuk memenuhi Zn: {zn_needed:.2f} kg")
                                     provides_needed = True
                                 
-                                if provides_needed:
+                                if provides_needed and required_amount > 0:
                                     # Calculate cost
                                     cost = required_amount * mineral_data['Harga (Rp/kg)']
                                     recommendations.append({
@@ -1923,6 +1923,21 @@ elif mode == "Mineral Supplement":
                                         'cost': cost,
                                         'rationale': rationale
                                     })
+                            
+                            # Sort recommendations by cost
+                            recommendations.sort(key=lambda x: x['cost'])
+                            
+                            # Display recommendations
+                            if recommendations:
+                                for i, rec in enumerate(recommendations):
+                                    st.write(f"**Opsi {i+1}: {rec['mineral']}**")
+                                    st.write(f"- Jumlah: {rec['amount']:.2f} kg")
+                                    st.write(f"- Biaya: Rp {rec['cost']:,.0f}")
+                                    for reason in rec['rationale']:
+                                        st.write(reason)
+                                    st.write("---")
+                            else:
+                                st.info("Tidak ada mineral supplement yang diperlukan untuk memenuhi kebutuhan.")
                             
                             # Sort by cost effectiveness
                             if recommendations:
