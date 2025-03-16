@@ -1223,6 +1223,8 @@ elif mode == "Optimalisasi Otomatis":
             else:
                 st.error("Optimasi gagal atau menghasilkan data yang tidak valid. Silakan periksa kembali input dan batasan.")
                 return
+        if result.success:
+            st.success("Optimasi berhasil!")
         else:
             st.error("Optimasi gagal. Silakan periksa kembali input dan batasan.")
             if result.success and result.x is not None:
