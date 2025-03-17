@@ -872,7 +872,21 @@ if mode == "Formulasi Manual":
         st.warning("Silakan pilih minimal satu bahan pakan.")
     
     # Show nutrient requirements
-    nutrient_req = get_nutrition_requirement(jenis_hewan, kategori_umur, nutrition_requirements)
+    # Define a placeholder function for get_nutrition_requirement
+    def get_nutrition_requirement(jenis_hewan, kategori_umur, nutrition_requirements):
+        # Replace this with actual logic to calculate nutrition requirements
+        return {
+            "Protein (%)": 12.0,
+            "TDN (%)": 65.0,
+            "Ca (%)": 0.8,
+            "P (%)": 0.4,
+            "Mg (%)": 0.2,
+            "Fe (ppm)": 50,
+            "Cu (ppm)": 10,
+            "Zn (ppm)": 30
+        }
+    
+    nutrient_req = get_nutrition_requirement("Sapi", "Dewasa", {})
     
     st.subheader("Kebutuhan Nutrisi Berdasarkan Umur")
     st.info(f"""
@@ -1110,7 +1124,28 @@ if mode == "Formulasi Manual":
                     st.write("### Rekomendasi Musiman (Musim Hujan)")
                     st.write("- Pastikan pakan disimpan dengan baik untuk mencegah kerusakan akibat kelembaban tinggi")
                     st.write("- Perhatikan risiko kontaminasi aflatoksin pada bahan pakan yang disimpan dalam kondisi lembab")
-                    st.write("- Manfaatkan ketersediaan hijauan segar yang melimpah")
+                    st.write("- Kurangi penggunaan hay dan silase")
+                else:  # Musim kemarau
+                    st.write("### Rekomendasi Musiman (Musim Kemarau)")
+                    st.write("- Buat stok pakan hijauan (hay/silase) untuk mengantisipasi kelangkaan hijauan")
+                    st.write("- Manfaatkan produk samping pertanian yang tersedia musiman")
+                    st.write("- Tingkatkan proporsi konsentrat jika hijauan berkualitas sulit diperoleh")
+                    st.write("- Pastikan tersedia air minum yang cukup untuk ternak")
+    # Define a placeholder function for load_mineral_data
+    def load_mineral_data():
+        # Replace this with actual logic to load your mineral data
+        return pd.DataFrame({
+            "Nama Pakan": ["Mineral A", "Mineral B"],
+            "Ca (%)": [10.0, 5.0],
+            "P (%)": [5.0, 2.5],
+            "Mg (%)": [1.0, 0.5],
+            "Fe (ppm)": [1000, 500],
+            "Cu (ppm)": [200, 100],
+            "Zn (ppm)": [300, 150],
+            "Harga (Rp/kg)": [10000, 8000]
+        })
+    
+    mineral_df = load_mineral_data()
                     st.write("- Kurangi penggunaan hay dan silase")
                 else:  # Musim kemarau
                     st.write("### Rekomendasi Musiman (Musim Kemarau)")
@@ -1486,6 +1521,26 @@ elif mode == "Optimalisasi Otomatis":
             include_cu = st.checkbox("Tembaga (Cu)", value=False)
             include_zn = st.checkbox("Zinc (Zn)", value=False)
         
+        # Advanced options
+        with st.expander("Opsi Lanjutan"):
+            use_ca_p_ratio = st.checkbox("Gunakan batasan rasio Ca:P", value=True)
+            if use_ca_p_ratio:
+                min_ca_p_ratio = st.slider("Rasio Ca:P minimal", 1.0, 3.0, 1.5, 0.1, 
+                                        help="Rasio Ca:P yang sehat biasanya 1.5:1 hingga 2:1")
+                max_ca_p_ratio = st.slider("Rasio Ca:P maksimal", 1.5, 4.0, 2.5, 0.1)
+                
+                if min_ca_p_ratio > max_ca_p_ratio:
+                    st.error("Rasio Ca:P minimal tidak boleh lebih besar dari rasio maksimal")
+            
+            limit_mineral_proportion = st.checkbox("Batasi proporsi mineral supplement", value=True)
+            if limit_mineral_proportion:
+                max_mineral_proportion = st.slider("Maksimal proporsi mineral supplement (%)", 1.0, 20.0, 5.0, 0.1,
+                                                help="Batasi proporsi mineral supplement dalam ransum total")
+        
+        # Warning if no mineral supplement is selected
+        if not available_minerals and include_ca and include_p and include_mg:
+            st.warning("⚠️ Anda memilih optimasi mineral tanpa menambahkan mineral supplement. Jika kebutuhan mineral tidak terpenuhi dari pakan dasar, optimasi mungkin gagal.")
+        
         # Fungsi optimasi dengan mineral
         if st.button("Optimasi Ransum dengan Mineral", key="optimize_mineral_button") and all_available_feeds:
             with st.spinner("Menghitung optimasi ransum dengan mineral..."):
@@ -1602,6 +1657,37 @@ elif mode == "Optimalisasi Otomatis":
                     required_zn = nutrient_req.get('Zn (ppm)', 0)
                     b_ub.append(-(required_zn / 10000) * min_amount)
                 
+                # Ca:P ratio constraints if enabled
+                if use_ca_p_ratio and include_ca and include_p:
+                    # Min Ca:P ratio constraint: Ca >= min_ratio * P
+                    # Transformed: Ca - min_ratio * P >= 0
+                    # Further transformed: -Ca + min_ratio * P <= 0
+                    ca_p_min_ratio_constraint = []
+                    for feed in all_available_feeds:
+                        if feed in df_pakan['Nama Pakan'].values:
+                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                        else:
+                            feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                        ca_value = feed_data['Ca (%)']
+                        p_value = feed_data['P (%)']
+                        ca_p_min_ratio_constraint.append(-ca_value + min_ca_p_ratio * p_value)
+                    A_ub.append(ca_p_min_ratio_constraint)
+                    b_ub.append(0)
+                    
+                    # Max Ca:P ratio constraint: Ca <= max_ratio * P
+                    # Transformed: Ca - max_ratio * P <= 0
+                    ca_p_max_ratio_constraint = []
+                    for feed in all_available_feeds:
+                        if feed in df_pakan['Nama Pakan'].values:
+                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                        else:
+                            feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                        ca_value = feed_data['Ca (%)']
+                        p_value = feed_data['P (%)']
+                        ca_p_max_ratio_constraint.append(ca_value - max_ca_p_ratio * p_value)
+                    A_ub.append(ca_p_max_ratio_constraint)
+                    b_ub.append(0)
+                
                 # Total amount constraint
                 total_min_constraint = [-1] * len(all_available_feeds)
                 A_ub.append(total_min_constraint)
@@ -1611,16 +1697,17 @@ elif mode == "Optimalisasi Otomatis":
                 A_ub.append(total_max_constraint)
                 b_ub.append(max_amount)
                 
-                # Minimum proportion for feed types (optional)
-                if len(available_feeds) > 0 and len(all_available_feeds) > len(available_feeds):
-                    # Ensure at least 70% comes from regular feeds, not mineral supplements
-                    feed_proportion_constraint = []
+                # Limit mineral supplement proportion if enabled
+                if limit_mineral_proportion and available_minerals:
+                    mineral_proportion_constraint = []
                     for feed in all_available_feeds:
-                        if feed in available_feeds:
-                            feed_proportion_constraint.append(-0.7)
+                        if feed in available_minerals:
+                            # For mineral supplements, coefficient is (100 - max_proportion)
+                            mineral_proportion_constraint.append((100 - max_mineral_proportion))
                         else:
-                            feed_proportion_constraint.append(0.3)
-                    A_ub.append(feed_proportion_constraint)
+                            # For regular feeds, coefficient is -max_proportion
+                            mineral_proportion_constraint.append(-max_mineral_proportion)
+                    A_ub.append(mineral_proportion_constraint)
                     b_ub.append(0)
                 
                 # Solve the linear programming problem
@@ -1769,6 +1856,10 @@ elif mode == "Optimalisasi Otomatis":
                                     value=f"{mg_amount:.2f}%",
                                     delta=f"{mg_amount - required_mg:.2f}%" 
                                 )
+                        
+                        # Display Ca:P ratio if both included
+                        if include_ca and include_p:
+                            st.info(f"**Rasio Ca:P** = {ca_amount/p_amount:.2f}:1 (Rekomendasi: {min_ca_p_ratio}:1 - {max_ca_p_ratio}:1)")
                     
                     # Display mineral micro content if included
                     if include_fe or include_cu or include_zn:
@@ -1805,6 +1896,30 @@ elif mode == "Optimalisasi Otomatis":
                                     delta=f"{zn_amount - required_zn:.2f} ppm" 
                                 )
                     
+                    # Check mineral supplement proportion
+                    mineral_amount = sum(amount for i, amount in enumerate(amounts_used) if feed_type_list[i] == "Mineral")
+                    mineral_percent = mineral_amount / total_amount * 100 if total_amount > 0 else 0
+                    
+                    if mineral_percent > 0:
+                        st.subheader("Analisis Mineral Supplement")
+                        st.metric(
+                            label="Proporsi Mineral Supplement", 
+                            value=f"{mineral_percent:.2f}%",
+                            help="Persentase mineral supplement dalam total ransum"
+                        )
+                        
+                        if mineral_percent > 5 and limit_mineral_proportion:
+                            st.warning(f"⚠️ Proporsi mineral supplement ({mineral_percent:.2f}%) relatif tinggi. " 
+                                     f"Hal ini dapat mempengaruhi palatabilitas ransum.")
+                            st.write("""
+                            **Saran:**
+                            - Pastikan pencampuran merata saat pemberian pada ternak
+                            - Pertimbangkan untuk memilih mineral dengan konsentrasi lebih tinggi untuk mengurangi proporsi
+                            - Jika memungkinkan, cari bahan pakan dengan kandungan mineral lebih tinggi
+                            """)
+                    else:
+                        st.info("ℹ️ Tidak ada mineral supplement yang terpilih dalam hasil optimasi.")
+                    
                     # Cost summary
                     st.subheader("Biaya Ransum")
                     col1, col2 = st.columns(2)
@@ -1817,10 +1932,470 @@ elif mode == "Optimalisasi Otomatis":
                     if jumlah_ternak > 1:
                         st.metric("Total Biaya untuk Semua Ternak", f"Rp {total_cost * jumlah_ternak:,.2f}")
                     
+                    # Save formula option
+                    st.subheader("Simpan Formula")
+                    formula_name = st.text_input("Nama formula:", value=f"Formula {jenis_hewan} {kategori_umur} (Mineral)")
+                    
+                    if st.button("Simpan Formula Ini"):
+                        if formula_name:
+                            success = save_formula(formula_name, feeds_used, optimized_amounts, jenis_hewan, kategori_umur)
+                            if success:
+                                st.success(f"Formula '{formula_name}' berhasil disimpan!")
+                                
+                                # Provide option to export the saved formula
+                                export_col1, export_col2 = st.columns(2)
+                                with export_col1:
+                                    if st.button("Ekspor ke CSV"):
+                                        formula_data = {
+                                            'Bahan': feeds_used,
+                                            'Jenis': feed_type_list,
+                                            'Jumlah (kg)': [optimized_amounts[feed] for feed in feeds_used],
+                                            'Persentase (%)': [optimized_amounts[feed]/total_amount*100 for feed in feeds_used]
+                                        }
+                                        formula_df = pd.DataFrame(formula_data)
+                                        csv = formula_df.to_csv(index=False)
+                                        st.download_button(
+                                            label="Download CSV",
+                                            data=csv,
+                                            file_name=f"{formula_name.replace(' ', '_')}.csv",
+                                            mime="text/csv"
+                                        )
+                            else:
+                                st.error("Gagal menyimpan formula.")
+                        else:
+                            st.warning("Harap masukkan nama untuk formula ini.")
+                    
                 else:
                     st.error(f"❌ Optimasi ransum gagal: {result.message}")
-                    st.warning("Coba ubah batasan atau tambahkan lebih banyak pilihan pakan")
+                    
+                    # More detailed error analysis
+                    st.subheader("Analisis Kegagalan Optimasi")
+                    
+                    # Calculate maximum potential for each constraint
+                    max_potential = {}
+                    
+                    # Check protein potential
+                    max_feed_protein = 0
+                    for feed in all_available_feeds:
+                        if feed in df_pakan['Nama Pakan'].values:
+                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                        else:
+                            feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                        max_feed_protein = max(max_feed_protein, feed_data['Protein (%)'])
+                    
+                    max_potential['protein'] = max_feed_protein
+                    
+                    # Check if protein requirement can theoretically be met
+                    if max_feed_protein < required_protein:
+                        st.error(f"⚠️ **Masalah Protein:** Tidak ada bahan pakan yang memenuhi kebutuhan protein minimal ({required_protein}%). "
+                               f"Protein tertinggi dari bahan yang dipilih: {max_feed_protein}%")
+                        
+                        # Find feeds with high protein content
+                        high_protein_feeds = df_pakan.sort_values(by='Protein (%)', ascending=False).head(3)
+                        st.write("**Saran:** Tambahkan bahan pakan kaya protein seperti:")
+                        for i, row in high_protein_feeds.iterrows():
+                            st.write(f"- {row['Nama Pakan']} ({row['Protein (%)']}% protein)")
+                    
+                    # Check TDN potential
+                    max_feed_tdn = 0
+                    for feed in all_available_feeds:
+                        if feed in df_pakan['Nama Pakan'].values:
+                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                        else:
+                            feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                        max_feed_tdn = max(max_feed_tdn, feed_data['TDN (%)'])
+                    
+                    max_potential['tdn'] = max_feed_tdn
+                    
+                    # Check if TDN requirement can theoretically be met
+                    if max_feed_tdn < required_tdn:
+                        st.error(f"⚠️ **Masalah TDN:** Tidak ada bahan pakan yang memenuhi kebutuhan TDN minimal ({required_tdn}%). "
+                               f"TDN tertinggi dari bahan yang dipilih: {max_feed_tdn}%")
+                        
+                        # Find feeds with high TDN content
+                        high_tdn_feeds = df_pakan.sort_values(by='TDN (%)', ascending=False).head(3)
+                        st.write("**Saran:** Tambahkan bahan pakan dengan TDN tinggi seperti:")
+                        for i, row in high_tdn_feeds.iterrows():
+                            st.write(f"- {row['Nama Pakan']} ({row['TDN (%)']}% TDN)")
+                    
+                    # Check mineral potentials
+                    if include_ca:
+                        max_feed_ca = 0
+                        for feed in all_available_feeds:
+                            if feed in df_pakan['Nama Pakan'].values:
+                                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            else:
+                                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                            max_feed_ca = max(max_feed_ca, feed_data['Ca (%)'])
+                        
+                        max_potential['ca'] = max_feed_ca
+                        
+                        if max_feed_ca < required_ca:
+                            st.error(f"⚠️ **Masalah Kalsium:** Tidak ada bahan yang memenuhi kebutuhan Ca minimal ({required_ca}%). "
+                                   f"Ca tertinggi dari bahan yang dipilih: {max_feed_ca}%")
+                            
+                            # Find supplements with high Ca content
+                            if not mineral_df.empty:
+                                high_ca_supplements = mineral_df.sort_values(by='Ca (%)', ascending=False).head(3)
+                                st.write("**Saran:** Tambahkan mineral dengan Ca tinggi seperti:")
+                                for i, row in high_ca_supplements.iterrows():
+                                    st.write(f"- {row['Nama Pakan']} ({row['Ca (%)']}% Ca)")
+                    
+                    # Check P potential
+                    if include_p:
+                        max_feed_p = 0
+                        for feed in all_available_feeds:
+                            if feed in df_pakan['Nama Pakan'].values:
+                                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            else:
+                                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                            max_feed_p = max(max_feed_p, feed_data['P (%)'])
+                        
+                        max_potential['p'] = max_feed_p
+                        
+                        if max_feed_p < required_p:
+                            st.error(f"⚠️ **Masalah Fosfor:** Tidak ada bahan yang memenuhi kebutuhan P minimal ({required_p}%). "
+                                   f"P tertinggi dari bahan yang dipilih: {max_feed_p}%")
+                            
+                            # Find supplements with high P content
+                            if not mineral_df.empty:
+                                high_p_supplements = mineral_df.sort_values(by='P (%)', ascending=False).head(3)
+                                st.write("**Saran:** Tambahkan mineral dengan P tinggi seperti:")
+                                for i, row in high_p_supplements.iterrows():
+                                    st.write(f"- {row['Nama Pakan']} ({row['P (%)']}% P)")
+                    
+                    # Check Mg potential
+                    if include_mg:
+                        max_feed_mg = 0
+                        for feed in all_available_feeds:
+                            if feed in df_pakan['Nama Pakan'].values:
+                                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            else:
+                                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                            max_feed_mg = max(max_feed_mg, feed_data['Mg (%)'])
+                        
+                        max_potential['mg'] = max_feed_mg
+                        
+                        if max_feed_mg < required_mg:
+                            st.error(f"⚠️ **Masalah Magnesium:** Tidak ada bahan yang memenuhi kebutuhan Mg minimal ({required_mg}%). "
+                                   f"Mg tertinggi dari bahan yang dipilih: {max_feed_mg}%")
+                            
+                            # Find supplements with high Mg content
+                            if not mineral_df.empty:
+                                high_mg_supplements = mineral_df.sort_values(by='Mg (%)', ascending=False).head(3)
+                                st.write("**Saran:** Tambahkan mineral dengan Mg tinggi seperti:")
+                                for i, row in high_mg_supplements.iterrows():
+                                    st.write(f"- {row['Nama Pakan']} ({row['Mg (%)']}% Mg)")
+                    
+                    # Check Fe potential if included
+                    if include_fe:
+                        max_feed_fe = 0
+                        for feed in all_available_feeds:
+                            if feed in df_pakan['Nama Pakan'].values:
+                                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            else:
+                                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                            
+                            fe_value = feed_data['Fe (ppm)'] if 'Fe (ppm)' in feed_data else 0
+                            max_feed_fe = max(max_feed_fe, fe_value)
+                        
+                        max_potential['fe'] = max_feed_fe
+                        
+                        if max_feed_fe < required_fe:
+                            st.error(f"⚠️ **Masalah Zat Besi:** Tidak ada bahan yang memenuhi kebutuhan Fe minimal ({required_fe} ppm). "
+                                   f"Fe tertinggi dari bahan yang dipilih: {max_feed_fe} ppm")
+                    
+                    # Check Cu potential if included
+                    if include_cu:
+                        max_feed_cu = 0
+                        for feed in all_available_feeds:
+                            if feed in df_pakan['Nama Pakan'].values:
+                                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            else:
+                                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                            
+                            cu_value = feed_data['Cu (ppm)'] if 'Cu (ppm)' in feed_data else 0
+                            max_feed_cu = max(max_feed_cu, cu_value)
+                        
+                        max_potential['cu'] = max_feed_cu
+                        
+                        if max_feed_cu < required_cu:
+                            st.error(f"⚠️ **Masalah Tembaga:** Tidak ada bahan yang memenuhi kebutuhan Cu minimal ({required_cu} ppm). "
+                                   f"Cu tertinggi dari bahan yang dipilih: {max_feed_cu} ppm")
+                    
+                    # Check Zn potential if included
+                    if include_zn:
+                        max_feed_zn = 0
+                        for feed in all_available_feeds:
+                            if feed in df_pakan['Nama Pakan'].values:
+                                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            else:
+                                feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
+                            
+                            zn_value = feed_data['Zn (ppm)'] if 'Zn (ppm)' in feed_data else 0
+                            max_feed_zn = max(max_feed_zn, zn_value)
+                        
+                        max_potential['zn'] = max_feed_zn
+                        
+                        if max_feed_zn < required_zn:
+                            st.error(f"⚠️ **Masalah Zinc:** Tidak ada bahan yang memenuhi kebutuhan Zn minimal ({required_zn} ppm). "
+                                   f"Zn tertinggi dari bahan yang dipilih: {max_feed_zn} ppm")
+                    
+                    st.warning("""
+                    **Kemungkinan solusi:**
+                    1. Tambahkan lebih banyak pilihan bahan pakan atau mineral
+                    2. Kurangi kebutuhan nutrisi minimal
+                    3. Ubah batasan jumlah pakan minimal/maksimal
+                    4. Jika menggunakan batasan rasio Ca:P, coba longgarkan batasan tersebut
+                    """)
 
+elif mode == "Mineral Supplement":
+    st.header("Mineral Supplement Calculator")
+    st.write("Hitung kebutuhan mineral tambahan untuk melengkapi ransum Anda")
+    
+    # Load mineral data for this section
+    mineral_df = load_mineral_data()
+    
+    # Input existing feed composition
+    st.subheader("Informasi Ransum yang Sudah Ada")
+    st.write("Masukkan informasi tentang ransum yang sudah tersedia untuk menghitung kebutuhan mineral tambahan.")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        ransum_amount = st.number_input(
+            "Total Ransum yang Ada (kg/hari)", 
+            min_value=0.1, 
+            value=5.0, 
+            step=0.1, 
+            help="Jumlah total ransum yang diberikan per hari."
+        )
+    with col2:
+        ransum_ca = st.number_input(
+            "Kandungan Ca dalam Ransum (%)", 
+            min_value=0.0, 
+            value=0.2, 
+            step=0.01, 
+            help="Persentase kalsium (Ca) dalam ransum yang ada."
+        )
+    with col3:
+        ransum_p = st.number_input(
+            "Kandungan P dalam Ransum (%)", 
+            min_value=0.0, 
+            value=0.15, 
+            step=0.01, 
+            help="Persentase fosfor (P) dalam ransum yang ada."
+        )
+
+    # Get nutrition requirement for the selected animal type and age category
+    nutrient_req = get_nutrition_requirement(jenis_hewan, kategori_umur, nutrition_requirements)
+
+    # Display a summary of the entered feed composition
+    st.write("### Ringkasan Ransum yang Ada")
+    st.write(f"- **Total Ransum:** {ransum_amount:.2f} kg/hari")
+    st.write(f"- **Kandungan Ca:** {ransum_ca:.2f}%")
+    st.write(f"- **Kandungan P:** {ransum_p:.2f}%")
+    
+    # Display mineral needs
+    st.subheader("Kebutuhan Mineral")
+    required_ca = nutrient_req.get('Ca (%)', 0)
+    required_p = nutrient_req.get('P (%)', 0)
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric(label="Ca yang Dibutuhkan", value=f"{required_ca:.2f}%", 
+                delta=f"{required_ca - ransum_ca:.2f}%" if required_ca > ransum_ca else "0.00%")
+    with col2:
+        st.metric(label="P yang Dibutuhkan", value=f"{required_p:.2f}%", 
+                delta=f"{required_p - ransum_p:.2f}%" if required_p > ransum_p else "0.00%")
+    with col3:
+        ideal_ca_p = 2.0
+        current_ca_p = ransum_ca / ransum_p if ransum_p > 0 else 0
+        st.metric(label="Rasio Ca:P", value=f"{current_ca_p:.2f}", 
+                delta=f"{current_ca_p - ideal_ca_p:.2f}" if abs(current_ca_p - ideal_ca_p) > 0.2 else "OK")
+    
+    # Defisit calculation
+    ca_deficit = max(0, (required_ca - ransum_ca) * ransum_amount / 100)  # kg of Ca needed
+    p_deficit = max(0, (required_p - ransum_p) * ransum_amount / 100)  # kg of P needed
+    
+    st.write(f"**Defisit Ca: {ca_deficit*1000:.1f} gram**")
+    st.write(f"**Defisit P: {p_deficit*1000:.1f} gram**")
+    
+    # Recommendation of supplements
+    st.subheader("Rekomendasi Mineral Supplement")
+    
+    # Select mineral supplements to use
+    selected_minerals = st.multiselect("Pilih mineral supplement yang tersedia:", 
+                                      mineral_df['Nama Pakan'].tolist(),
+                                      default=mineral_df['Nama Pakan'].tolist()[:2] if not mineral_df.empty else None)
+    
+    if selected_minerals:
+        # Create dataframe for selected minerals
+        selected_df = mineral_df[mineral_df['Nama Pakan'].isin(selected_minerals)]
+        
+        # Display selected mineral properties
+        st.write("**Kandungan mineral dalam supplement yang dipilih:**")
+        st.dataframe(selected_df[['Nama Pakan', 'Ca (%)', 'P (%)', 'Mg (%)', 'Harga (Rp/kg)']])
+        
+        # Simple calculation for required amount of each supplement
+        st.write("**Perkiraan jumlah mineral yang diperlukan jika digunakan sendiri:**")
+        
+        for i, row in selected_df.iterrows():
+            if ca_deficit > 0 and row['Ca (%)'] > 0:
+                ca_amount = ca_deficit * 100 / row['Ca (%)']  # kg of supplement needed
+                st.write(f"- {row['Nama Pakan']} untuk Ca: **{ca_amount*1000:.1f} gram** (Rp {ca_amount*row['Harga (Rp/kg)']:.0f})")
+            
+            if p_deficit > 0 and row['P (%)'] > 0:
+                p_amount = p_deficit * 100 / row['P (%)']  # kg of supplement needed
+                st.write(f"- {row['Nama Pakan']} untuk P: **{p_amount*1000:.1f} gram** (Rp {p_amount*row['Harga (Rp/kg)']:.0f})")
+        
+        # Advanced calculation with mixing multiple minerals
+        if len(selected_minerals) > 1 and ca_deficit > 0 and p_deficit > 0:
+            st.subheader("Optimasi Campuran Mineral")
+            
+            try:
+                # Setup optimization problem
+                c = []  # Cost coefficients
+                A = []  # Constraint coefficients
+                b = []  # Constraint right-hand sides
+                
+                # Add cost coefficients (objective to minimize)
+                for i, row in selected_df.iterrows():
+                    c.append(row['Harga (Rp/kg)'])
+                
+                # Calcium constraint (>= ca_deficit)
+                ca_constraint = []
+                for i, row in selected_df.iterrows():
+                    ca_constraint.append(row['Ca (%)'] / 100)  # Convert % to actual amount
+                A.append(ca_constraint)
+                b.append(ca_deficit)
+                
+                # Phosphorus constraint (>= p_deficit)
+                p_constraint = []
+                for i, row in selected_df.iterrows():
+                    p_constraint.append(row['P (%)'] / 100)  # Convert % to actual amount
+                A.append(p_constraint)
+                b.append(p_deficit)
+                
+                # Solve the linear programming problem
+                result = linprog(c, A_eq=A, b_eq=b, method='highs', bounds=(0, None))
+                
+                if result.success:
+                    st.success("✅ Optimasi campuran mineral berhasil!")
+                    
+                    # Create table of results
+                    mineral_mix = []
+                    amounts = []
+                    costs = []
+                    ca_content = []
+                    p_content = []
+                    
+                    total_cost = 0
+                    total_amount = 0
+                    
+                    for i, (mineral, amount) in enumerate(zip(selected_df['Nama Pakan'], result.x)):
+                        if amount > 0.001:  # Only show non-zero amounts
+                            mineral_mix.append(mineral)
+                            amounts.append(amount)
+                            cost = amount * selected_df.iloc[i]['Harga (Rp/kg)']
+                            costs.append(cost)
+                            ca_content.append(amount * selected_df.iloc[i]['Ca (%)'] / 100)
+                            p_content.append(amount * selected_df.iloc[i]['P (%)'] / 100)
+                            total_cost += cost
+                            total_amount += amount
+                    
+                    # Display results table
+                    result_df = pd.DataFrame({
+                        'Mineral': mineral_mix,
+                        'Jumlah (gram)': [a*1000 for a in amounts],
+                        'Ca (gram)': [c*1000 for c in ca_content],
+                        'P (gram)': [p*1000 for p in p_content],
+                        'Biaya (Rp)': costs
+                    })
+                    
+                    # Add total row
+                    result_df.loc['Total'] = [
+                        'Total',
+                        total_amount*1000,
+                        sum(ca_content)*1000,
+                        sum(p_content)*1000,
+                        total_cost
+                    ]
+                    
+                    st.dataframe(result_df)
+                    
+                    # Display mixing instructions
+                    st.subheader("Instruksi Pencampuran")
+                    st.write(f"1. Siapkan wadah untuk mencampur mineral (total {total_amount*1000:.1f} gram)")
+                    
+                    for i, (mineral, amount) in enumerate(zip(mineral_mix, amounts)):
+                        st.write(f"{i+2}. Tambahkan {amount*1000:.1f} gram {mineral}")
+                    
+                    st.write(f"{len(mineral_mix)+2}. Aduk hingga rata")
+                    st.write(f"{len(mineral_mix)+3}. Campurkan dengan ransum harian ({ransum_amount} kg)")
+                    
+                    # Practical feeding recommendations
+                    st.info("""
+                    **Tips pemberian mineral:**
+                    - Campurkan mineral ke dalam ransum konsentrat, jangan diberikan langsung
+                    - Pastikan pencampuran merata untuk menghindari penolakan pakan
+                    - Jika mineral berbentuk bubuk halus, dapat dicampurkan dengan air atau molases
+                    - Berikan akses ke air minum yang cukup dan bersih
+                    """)
+                    
+                else:
+                    st.error("❌ Tidak dapat menemukan kombinasi mineral yang optimal")
+                    st.warning("Coba pilih mineral supplement dengan kandungan Ca dan P yang lebih tinggi")
+            
+            except Exception as e:
+                st.error(f"Error dalam perhitungan: {e}")
+                st.warning("Pastikan mineral yang dipilih memiliki kandungan Ca dan P yang mencukupi")
+    
+    else:
+        st.warning("Silakan pilih minimal satu mineral supplement untuk mendapatkan rekomendasi")
+    
+    # Educational information about minerals
+    with st.expander("Informasi Mineral untuk Ruminansia"):
+        st.write("""
+        ### Peran Mineral pada Ruminansia
+        
+        #### Kalsium (Ca)
+        - Pembentukan dan pemeliharaan tulang dan gigi
+        - Koagulasi darah dan transmisi impuls saraf
+        - Kontraksi otot
+        - Produksi susu (terutama pada ternak perah)
+        
+        #### Fosfor (P)
+        - Pembentukan tulang dan gigi
+        - Metabolisme energi (ATP)
+        - Pembentukan membran sel
+        - Sintesis protein dan metabolisme asam nukleat
+        
+        #### Magnesium (Mg)
+        - Aktivasi enzim
+        - Metabolisme karbohidrat dan lemak
+        - Transmisi impuls saraf
+        - Pencegahan tetani rumput (grass tetany)
+        
+        #### Tanda-tanda Defisiensi
+        
+        **Defisiensi Ca:**
+        - Pertumbuhan lambat pada hewan muda
+        - Tulang lemah atau patah
+        - Milk fever pada sapi perah
+        - Pada kasus parah: tetani dan kekejangan
+        
+        **Defisiensi P:**
+        - Nafsu makan berkurang
+        - Pertumbuhan terhambat
+        - Produksi susu rendah
+        - Pica (memakan benda asing)
+        - Kinerja reproduksi menurun
+        
+        **Defisiensi Mg:**
+        - Tetani rumput (terutama pada ternak yang merumput di padang rumput muda yang tumbuh cepat)
+        - Kehilangan koordinasi
+        - Kejang
+        """)
 elif mode == "Mineral Supplement":
     st.header("Perhitungan Mineral Supplement")
     
@@ -2085,7 +2660,11 @@ elif mode == "Mineral Supplement":
             if not base_feeds:
                 st.error("Silakan pilih minimal satu bahan pakan untuk ransum dasar.")
             else:
-                # Hitung total mineral dalam ransum dasar
+                        # Define a placeholder function for format_id
+                        def format_id(value, decimals):
+                            return f"{value:.{decimals}f}"
+                        
+                        st.metric("Kalsium (Ca)", f"{format_id(base_ca, 3)} kg", 
                 total_amount = sum(base_feed_amounts.values())
                 
                 if total_amount <= 0:
