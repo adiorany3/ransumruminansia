@@ -2151,16 +2151,42 @@ elif mode == "Mineral Supplement":
     
     # Input existing feed composition
     st.subheader("Informasi Ransum yang Sudah Ada")
-    
-    col1, col2 = st.columns(2)
+    st.write("Masukkan informasi tentang ransum yang sudah tersedia untuk menghitung kebutuhan mineral tambahan.")
+
+    col1, col2, col3 = st.columns(3)
     with col1:
-        ransum_amount = st.number_input("Total ransum yang ada (kg/hari)", min_value=0.1, value=5.0, step=0.1)
+        ransum_amount = st.number_input(
+            "Total Ransum yang Ada (kg/hari)", 
+            min_value=0.1, 
+            value=5.0, 
+            step=0.1, 
+            help="Jumlah total ransum yang diberikan per hari."
+        )
     with col2:
-        ransum_ca = st.number_input("Kandungan Ca dalam ransum (%)", min_value=0.0, value=0.2, step=0.01)
-        ransum_p = st.number_input("Kandungan P dalam ransum (%)", min_value=0.0, value=0.15, step=0.01)
-    
+        ransum_ca = st.number_input(
+            "Kandungan Ca dalam Ransum (%)", 
+            min_value=0.0, 
+            value=0.2, 
+            step=0.01, 
+            help="Persentase kalsium (Ca) dalam ransum yang ada."
+        )
+    with col3:
+        ransum_p = st.number_input(
+            "Kandungan P dalam Ransum (%)", 
+            min_value=0.0, 
+            value=0.15, 
+            step=0.01, 
+            help="Persentase fosfor (P) dalam ransum yang ada."
+        )
+
     # Get nutrition requirement for the selected animal type and age category
     nutrient_req = get_nutrition_requirement(jenis_hewan, kategori_umur, nutrition_requirements)
+
+    # Display a summary of the entered feed composition
+    st.write("### Ringkasan Ransum yang Ada")
+    st.write(f"- **Total Ransum:** {ransum_amount:.2f} kg/hari")
+    st.write(f"- **Kandungan Ca:** {ransum_ca:.2f}%")
+    st.write(f"- **Kandungan P:** {ransum_p:.2f}%")
     
     # Display mineral needs
     st.subheader("Kebutuhan Mineral")
