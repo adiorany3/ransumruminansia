@@ -1124,6 +1124,13 @@ if mode == "Formulasi Manual":
                     st.write("### Rekomendasi Musiman (Musim Hujan)")
                     st.write("- Pastikan pakan disimpan dengan baik untuk mencegah kerusakan akibat kelembaban tinggi")
                     st.write("- Perhatikan risiko kontaminasi aflatoksin pada bahan pakan yang disimpan dalam kondisi lembab")
+                    st.write("- Kurangi penggunaan hay dan silase")
+                else:  # Musim kemarau
+                    st.write("### Rekomendasi Musiman (Musim Kemarau)")
+                    st.write("- Buat stok pakan hijauan (hay/silase) untuk mengantisipasi kelangkaan hijauan")
+                    st.write("- Manfaatkan produk samping pertanian yang tersedia musiman")
+                    st.write("- Tingkatkan proporsi konsentrat jika hijauan berkualitas sulit diperoleh")
+                    st.write("- Pastikan tersedia air minum yang cukup untuk ternak")
     # Define a placeholder function for load_mineral_data
     def load_mineral_data():
         # Replace this with actual logic to load your mineral data
