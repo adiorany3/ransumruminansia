@@ -1131,8 +1131,312 @@ elif mode == "Optimalisasi Otomatis":
     
     with opt_tabs[0]:
         st.subheader("Optimasi Standar (Protein dan TDN)")
-        # [Existing optimization code here]
+        st.write("Optimasi ransum untuk memenuhi kebutuhan protein dan TDN dengan biaya minimal")
         
+        col1, col2 = st.columns(2)
+        with col1:
+            # Pilih bahan pakan yang tersedia untuk optimasi
+            available_feeds = st.multiselect(
+                "Pilih bahan pakan yang tersedia:", 
+                df_pakan['Nama Pakan'].tolist(), 
+                default=df_pakan['Nama Pakan'].tolist()[:3],
+                key="standard_feed_selection"
+            )
+        
+        with col2:
+            # Batasan jumlah pakan
+            min_amount = st.number_input("Jumlah pakan minimal (kg)", min_value=1.0, value=5.0, key="std_min_amount")
+            max_amount = st.number_input("Jumlah pakan maksimal (kg)", min_value=1.0, value=10.0, key="std_max_amount", help="Batas maksimum jumlah total pakan")
+        
+        # Batasan tambahan untuk proporsi hijauan-konsentrat
+        with st.expander("Batasan proporsi hijauan-konsentrat"):
+            use_ratio_constraint = st.checkbox("Aktifkan batasan proporsi", value=False)
+            
+            if use_ratio_constraint and 'Kategori' in df_pakan.columns:
+                col1, col2 = st.columns(2)
+                with col1:
+                    min_hijauan = st.slider("Minimum proporsi hijauan (%)", 0, 100, 40)
+                with col2:
+                    min_konsentrat = st.slider("Minimum proporsi konsentrat (%)", 0, 100, 20)
+                
+                if min_hijauan + min_konsentrat > 100:
+                    st.error("Total minimum proporsi melebihi 100%. Harap kurangi salah satu nilai.")
+        
+        # Fungsi optimasi
+        if st.button("Optimasi Ransum", key="optimize_standard_button") and available_feeds:
+            with st.spinner("Menghitung optimasi ransum..."):
+                # Persiapkan data untuk optimasi
+                c = []  # Biaya per kg
+                A_ub = []  # Matriks ketidaksetaraan
+                b_ub = []  # Batas kanan ketidaksetaraan
+                
+                # Biaya tiap pakan (fungsi objektif)
+                for feed in available_feeds:
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    c.append(feed_data['Harga (Rp/kg)'])
+                
+                # Protein minimum constraint
+                protein_constraint = []
+                for feed in available_feeds:
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    protein_constraint.append(-feed_data['Protein (%)'])
+                A_ub.append(protein_constraint)
+                required_protein = nutrient_req.get('Protein (%)', 0)
+                b_ub.append(-required_protein * min_amount)
+                
+                # TDN minimum constraint
+                tdn_constraint = []
+                for feed in available_feeds:
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    tdn_constraint.append(-feed_data['TDN (%)'])
+                A_ub.append(tdn_constraint)
+                required_tdn = nutrient_req.get('TDN (%)', 0)
+                b_ub.append(-required_tdn * min_amount)
+                
+                # Tambahkan constraint untuk proporsi hijauan-konsentrat jika diaktifkan
+                if use_ratio_constraint and 'Kategori' in df_pakan.columns:
+                    # Hijauan constraint (minimal min_hijauan%)
+                    if min_hijauan > 0:
+                        hijauan_constraint = []
+                        for feed in available_feeds:
+                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            if feed_data['Kategori'] == 'Hijauan':
+                                hijauan_constraint.append(-1 + min_hijauan/100)
+                            else:
+                                hijauan_constraint.append(min_hijauan/100)
+                        A_ub.append(hijauan_constraint)
+                        b_ub.append(0)
+                    
+                    # Konsentrat constraint (minimal min_konsentrat%)
+                    if min_konsentrat > 0:
+                        konsentrat_constraint = []
+                        for feed in available_feeds:
+                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                            if feed_data['Kategori'] == 'Konsentrat':
+                                konsentrat_constraint.append(-1 + min_konsentrat/100)
+                            else:
+                                konsentrat_constraint.append(min_konsentrat/100)
+                        A_ub.append(konsentrat_constraint)
+                        b_ub.append(0)
+                
+                # Total amount constraint
+                total_min_constraint = [-1] * len(available_feeds)
+                A_ub.append(total_min_constraint)
+                b_ub.append(-min_amount)
+                
+                total_max_constraint = [1] * len(available_feeds)
+                A_ub.append(total_max_constraint)
+                b_ub.append(max_amount)
+                
+                # Solve the linear programming problem
+                result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0, None), method='highs')
+                
+                # Process optimization results
+                if result.success:
+                    st.success("✅ Optimasi ransum berhasil!")
+                    
+                    # Create dictionary of feed amounts
+                    optimized_amounts = {}
+                    for i, feed in enumerate(available_feeds):
+                        if result.x[i] > 0.001:  # Only show feeds with non-zero amounts
+                            optimized_amounts[feed] = result.x[i]
+                    
+                    # Display results
+                    st.subheader("Hasil Optimasi Ransum")
+                    
+                    # Prepare data for display
+                    feeds_used = []
+                    amounts_used = []
+                    feed_type_list = []
+                    nutrition_data = {}
+                    
+                    # Initialize nutrition columns
+                    nutrition_columns = ['Protein (%)', 'TDN (%)']
+                    for column in nutrition_columns:
+                        nutrition_data[column] = []
+                    
+                    nutrition_data['Harga (Rp/kg)'] = []
+                    total_cost = 0
+                    total_amount = 0
+                    
+                    # Collect data for each feed in the optimal solution
+                    for feed, amount in optimized_amounts.items():
+                        feeds_used.append(feed)
+                        amounts_used.append(amount)
+                        total_amount += amount
+                        
+                        # Get feed data
+                        feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                        
+                        # Get feed type if available
+                        if 'Kategori' in feed_data:
+                            feed_type_list.append(feed_data['Kategori'])
+                        else:
+                            feed_type_list.append("Tidak diketahui")
+                        
+                        # Collect nutrition data
+                        for column in nutrition_columns:
+                            nutrition_data[column].append(feed_data[column])
+                        
+                        # Calculate cost
+                        feed_cost = feed_data['Harga (Rp/kg)']
+                        nutrition_data['Harga (Rp/kg)'].append(feed_cost)
+                        total_cost += amount * feed_cost
+                    
+                    # Create dataframe for display
+                    result_data = {
+                        'Bahan': feeds_used,
+                        'Kategori': feed_type_list,
+                        'Jumlah (kg)': amounts_used,
+                        'Persentase (%)': [amount/total_amount*100 for amount in amounts_used]
+                    }
+                    
+                    # Add nutrition columns
+                    for column in nutrition_columns:
+                        result_data[column] = nutrition_data[column]
+                    
+                    # Add cost column
+                    result_data['Harga (Rp/kg)'] = nutrition_data['Harga (Rp/kg)']
+                    result_data['Biaya (Rp)'] = [amounts_used[i] * nutrition_data['Harga (Rp/kg)'][i] for i in range(len(feeds_used))]
+                    
+                    df_result = pd.DataFrame(result_data)
+                    st.dataframe(df_result)
+                    
+                    # Calculate and display total nutrition content
+                    st.subheader("Kandungan Nutrisi Ransum")
+                    
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        # Calculate protein percentage
+                        protein_amount = sum(df_result['Jumlah (kg)'] * df_result['Protein (%)']) / total_amount
+                        st.metric(
+                            label="Protein Ransum", 
+                            value=f"{protein_amount:.2f}%",
+                            delta=f"{protein_amount - required_protein:.2f}%" 
+                        )
+                        
+                    with col2:
+                        # Calculate TDN percentage
+                        tdn_amount = sum(df_result['Jumlah (kg)'] * df_result['TDN (%)']) / total_amount
+                        st.metric(
+                            label="TDN Ransum", 
+                            value=f"{tdn_amount:.2f}%",
+                            delta=f"{tdn_amount - required_tdn:.2f}%" 
+                        )
+                    
+                    # Show proporsi hijauan-konsentrat if available
+                    if 'Kategori' in df_pakan.columns:
+                        hijauan_amount = sum(amount for i, amount in enumerate(amounts_used) if feed_type_list[i] == 'Hijauan')
+                        konsentrat_amount = sum(amount for i, amount in enumerate(amounts_used) if feed_type_list[i] == 'Konsentrat')
+                        
+                        hijauan_percent = hijauan_amount / total_amount * 100 if total_amount > 0 else 0
+                        konsentrat_percent = konsentrat_amount / total_amount * 100 if total_amount > 0 else 0
+                        
+                        st.subheader("Proporsi Hijauan dan Konsentrat")
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.metric("Hijauan", f"{hijauan_percent:.1f}%")
+                        with col2:
+                            st.metric("Konsentrat", f"{konsentrat_percent:.1f}%")
+                        
+                        # Chart for visualizing proportions
+                        chart_data = pd.DataFrame({
+                            'Kategori': ['Hijauan', 'Konsentrat'],
+                            'Persentase': [hijauan_percent, konsentrat_percent]
+                        })
+                        
+                        chart = alt.Chart(chart_data).mark_bar().encode(
+                            x='Kategori',
+                            y='Persentase',
+                            color=alt.Color('Kategori', scale=alt.Scale(domain=['Hijauan', 'Konsentrat'], 
+                                                                    range=['#4CAF50', '#FFC107']))
+                        ).properties(
+                            width=400,
+                            height=300,
+                            title='Proporsi Hijauan vs Konsentrat'
+                        )
+                        
+                        st.altair_chart(chart)
+                    
+                    # Cost summary
+                    st.subheader("Biaya Ransum")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("Biaya per kg", f"Rp {total_cost/total_amount:,.2f}")
+                    with col2:
+                        st.metric("Total Biaya", f"Rp {total_cost:,.2f}")
+                    
+                    # Total for all animals
+                    if jumlah_ternak > 1:
+                        st.metric("Total Biaya untuk Semua Ternak", f"Rp {total_cost * jumlah_ternak:,.2f}")
+                    
+                    # Charts for visualization
+                    st.subheader("Visualisasi Komposisi Ransum")
+                    
+                    # Pie chart for feed composition
+                    composition_pie_data = pd.DataFrame({
+                        'Bahan': feeds_used,
+                        'Persentase': [amount/total_amount*100 for amount in amounts_used]
+                    })
+                    
+                    composition_pie = alt.Chart(composition_pie_data).mark_arc().encode(
+                        theta=alt.Theta(field="Persentase", type="quantitative"),
+                        color=alt.Color(field="Bahan", type="nominal"),
+                        tooltip=['Bahan', 'Persentase']
+                    ).properties(
+                        width=350,
+                        height=350,
+                        title='Komposisi Ransum (%)'
+                    )
+                    
+                    # Bar chart for cost breakdown
+                    cost_bar_data = pd.DataFrame({
+                        'Bahan': feeds_used,
+                        'Biaya (Rp)': [amounts_used[i] * nutrition_data['Harga (Rp/kg)'][i] for i in range(len(feeds_used))]
+                    })
+                    
+                    cost_bar = alt.Chart(cost_bar_data).mark_bar().encode(
+                        x=alt.X('Bahan', sort='-y'),
+                        y=alt.Y('Biaya (Rp)'),
+                        color='Bahan',
+                        tooltip=['Bahan', 'Biaya (Rp)']
+                    ).properties(
+                        width=350,
+                        height=350,
+                        title='Biaya per Bahan Pakan'
+                    )
+                    
+                    # Display charts side by side
+                    charts = alt.hconcat(composition_pie, cost_bar)
+                    st.altair_chart(charts, use_container_width=True)
+                    
+                    # Save formula option
+                    st.subheader("Simpan Formula")
+                    formula_name = st.text_input("Nama formula:", value=f"Formula {jenis_hewan} {kategori_umur}")
+                    
+                    if st.button("Simpan Formula Ini"):
+                        if formula_name:
+                            success = save_formula(formula_name, feeds_used, optimized_amounts, jenis_hewan, kategori_umur)
+                            if success:
+                                st.success(f"Formula '{formula_name}' berhasil disimpan!")
+                            else:
+                                st.error("Gagal menyimpan formula.")
+                        else:
+                            st.warning("Harap masukkan nama untuk formula ini.")
+                    
+                else:
+                    st.error(f"❌ Optimasi ransum gagal: {result.message}")
+                    st.warning("""
+                    Beberapa kemungkinan penyebab kegagalan:
+                    1. Batasan yang ditentukan terlalu ketat
+                    2. Bahan pakan yang dipilih tidak dapat memenuhi kebutuhan nutrisi minimal
+                    3. Batasan jumlah pakan tidak realistis
+                    
+                    Coba ubah batasan atau tambahkan lebih banyak pilihan pakan.
+                    """)
+
     with opt_tabs[1]:
         st.subheader("Optimasi dengan Mineral")
         st.write("Optimasi ransum dengan mempertimbangkan kebutuhan mineral makro dan mikro")
@@ -1868,7 +2172,7 @@ elif mode == "Mineral Supplement":
                             st.success(f"Zn mencukupi kebutuhan")
                     
                     # Rekomendasi premix jika ada kekurangan mikro mineral
-                    if base_ca < req_ca or base_p < req_p or base_mg < req_mg or base_fe < req_fe or base_cu < req_cu or base_zn < req_zn:
+                    if base_ca < req_ca atau base_p < req_p atau base_mg < req_mg atau base_fe < req_fe atau base_cu < req_cu atau base_zn < req_zn:
                         st.subheader("Rekomendasi Mineral Supplement")
                         
                         # Tambahkan penjelasan mengenai pentingnya mineral
