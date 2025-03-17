@@ -1438,6 +1438,7 @@ elif mode == "Optimalisasi Otomatis":
                     """)
 
     with opt_tabs[1]:
+        st.write("Menu ini disembunyikan sementara.")
         st.subheader("Optimasi dengan Mineral")
         st.write("Optimasi ransum dengan mempertimbangkan kebutuhan mineral makro dan mikro")
         
