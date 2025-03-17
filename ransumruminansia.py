@@ -2172,7 +2172,7 @@ elif mode == "Mineral Supplement":
                             st.success(f"Zn mencukupi kebutuhan")
                     
                     # Rekomendasi premix jika ada kekurangan mikro mineral
-                    if base_ca < req_ca atau base_p < req_p atau base_mg < req_mg atau base_fe < req_fe atau base_cu < req_cu atau base_zn < req_zn:
+                    if base_ca < req_ca or base_p < req_p or base_mg < req_mg or base_fe < req_fe or base_cu < req_cu or base_zn < req_zn:
                         st.subheader("Rekomendasi Mineral Supplement")
                         
                         # Tambahkan penjelasan mengenai pentingnya mineral
