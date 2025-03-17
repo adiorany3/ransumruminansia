@@ -1635,14 +1635,20 @@ elif mode == "Optimalisasi Otomatis":
                     A_ub.append(feed_proportion_constraint)
                     b_ub.append(0)
                 
-                # Solve the linear programming problem
                 # Validate dimensions of c, A_ub, and b_ub
                 if len(A_ub) != len(b_ub):
                     st.error("The number of rows in A_ub must match the length of b_ub.")
                 elif len(A_ub[0]) != len(c):
                     st.error("The number of columns in A_ub must match the length of c.")
                 else:
-                    result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None) for _ in c], method='highs')
+                    try:
+                        result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None) for _ in c], method='highs')
+                        if result.success:
+                            st.success("Optimization successful!")
+                        else:
+                            st.error(f"Optimization failed: {result.message}")
+                    except Exception as e:
+                        st.error(f"An error occurred during optimization: {e}")
                 
                 # Process optimization results
                 if result.success:
