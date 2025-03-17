@@ -907,9 +907,6 @@ if mode == "Formulasi Manual":
             if total_amount <= 0:
                 st.error("Total jumlah pakan harus lebih dari 0 kg.")
             else:
-                st.success("Jumlah pakan valid.")
-                st.error("Total jumlah pakan harus lebih dari 0 kg.")
-            else:
                 # Initialize avg_protein and avg_tdn to avoid undefined variable errors
                 avg_protein = 0
                 avg_tdn = 0
@@ -1129,7 +1126,6 @@ if mode == "Formulasi Manual":
                     st.write("- Perhatikan risiko kontaminasi aflatoksin pada bahan pakan yang disimpan dalam kondisi lembab")
                     st.write("- Kurangi penggunaan hay dan silase")
                 else:  # Musim kemarau
-                    pass  # Placeholder to avoid syntax errors
                     st.write("### Rekomendasi Musiman (Musim Kemarau)")
                     st.write("- Buat stok pakan hijauan (hay/silase) untuk mengantisipasi kelangkaan hijauan")
                     st.write("- Manfaatkan produk samping pertanian yang tersedia musiman")
@@ -1150,12 +1146,6 @@ if mode == "Formulasi Manual":
         })
     
     mineral_df = load_mineral_data()
-                else:  # Musim kemarau
-                    st.write("### Rekomendasi Musiman (Musim Kemarau)")
-                    st.write("- Buat stok pakan hijauan (hay/silase) untuk mengantisipasi kelangkaan hijauan")
-                    st.write("- Manfaatkan produk samping pertanian yang tersedia musiman")
-                    st.write("- Tingkatkan proporsi konsentrat jika hijauan berkualitas sulit diperoleh")
-                    st.write("- Pastikan tersedia air minum yang cukup untuk ternak")
 
 elif mode == "Optimalisasi Otomatis":
     st.header("Optimalisasi Ransum")
@@ -2659,19 +2649,23 @@ elif mode == "Mineral Supplement":
         )
         
         # Analisis kebutuhan mineral
+        # Analisis kebutuhan mineral
         if st.button("Analisis Mineral"):
             if not base_feeds:
                 st.error("Silakan pilih minimal satu bahan pakan untuk ransum dasar.")
             else:
-                        # Define a placeholder function for format_id
-                        def format_id(value, decimals):
-                            return f"{value:.{decimals}f}"
-                        
-                        # Ensure base_ca is defined before using it
-                        total_amount = sum(base_feed_amounts.values())
-                        base_ca = sum(base_feed_amounts[feed] * base_feed_data[feed]['ca'] / 100 for feed in base_feed_amounts)
-                        
-                        st.metric("Kalsium (Ca)", f"{format_id(base_ca, 3)} kg", 
+                # Define a placeholder function for format_id
+                def format_id(value, decimals):
+                    return f"{value:.{decimals}f}"
+                
+                # Ensure base_ca is defined before using it
+                total_amount = sum(base_feed_amounts.values())
+                base_ca = sum(base_feed_amounts[feed] * base_feed_data[feed]['ca'] / 100 for feed in base_feed_amounts)
+                
+                st.metric("Kalsium (Ca)", f"{format_id(base_ca, 3)} kg", 
+                         f"{format_id(base_ca - req_ca, 3)} kg")
+                
+                # This line should be at the same indentation level as the function and metric above
                 total_amount = sum(base_feed_amounts.values())
                 
                 if total_amount <= 0:
@@ -2811,6 +2805,7 @@ elif mode == "Mineral Supplement":
                                         st.write("Bahan pakan kaya protein:")
                                         for i, row in protein_feeds.iterrows():
                                             st.write(f"- {row['Nama Pakan']}: {row['Protein (%)']}% protein, Rp{row['Harga (Rp/kg)']:,.0f}/kg")
+                                        
                                         
                                         st.write("""
                                         **Tips:**
