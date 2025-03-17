@@ -1636,7 +1636,13 @@ elif mode == "Optimalisasi Otomatis":
                     b_ub.append(0)
                 
                 # Solve the linear programming problem
-                result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None) for _ in c], method='highs')
+                # Validate dimensions of c, A_ub, and b_ub
+                if len(A_ub) != len(b_ub):
+                    st.error("The number of rows in A_ub must match the length of b_ub.")
+                elif len(A_ub[0]) != len(c):
+                    st.error("The number of columns in A_ub must match the length of c.")
+                else:
+                    result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None) for _ in c], method='highs')
                 
                 # Process optimization results
                 if result.success:
