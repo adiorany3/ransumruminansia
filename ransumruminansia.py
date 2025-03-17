@@ -1636,7 +1636,7 @@ elif mode == "Optimalisasi Otomatis":
                     b_ub.append(0)
                 
                 # Solve the linear programming problem
-                result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0, None), method='highs')
+                result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None) for _ in c], method='highs')
                 
                 # Process optimization results
                 if result.success:
