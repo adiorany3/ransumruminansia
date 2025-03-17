@@ -2172,7 +2172,7 @@ elif mode == "Mineral Supplement":
                             st.success(f"Zn mencukupi kebutuhan")
                     
                     # Rekomendasi premix jika ada kekurangan mikro mineral
-                    if base_ca < req_ca or base_p < req_p or base_mg < req_mg or base_fe < req_fe or base_cu < req_cu or base_zn < req_zn:
+                    if base_ca < req_ca or base_p < req_p or base_mg < req_mg or base_fe < req_fe or base_cu < req_cu atau base_zn < req_zn:
                         st.subheader("Rekomendasi Mineral Supplement")
                         
                         # Tambahkan penjelasan mengenai pentingnya mineral
@@ -2187,6 +2187,70 @@ elif mode == "Mineral Supplement":
                         
                         Penambahan mineral supplement sebaiknya dilakukan secara bertahap dan dalam jumlah yang tepat.
                         """)
+                        
+                        # Check if protein and TDN are deficient as well
+                        protein_deficient = False
+                        tdn_deficient = False
+                        
+                        # Calculate protein and TDN in base ration
+                        if total_amount > 0:
+                            base_protein = sum(base_feed_amounts[feed] * base_feed_data[feed]['protein'] for feed in base_feed_amounts) / total_amount
+                            base_tdn = sum(base_feed_amounts[feed] * base_feed_data[feed]['tdn'] for feed in base_feed_amounts) / total_amount
+                            
+                            required_protein_pct = nutrient_req.get('Protein (%)', 0)
+                            required_tdn_pct = nutrient_req.get('TDN (%)', 0)
+                            
+                            protein_deficient = base_protein < required_protein_pct
+                            tdn_deficient = base_tdn < required_tdn_pct
+                            
+                            if protein_deficient or tdn_deficient:
+                                st.warning("### Perhatian: Defisiensi Nutrisi Utama")
+                                
+                                if protein_deficient:
+                                    protein_deficit = required_protein_pct - base_protein
+                                    st.write(f"⚠️ **Defisiensi Protein**: {protein_deficit:.2f}% (Aktual: {base_protein:.2f}%, Dibutuhkan: {required_protein_pct:.2f}%)")
+                                
+                                if tdn_deficient:
+                                    tdn_deficit = required_tdn_pct - base_tdn
+                                    st.write(f"⚠️ **Defisiensi TDN**: {tdn_deficit:.2f}% (Aktual: {base_tdn:.2f}%, Dibutuhkan: {required_tdn_pct:.2f}%)")
+                                
+                                st.write("#### Saran untuk Mengatasi Defisiensi Nutrisi Utama:")
+                                
+                                with st.expander("Lihat Saran untuk Meningkatkan Protein dan TDN"):
+                                    col1, col2 = st.columns(2)
+                                    
+                                    with col1:
+                                        st.write("**Untuk meningkatkan protein:**")
+                                        protein_feeds = df_pakan.sort_values(by='Protein (%)', ascending=False).head(5)
+                                        st.write("Bahan pakan kaya protein:")
+                                        for i, row in protein_feeds.iterrows():
+                                            st.write(f"- {row['Nama Pakan']}: {row['Protein (%)']}% protein, Rp{row['Harga (Rp/kg)']:,.0f}/kg")
+                                        
+                                        st.write("""
+                                        **Tips:**
+                                        - Tambahkan bungkil kedelai, bungkil kacang tanah, atau bungkil kelapa
+                                        - Pertimbangkan penggunaan urea pada ternak dewasa (maksimal 1% dari ransum)
+                                        - Legume hay (seperti alfalfa, kaliandra, lamtoro) dapat menambah protein
+                                        """)
+                                    
+                                    with col2:
+                                        st.write("**Untuk meningkatkan TDN:**")
+                                        energy_feeds = df_pakan.sort_values(by='TDN (%)', ascending=False).head(5)
+                                        st.write("Bahan pakan kaya energi:")
+                                        for i, row in energy_feeds.iterrows():
+                                            st.write(f"- {row['Nama Pakan']}: {row['TDN (%)']}% TDN, Rp{row['Harga (Rp/kg)']:,.0f}/kg")
+                                        
+                                        st.write("""
+                                        **Tips:**
+                                        - Tambahkan biji-bijian (jagung, gandum, barley)
+                                        - Tambahkan minyak nabati (1-3% dari ransum)
+                                        - Molases dapat meningkatkan energi (maksimal 5% dari ransum)
+                                        """)
+                                
+                                st.write("""
+                                > **Penting:** Mineral supplement dapat memperbaiki defisiensi mineral, 
+                                > tetapi untuk protein dan TDN diperlukan penyesuaian pakan utama.
+                                """)
                         
                         # Tambahkan tips dan saran
                         st.write("### Saran Pemberian Mineral")
@@ -2273,14 +2337,26 @@ elif mode == "Mineral Supplement":
                                     rationale.append(f"- Untuk memenuhi Zn: {zn_needed:.2f} kg")
                                     provides_needed = True
                                 
+                                # Add analysis of protein and TDN contribution
                                 if provides_needed and required_amount > 0:
+                                    # Calculate protein and TDN contribution from supplement
+                                    protein_contribution = mineral_data['Protein (%)'] * required_amount / total_amount
+                                    tdn_contribution = mineral_data['TDN (%)'] * required_amount / total_amount
+                                    
+                                    if protein_deficient and protein_contribution > 0.1:
+                                        rationale.append(f"- Berkontribusi protein: +{protein_contribution:.2f}% pada ransum")
+                                    
+                                    if tdn_deficient and tdn_contribution > 0.1:
+                                        rationale.append(f"- Berkontribusi TDN: +{tdn_contribution:.2f}% pada ransum")
+                                    
                                     # Calculate cost
                                     cost = required_amount * mineral_data['Harga (Rp/kg)']
                                     recommendations.append({
                                         'mineral': mineral,
                                         'amount': required_amount,
                                         'cost': cost,
-                                        'rationale': rationale
+                                        'rationale': rationale,
+                                        'efficiency': 1/cost if cost > 0 else 0  # Efficiency measure (inverse of cost)
                                     })
                             
                             # Sort recommendations by cost
@@ -2288,67 +2364,185 @@ elif mode == "Mineral Supplement":
                             
                             # Display recommendations
                             if recommendations:
-                                for i, rec in enumerate(recommendations):
-                                    st.write(f"**Opsi {i+1}: {rec['mineral']}**")
-                                    st.write(f"- Jumlah: {rec['amount']:.2f} kg")
-                                    st.write(f"- Biaya: Rp {rec['cost']:,.0f}")
-                                    for reason in rec['rationale']:
-                                        st.write(reason)
-                                    st.write("---")
-                            else:
-                                st.info("Tidak ada mineral supplement yang diperlukan untuk memenuhi kebutuhan.")
-                            
-                            # Sort by cost effectiveness
-                            if recommendations:
-                                recommendations.sort(key=lambda x: x['cost'])
+                                # Create tabs for different recommendation views
+                                rec_tabs = st.tabs(["Rekomendasi Biaya Terendah", "Semua Opsi", "Analisis Detail"])
                                 
-                                for i, rec in enumerate(recommendations):
-                                    st.write(f"**Opsi {i+1}: {rec['mineral']}** - {rec['amount']:.2f} kg (Rp{rec['cost']:,.0f})")
-                                    for reason in rec['rationale']:
-                                        st.write(reason)
-                                    st.write("---")
-                                
-                                # Calculate what happens if we add the top recommendation
-                                best_rec = recommendations[0]
-                                mineral_data = mineral_df[mineral_df['Nama Pakan'] == best_rec['mineral']].iloc[0]
-                                
-                                st.subheader("Setelah Penambahan Mineral Supplement")
-                                
-                                # Calculate new mineral levels
-                                new_ca = base_ca + best_rec['amount'] * mineral_data['Ca (%)'] / 100
-                                new_p = base_p + best_rec['amount'] * mineral_data['P (%)'] / 100
-                                new_mg = base_mg + best_rec['amount'] * mineral_data['Mg (%)'] / 100
-                                new_fe = base_fe + best_rec['amount'] * mineral_data['Fe (ppm)'] * (best_rec['amount']/1000)
-                                new_cu = base_cu + best_rec['amount'] * mineral_data['Cu (ppm)'] * (best_rec['amount']/1000)
-                                new_zn = base_zn + best_rec['amount'] * mineral_data['Zn (ppm)'] * (best_rec['amount']/1000)
-                                
-                                col1, col2, col3 = st.columns(3)
-                                
-                                with col1:
-                                    st.metric("Kalsium (Ca)", f"{format_id(new_ca, 3)} kg", f"{format_id(new_ca - req_ca, 3)} kg")
+                                # Tab 1: Best option
+                                with rec_tabs[0]:
+                                    best_rec = recommendations[0]
+                                    st.write(f"### Rekomendasi Optimal: {best_rec['mineral']}")
                                     
-                                with col2:
-                                    st.metric("Fosfor (P)", f"{format_id(new_p, 3)} kg", f"{format_id(new_p - req_p, 3)} kg")
+                                    # Create recommendation box with colored border
+                                    st.markdown(f"""
+                                    <div style="border: 2px solid #4CAF50; border-radius: 10px; padding: 15px; margin: 10px 0;">
+                                        <h4 style="color: #4CAF50; margin-top: 0;">Detail Rekomendasi</h4>
+                                        <p><b>Mineral Supplement:</b> {best_rec['mineral']}</p>
+                                        <p><b>Jumlah:</b> {best_rec['amount']:.2f} kg</p>
+                                        <p><b>Biaya:</b> Rp {best_rec['cost']:,.0f}</p>
+                                        <p><b>Rasional:</b></p>
+                                        <ul>
+                                        {"".join(f"<li>{reason[2:]}</li>" for reason in best_rec['rationale'])}
+                                        </ul>
+                                    </div>
+                                    """, unsafe_allow_html=True)
                                     
-                                with col3:
-                                    st.metric("Magnesium (Mg)", f"{format_id(new_mg, 3)} kg", f"{format_id(new_mg - req_mg, 3)} kg")
+                                    # Calculate what happens if we add the recommended supplement
+                                    mineral_data = mineral_df[mineral_df['Nama Pakan'] == best_rec['mineral']].iloc[0]
+                                    
+                                    # Calculate new mineral levels
+                                    new_ca = base_ca + best_rec['amount'] * mineral_data['Ca (%)'] / 100
+                                    new_p = base_p + best_rec['amount'] * mineral_data['P (%)'] / 100
+                                    new_mg = base_mg + best_rec['amount'] * mineral_data['Mg (%)'] / 100
+                                    new_fe = base_fe + best_rec['amount'] * mineral_data['Fe (ppm)'] * (best_rec['amount']/1000)
+                                    new_cu = base_cu + best_rec['amount'] * mineral_data['Cu (ppm)'] * (best_rec['amount']/1000)
+                                    new_zn = base_zn + best_rec['amount'] * mineral_data['Zn (ppm)'] * (best_rec['amount']/1000)
+                                    
+                                    st.subheader("Kandungan Mineral Setelah Suplementasi")
+                                    
+                                    col1, col2, col3 = st.columns(3)
+                                    
+                                    with col1:
+                                        st.metric("Kalsium (Ca)", f"{format_id(new_ca, 3)} kg", f"{format_id(new_ca - req_ca, 3)} kg")
+                                        
+                                    with col2:
+                                        st.metric("Fosfor (P)", f"{format_id(new_p, 3)} kg", f"{format_id(new_p - req_p, 3)} kg")
+                                        
+                                    with col3:
+                                        st.metric("Magnesium (Mg)", f"{format_id(new_mg, 3)} kg", f"{format_id(new_mg - req_mg, 3)} kg")
+                                    
+                                    col1, col2, col3 = st.columns(3)
+                                    
+                                    with col1:
+                                        st.metric("Zat Besi (Fe)", f"{format_id(new_fe, 3)} g", f"{format_id(new_fe - req_fe, 3)} g")
+                                        
+                                    with col2:
+                                        st.metric("Tembaga (Cu)", f"{format_id(new_cu, 3)} g", f"{format_id(new_cu - req_cu, 3)} g")
+                                        
+                                    with col3:
+                                        st.metric("Zinc (Zn)", f"{format_id(new_zn, 3)} g", f"{format_id(new_zn - req_zn, 3)} g")
+                                    
+                                    # Cara pemberian
+                                    st.subheader("Cara Pemberian")
+                                    st.markdown(f"""
+                                    1. Campurkan {best_rec['mineral']} sebanyak {format_id(best_rec['amount'], 2)} kg ke dalam ransum total ({format_id(total_amount, 1)} kg)
+                                    2. Aduk secara merata untuk memastikan distribusi yang baik
+                                    3. Untuk pemberian harian, bagi jumlah total dengan jumlah hari pemberian
+                                    
+                                    **Dosis per ekor per hari:** {format_id(best_rec['amount']/jumlah_ternak, 3)} kg
+                                    """)
+                                    
+                                # Tab 2: All options
+                                with rec_tabs[1]:
+                                    st.write("### Semua Opsi Mineral Supplement")
+                                    
+                                    for i, rec in enumerate(recommendations):
+                                        with st.expander(f"Opsi {i+1}: {rec['mineral']} - {rec['amount']:.2f} kg (Rp{rec['cost']:,.0f})"):
+                                            st.write(f"**Jumlah yang dibutuhkan:** {rec['amount']:.2f} kg")
+                                            st.write(f"**Biaya:** Rp {rec['cost']:,.0f}")
+                                            st.write("**Alasan:**")
+                                            for reason in rec['rationale']:
+                                                st.write(reason)
                                 
-                                col1, col2, col3 = st.columns(3)
-                                
-                                with col1:
-                                    st.metric("Zat Besi (Fe)", f"{format_id(new_fe, 3)} g", f"{format_id(new_fe - req_fe, 3)} g")
+                                # Tab 3: Detailed analysis
+                                with rec_tabs[2]:
+                                    st.write("### Analisis Detail Mineral Supplement")
                                     
-                                with col2:
-                                    st.metric("Tembaga (Cu)", f"{format_id(new_cu, 3)} g", f"{format_id(new_cu - req_cu, 3)} g")
+                                    # Calculate cost effectiveness and create table
+                                    analysis_data = []
+                                    for rec in recommendations:
+                                        mineral_data = mineral_df[mineral_df['Nama Pakan'] == rec['mineral']].iloc[0]
+                                        
+                                        # Calculate how much each supplement contributes to each mineral
+                                        ca_contribution = mineral_data['Ca (%)'] * rec['amount'] / 100
+                                        p_contribution = mineral_data['P (%)'] * rec['amount'] / 100
+                                        mg_contribution = mineral_data['Mg (%)'] * rec['amount'] / 100
+                                        fe_contribution = mineral_data['Fe (ppm)'] * rec['amount'] / 1000000
+                                        cu_contribution = mineral_data['Cu (ppm)'] * rec['amount'] / 1000000
+                                        zn_contribution = mineral_data['Zn (ppm)'] * rec['amount'] / 1000000
+                                        
+                                        # Calculate cost per unit mineral
+                                        ca_cost = rec['cost'] / ca_contribution if ca_contribution > 0 else float('inf')
+                                        p_cost = rec['cost'] / p_contribution if p_contribution > 0 else float('inf')
+                                        mg_cost = rec['cost'] / mg_contribution if mg_contribution > 0 else float('inf')
+                                        
+                                        analysis_data.append({
+                                            'Mineral': rec['mineral'],
+                                            'Jumlah (kg)': rec['amount'],
+                                            'Biaya (Rp)': rec['cost'],
+                                            'Ca (kg)': ca_contribution,
+                                            'P (kg)': p_contribution,
+                                            'Mg (kg)': mg_contribution,
+                                            'Fe (g)': fe_contribution * 1000, # Convert to g
+                                            'Cu (g)': cu_contribution * 1000, # Convert to g
+                                            'Zn (g)': zn_contribution * 1000, # Convert to g
+                                            'Efisiensi Biaya': rec['efficiency']
+                                        })
                                     
-                                with col3:
-                                    st.metric("Zinc (Zn)", f"{format_id(new_zn, 3)} g", f"{format_id(new_zn - req_zn, 3)} g")
+                                    analysis_df = pd.DataFrame(analysis_data)
+                                    st.dataframe(analysis_df)
+                                    
+                                    # Create visualization
+                                    if len(analysis_data) > 1:
+                                        st.subheader("Perbandingan Kontribusi Mineral")
+                                        
+                                        # Prepare data for visualization
+                                        chart_data = pd.melt(
+                                            analysis_df, 
+                                            id_vars=['Mineral'], 
+                                            value_vars=['Ca (kg)', 'P (kg)', 'Mg (kg)'],
+                                            var_name='Jenis Mineral', 
+                                            value_name='Kontribusi (kg)'
+                                        )
+                                        
+                                        chart = alt.Chart(chart_data).mark_bar().encode(
+                                            x=alt.X('Mineral:N', title='Mineral Supplement'),
+                                            y=alt.Y('Kontribusi (kg):Q'),
+                                            color='Jenis Mineral:N',
+                                            tooltip=['Mineral', 'Jenis Mineral', 'Kontribusi (kg)']
+                                        ).properties(
+                                            title='Kontribusi Mineral Makro dari Supplement',
+                                            width=600,
+                                            height=400
+                                        )
+                                        
+                                        st.altair_chart(chart)
+                                        
+                                        # Cost comparison
+                                        st.subheader("Perbandingan Biaya Mineral Supplement")
+                                        
+                                        cost_chart = alt.Chart(analysis_df).mark_bar().encode(
+                                            x=alt.X('Mineral:N', title='Mineral Supplement'),
+                                            y=alt.Y('Biaya (Rp):Q'),
+                                            color=alt.Color('Mineral:N', legend=None),
+                                            tooltip=['Mineral', 'Biaya (Rp)', 'Jumlah (kg)']
+                                        ).properties(
+                                            title='Biaya Mineral Supplement',
+                                            width=600,
+                                            height=300
+                                        )
+                                        
+                                        st.altair_chart(cost_chart)
                                 
                                 # Show cost analysis
-                                st.subheader("Analisis Biaya Suplemen")
-                                st.write(f"**Biaya Suplemen**: Rp{format_id(best_rec['cost'], 0)}")
-                                st.write(f"**Biaya per kg total ransum**: Rp{format_id(best_rec['cost']/(total_amount + best_rec['amount']), 1)}")
+                                st.subheader("Analisis Biaya Suplementasi")
+                                best_rec = recommendations[0]
                                 
+                                col1, col2, col3 = st.columns(3)
+                                with col1:
+                                    st.metric("Biaya Suplemen", f"Rp{format_id(best_rec['cost'], 0)}")
+                                with col2:
+                                    st.metric("Biaya per kg total ransum", f"Rp{format_id(best_rec['cost']/(total_amount + best_rec['amount']), 1)}")
+                                with col3:
+                                    st.metric("Peningkatan biaya ransum", f"{format_id(best_rec['cost']/(total_amount + best_rec['amount'])*100, 1)}%")
+                                
+                                # Add suggestion about protein and TDN if they're deficient
+                                if protein_deficient or tdn_deficient:
+                                    st.info("""
+                                    ⚠️ **Penting:** Mineral supplement hanya mengatasi defisiensi mineral, bukan protein atau TDN.
+                                    Lihat rekomendasi di atas untuk mengatasi defisiensi protein dan TDN.
+                                    """)
+                            else:
+                                st.warning("Tidak ada mineral supplement yang diperlukan untuk memenuhi kebutuhan.")
                         else:
                             st.warning("Pilih mineral supplement untuk melihat rekomendasi jumlah yang dibutuhkan")
                     else:
