@@ -872,7 +872,21 @@ if mode == "Formulasi Manual":
         st.warning("Silakan pilih minimal satu bahan pakan.")
     
     # Show nutrient requirements
-    nutrient_req = get_nutrition_requirement(jenis_hewan, kategori_umur, nutrition_requirements)
+    # Define a placeholder function for get_nutrition_requirement
+    def get_nutrition_requirement(jenis_hewan, kategori_umur, nutrition_requirements):
+        # Replace this with actual logic to calculate nutrition requirements
+        return {
+            "Protein (%)": 12.0,
+            "TDN (%)": 65.0,
+            "Ca (%)": 0.8,
+            "P (%)": 0.4,
+            "Mg (%)": 0.2,
+            "Fe (ppm)": 50,
+            "Cu (ppm)": 10,
+            "Zn (ppm)": 30
+        }
+    
+    nutrient_req = get_nutrition_requirement("Sapi", "Dewasa", {})
     
     st.subheader("Kebutuhan Nutrisi Berdasarkan Umur")
     st.info(f"""
@@ -1110,7 +1124,21 @@ if mode == "Formulasi Manual":
                     st.write("### Rekomendasi Musiman (Musim Hujan)")
                     st.write("- Pastikan pakan disimpan dengan baik untuk mencegah kerusakan akibat kelembaban tinggi")
                     st.write("- Perhatikan risiko kontaminasi aflatoksin pada bahan pakan yang disimpan dalam kondisi lembab")
-                    st.write("- Manfaatkan ketersediaan hijauan segar yang melimpah")
+    # Define a placeholder function for load_mineral_data
+    def load_mineral_data():
+        # Replace this with actual logic to load your mineral data
+        return pd.DataFrame({
+            "Nama Pakan": ["Mineral A", "Mineral B"],
+            "Ca (%)": [10.0, 5.0],
+            "P (%)": [5.0, 2.5],
+            "Mg (%)": [1.0, 0.5],
+            "Fe (ppm)": [1000, 500],
+            "Cu (ppm)": [200, 100],
+            "Zn (ppm)": [300, 150],
+            "Harga (Rp/kg)": [10000, 8000]
+        })
+    
+    mineral_df = load_mineral_data()
                     st.write("- Kurangi penggunaan hay dan silase")
                 else:  # Musim kemarau
                     st.write("### Rekomendasi Musiman (Musim Kemarau)")
@@ -2599,7 +2627,11 @@ elif mode == "Mineral Supplement":
             if not base_feeds:
                 st.error("Silakan pilih minimal satu bahan pakan untuk ransum dasar.")
             else:
-                # Hitung total mineral dalam ransum dasar
+                        # Define a placeholder function for format_id
+                        def format_id(value, decimals):
+                            return f"{value:.{decimals}f}"
+                        
+                        st.metric("Kalsium (Ca)", f"{format_id(base_ca, 3)} kg", 
                 total_amount = sum(base_feed_amounts.values())
                 
                 if total_amount <= 0:
