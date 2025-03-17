@@ -1413,18 +1413,18 @@ elif mode == "Optimalisasi Otomatis":
                     st.altair_chart(charts, use_container_width=True)
                     
                     # Save formula option
-                    st.subheader("Simpan Formula")
-                    formula_name = st.text_input("Nama formula:", value=f"Formula {jenis_hewan} {kategori_umur}")
+                    #st.subheader("Simpan Formula")
+                    #formula_name = st.text_input("Nama formula:", value=f"Formula {jenis_hewan} {kategori_umur}")
                     
-                    if st.button("Simpan Formula Ini"):
-                        if formula_name:
-                            success = save_formula(formula_name, feeds_used, optimized_amounts, jenis_hewan, kategori_umur)
-                            if success:
-                                st.success(f"Formula '{formula_name}' berhasil disimpan!")
-                            else:
-                                st.error("Gagal menyimpan formula.")
-                        else:
-                            st.warning("Harap masukkan nama untuk formula ini.")
+                    #if st.button("Simpan Formula Ini"):
+                    #    if formula_name:
+                    #        success = save_formula(formula_name, feeds_used, optimized_amounts, jenis_hewan, kategori_umur)
+                    #        if success:
+                    #            st.success(f"Formula '{formula_name}' berhasil disimpan!")
+                    #        else:
+                    #           st.error("Gagal menyimpan formula.")
+                    #    else:
+                    #        st.warning("Harap masukkan nama untuk formula ini.")
                     
                 else:
                     st.error(f"❌ Optimasi ransum gagal: {result.message}")
