@@ -1229,7 +1229,19 @@ elif mode == "Optimalisasi Otomatis":
                 b_ub.append(max_amount)
                 
                 # Solve the linear programming problem
-                result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0, None), method='highs')
+                # Validate inputs for linprog
+                if len(c) == 0 or len(A_ub) != len(b_ub):
+                    st.error("Invalid input for optimization: Ensure cost vector and constraints are properly defined.")
+                else:
+                    # Ensure bounds are correctly defined
+                    bounds = [(0, None) for _ in range(len(c))]
+                    
+                    # Solve the linear programming problem
+                    result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs')
+                    
+                    # Check for success and handle errors
+                    if not result.success:
+                        st.error(f"Optimization failed: {result.message}")
                 
                 # Process optimization results
                 if result.success:
