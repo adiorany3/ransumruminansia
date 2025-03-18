@@ -59,12 +59,40 @@ header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# Title and header with emojis for better visual appeal
-st.title("🐄 Aplikasi Perhitungan Ransum Ruminansia 🐐")
-st.subheader("✨ Solusi Nutrisi untuk Sapi, Kambing, dan Domba 🐑")
+# Custom CSS for styling
 st.markdown("""
-<div style="text-align: center; font-size: 16px; color: #555;">
-    🌾 **Optimalkan pakan ternak Anda dengan mudah dan efisien!** 🌟
+<style>
+.big-font {
+    font-size:2.5rem !important;
+    font-weight: bold;
+    color: #2E86AB; /* A pleasant blue */
+    text-shadow: 2px 2px 4px #999;
+}
+.medium-font {
+    font-size:1.3rem !important;
+    color: #4A90E2; /* A slightly lighter blue */
+}
+.small-font {
+    font-size:1rem !important;
+    color: #777;
+}
+.center {
+    text-align: center;
+}
+.italic {
+    font-style: italic;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Title and header with enhanced styling and visual elements
+st.markdown('<p class="big-font center">🐄 Aplikasi Perhitungan Ransum Ruminansia 🐐</p>', unsafe_allow_html=True)
+st.markdown('<p class="medium-font center">✨ Solusi Nutrisi untuk Sapi, Kambing, dan Domba 🐑</p>', unsafe_allow_html=True)
+st.markdown("""
+<div class="center">
+    <p class="small-font italic">
+        🌾 <b>Optimalkan pakan ternak Anda dengan mudah dan efisien!</b> 🌟
+    </p>
 </div>
 """, unsafe_allow_html=True)
 
