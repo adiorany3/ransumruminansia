@@ -1391,17 +1391,10 @@ elif mode == "Optimalisasi Otomatis":
                     st.write(f"{feed}: {proportion:.2f}%")
                 
                 # Visualize feed proportions
-                st.subheader("Visualisasi Proporsi Bahan Pakan dalam Ransum")
-                st.write("Grafik berikut menunjukkan proporsi masing-masing bahan pakan yang digunakan dalam ransum, "
-                         "sehingga Anda dapat memahami komposisi ransum secara visual.")
+                st.subheader("Visualisasi Proporsi Bahan Pakan")
                 chart_data = pd.DataFrame({
-    'Bahan Pakan': list(proportions.keys()),
-    'Proporsi (%)': list(proportions.values())
-})
-if not proportions:
-    st.warning("No data available for visualization.")
-else:
-    chart = alt.Chart(chart_data).mark_bar().encode(
+                    'Bahan Pakan': list(proportions.keys()),
+                    'Proporsi (%)': list(proportions.values())
                 })
                 chart = alt.Chart(chart_data).mark_bar().encode(
                     x=alt.X('Bahan Pakan', sort='-y'),
