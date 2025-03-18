@@ -1207,27 +1207,29 @@ elif mode == "Optimalisasi Otomatis":
         with st.expander("Batasan proporsi hijauan-konsentrat"):
             use_ratio_constraint = st.checkbox("Aktifkan batasan proporsi", value=False)
         
+# ...existing code...
         # Fungsi optimasi
         if st.button("Optimasi Ransum", key="optimize_standard_button") and available_feeds:
             with st.spinner("Menghitung optimasi ransum..."):
-            # Persiapkan data untuk optimasi
-            c = []  # Biaya per kg
-            A_ub = []  # Matriks ketidaksetaraan
-            b_ub = []  # Batas kanan ketidaksetaraan
-            
-            # Biaya tiap pakan (fungsi objektif)
-            for feed in available_feeds:
-                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                c.append(feed_data['Harga (Rp/kg)'])
-            
-            # Protein minimum constraint
-            protein_constraint = []
-            for feed in available_feeds:
-                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                protein_constraint.append(-feed_data['Protein (%)'])
-            A_ub.append(protein_constraint)
-            required_protein = nutrient_req.get('Protein (%)', 0)
-            b_ub.append(-required_protein * min_amount)
+                # Persiapkan data untuk optimasi
+                c = []  # Biaya per kg
+                A_ub = []  # Matriks ketidaksetaraan
+                b_ub = []  # Batas kanan ketidaksetaraan
+                
+                # Biaya tiap pakan (fungsi objektif)
+                for feed in available_feeds:
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    c.append(feed_data['Harga (Rp/kg)'])
+                
+                # Protein minimum constraint
+                protein_constraint = []
+                for feed in available_feeds:
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    protein_constraint.append(-feed_data['Protein (%)'])
+                A_ub.append(protein_constraint)
+                required_protein = nutrient_req.get('Protein (%)', 0)
+                b_ub.append(-required_protein * min_amount)
+# ...rest of the code with proper indentation...
 
             # TDN minimum constraint
             tdn_constraint = []
