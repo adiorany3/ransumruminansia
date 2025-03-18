@@ -1208,9 +1208,6 @@ elif mode == "Optimalisasi Otomatis":
         with st.expander("Batasan proporsi hijauan-konsentrat"):
             use_ratio_constraint = st.checkbox("Aktifkan batasan proporsi", value=False)
 # ...existing code...
-                
-                if min_hijauan + min_konsentrat > 100:
-                    st.error("Total minimum proporsi melebihi 100%. Harap kurangi salah satu nilai.")
         
         # Fungsi optimasi
         if st.button("Optimasi Ransum", key="optimize_standard_button") and available_feeds:
