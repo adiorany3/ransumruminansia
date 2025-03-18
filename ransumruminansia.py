@@ -1193,19 +1193,21 @@ elif mode == "Optimalisasi Otomatis":
                 default=konsentrat_feeds[:min(2, len(konsentrat_feeds))]
             )
 
+    # ...existing code...
         # Combine the selected feeds for the optimization function
         available_feeds = selected_hijauan + selected_konsentrat
+        
+        # Add min and max amount inputs
+        col1, col2 = st.columns(2)
+        with col1:
+            min_amount = st.number_input("Jumlah pakan minimal (kg)", min_value=1.0, value=5.0, key="std_min_amount")
+        with col2:
+            max_amount = st.number_input("Jumlah pakan maksimal (kg)", min_value=1.0, value=10.0, key="std_max_amount")
         
         # Batasan tambahan untuk proporsi hijauan-konsentrat
         with st.expander("Batasan proporsi hijauan-konsentrat"):
             use_ratio_constraint = st.checkbox("Aktifkan batasan proporsi", value=False)
-            
-            if use_ratio_constraint and 'Kategori' in df_pakan.columns:
-                col1, col2 = st.columns(2)
-                with col1:
-                    min_hijauan = st.slider("Minimum proporsi hijauan (%)", 0, 100, 40)
-                with col2:
-                    min_konsentrat = st.slider("Minimum proporsi konsentrat (%)", 0, 100, 20)
+# ...existing code...
                 
                 if min_hijauan + min_konsentrat > 100:
                     st.error("Total minimum proporsi melebihi 100%. Harap kurangi salah satu nilai.")
