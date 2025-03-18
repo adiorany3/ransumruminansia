@@ -1228,9 +1228,11 @@ elif mode == "Optimalisasi Otomatis":
                     feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                     protein_constraint.append(-feed_data['Protein (%)'])
                 A_ub.append(protein_constraint)
+                # Ensure nutrient_req is defined
+                nutrient_req = locals().get('nutrient_req', {'Protein (%)': 0, 'TDN (%)': 0})
                 required_protein = nutrient_req.get('Protein (%)', 0)
                 b_ub.append(-required_protein * min_amount)
-                
+
                 # TDN minimum constraint
                 tdn_constraint = []
                 for feed in available_feeds:
@@ -1238,31 +1240,35 @@ elif mode == "Optimalisasi Otomatis":
                     tdn_constraint.append(-feed_data['TDN (%)'])
                 A_ub.append(tdn_constraint)
                 required_tdn = nutrient_req.get('TDN (%)', 0)
-                b_ub.append(-required_tdn * min_amount)
-                
                 # Tambahkan constraint untuk proporsi hijauan-konsentrat jika diaktifkan
                 if use_ratio_constraint and 'Kategori' in df_pakan.columns:
+                    # Default values for min_hijauan and min_konsentrat
+                    min_hijauan = locals().get('min_hijauan', 0)
+                    min_konsentrat = locals().get('min_konsentrat', 0)
+        
                     # Hijauan constraint (minimal min_hijauan%)
                     if min_hijauan > 0:
                         hijauan_constraint = []
                         for feed in available_feeds:
                             feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                             if feed_data['Kategori'] == 'Hijauan':
-                                hijauan_constraint.append(-1 + min_hijauan/100)
+                                hijauan_constraint.append(-1 + min_hijauan / 100)
                             else:
-                                hijauan_constraint.append(min_hijauan/100)
+                                hijauan_constraint.append(min_hijauan / 100)
                         A_ub.append(hijauan_constraint)
                         b_ub.append(0)
-                    
+        
                     # Konsentrat constraint (minimal min_konsentrat%)
                     if min_konsentrat > 0:
                         konsentrat_constraint = []
                         for feed in available_feeds:
                             feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                             if feed_data['Kategori'] == 'Konsentrat':
-                                konsentrat_constraint.append(-1 + min_konsentrat/100)
+                                konsentrat_constraint.append(-1 + min_konsentrat / 100)
                             else:
-                                konsentrat_constraint.append(min_konsentrat/100)
+                                konsentrat_constraint.append(min_konsentrat / 100)
+                        A_ub.append(konsentrat_constraint)
+                        b_ub.append(0)
                         A_ub.append(konsentrat_constraint)
                         b_ub.append(0)
                 
