@@ -1392,6 +1392,41 @@ elif mode == "Optimalisasi Otomatis":
                 
                 # Visualize feed proportions
                 st.subheader("Visualisasi Proporsi Bahan Pakan")
+
+                # Create a visually appealing pie chart
+                colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+                          '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']  # Distinct colors
+
+                # Ensure there are enough colors for all feeds
+                if len(proportions) > len(colors):
+                    num_needed = len(proportions) - len(colors)
+                    new_colors = ['#'+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+                                  for i in range(num_needed)]
+                    colors.extend(new_colors)
+
+                pie_data = pd.DataFrame({
+                    'Bahan Pakan': list(proportions.keys()),
+                    'Proporsi (%)': list(proportions.values())
+                })
+
+                fig = alt.Chart(pie_data).mark_arc(
+                    stroke='white',
+                    strokeWidth=1,
+                    opacity=0.8
+                ).encode(
+                    theta=alt.Theta(field="Proporsi (%)", type="quantitative"),
+                    color=alt.Color(field="Bahan Pakan", type="nominal",
+                                    scale=alt.Scale(range=colors),  # Apply custom colors
+                                    legend=alt.Legend(orient="bottom")),
+                    tooltip=['Bahan Pakan', 'Proporsi (%)']
+                ).properties(
+                    title='Komposisi Ransum',
+                    width=500,
+                    height=400
+                )
+
+                st.altair_chart(fig, use_container_width=True)
+            else:
                 chart_data = pd.DataFrame({
                     'Bahan Pakan': list(proportions.keys()),
                     'Proporsi (%)': list(proportions.values())
