@@ -1283,6 +1283,9 @@ elif mode == "Optimalisasi Otomatis":
                 
                 # Solve the linear programming problem
                 # Validate inputs for linprog
+                # Initialize result with a default "failed" state
+                result = type('obj', (object,), {'success': False, 'message': 'Optimization not attempted'})
+                
                 if len(c) == 0 or len(A_ub) != len(b_ub):
                     st.error("Invalid input for optimization: Ensure cost vector and constraints are properly defined.")
                 else:
