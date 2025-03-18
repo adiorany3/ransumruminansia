@@ -1196,21 +1196,6 @@ elif mode == "Optimalisasi Otomatis":
         # Combine the selected feeds for the optimization function
         available_feeds = selected_hijauan + selected_konsentrat
         
-        col1, col2 = st.columns(2)
-        with col1:
-            # Pilih bahan pakan yang tersedia untuk optimasi
-            available_feeds = st.multiselect(
-                "Pilih bahan pakan yang tersedia:", 
-                df_pakan['Nama Pakan'].tolist(), 
-                default=df_pakan['Nama Pakan'].tolist()[:3],
-                key="standard_feed_selection"
-            )
-        
-        with col2:
-            # Batasan jumlah pakan
-            min_amount = st.number_input("Jumlah pakan minimal (kg)", min_value=1.0, value=5.0, key="std_min_amount")
-            max_amount = st.number_input("Jumlah pakan maksimal (kg)", min_value=1.0, value=10.0, key="std_max_amount", help="Batas maksimum jumlah total pakan")
-        
         # Batasan tambahan untuk proporsi hijauan-konsentrat
         with st.expander("Batasan proporsi hijauan-konsentrat"):
             use_ratio_constraint = st.checkbox("Aktifkan batasan proporsi", value=False)
