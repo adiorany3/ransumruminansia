@@ -1206,7 +1206,13 @@ elif mode == "Optimalisasi Otomatis":
         # Batasan tambahan untuk proporsi hijauan-konsentrat
         with st.expander("Batasan proporsi hijauan-konsentrat"):
             use_ratio_constraint = st.checkbox("Aktifkan batasan proporsi", value=False)
-        
+            if use_ratio_constraint:
+                col1, col2 = st.columns(2)
+                with col1:
+                    min_hijauan = st.number_input("Minimal proporsi hijauan (%)", min_value=0, max_value=100, value=60)
+                with col2:
+                    min_konsentrat = st.number_input("Minimal proporsi konsentrat (%)", min_value=0, max_value=100, value=30)
+
 # ...existing code...
         # Fungsi optimasi
         if st.button("Optimasi Ransum", key="optimize_standard_button") and available_feeds:
@@ -1245,22 +1251,22 @@ elif mode == "Optimalisasi Otomatis":
                 # Hijauan constraint (minimal min_hijauan%)
                 hijauan_constraint = []
                 for feed in available_feeds:
-                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                if feed_data['Kategori'] == 'Hijauan':
-                    hijauan_constraint.append(-1)
-                else:
-                    hijauan_constraint.append(0)
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    if feed_data['Kategori'] == 'Hijauan':
+                        hijauan_constraint.append(-1)
+                    else:
+                        hijauan_constraint.append(0)
                 A_ub.append(hijauan_constraint)
                 b_ub.append(-min_hijauan / 100 * min_amount)
 
                 # Konsentrat constraint (minimal min_konsentrat%)
                 konsentrat_constraint = []
                 for feed in available_feeds:
-                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                if feed_data['Kategori'] == 'Konsentrat':
-                    konsentrat_constraint.append(-1)
-                else:
-                    konsentrat_constraint.append(0)
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    if feed_data['Kategori'] == 'Konsentrat':
+                        konsentrat_constraint.append(-1)
+                    else:
+                        konsentrat_constraint.append(0)
                 A_ub.append(konsentrat_constraint)
                 b_ub.append(-min_konsentrat / 100 * min_amount)
             
