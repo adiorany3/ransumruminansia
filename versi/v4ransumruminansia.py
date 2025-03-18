@@ -1292,9 +1292,9 @@ elif mode == "Optimalisasi Otomatis":
                 # Display results
                 st.subheader("Hasil Optimasi Ransum")
                 result_data = {
-                    'Bahan Pakan': list(optimized_amounts.keys()),
-                    'Jumlah (kg)': list(optimized_amounts.values()),
-                    'Biaya (Rp)': [optimized_amounts[feed] * df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]['Harga (Rp/kg)'] for feed in optimized_amounts]
+                'Bahan Pakan': list(optimized_amounts.keys()),
+                'Jumlah (kg)': list(optimized_amounts.values()),
+                'Biaya (Rp)': [optimized_amounts[feed] * df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]['Harga (Rp/kg)'] for feed in optimized_amounts]
                 }
                 df_result = pd.DataFrame(result_data)
                 st.dataframe(df_result)
@@ -1302,43 +1302,16 @@ elif mode == "Optimalisasi Otomatis":
                 # Display total cost
                 total_cost = sum(result_data['Biaya (Rp)'])
                 st.metric("Total Biaya Ransum", f"Rp {total_cost:,.0f}")
-                
-                # Calculate total feed amount
-                total_feed_amount = sum(result_data['Jumlah (kg)'])
-                st.metric("Total Jumlah Pakan", f"{total_feed_amount:.2f} kg")
-                
-                # Calculate and display average cost per kg
-                avg_cost_per_kg = total_cost / total_feed_amount if total_feed_amount > 0 else 0
-                st.metric("Biaya Rata-rata per kg", f"Rp {avg_cost_per_kg:,.2f}")
-                
-                # Display feed proportions
-                st.subheader("Proporsi Bahan Pakan")
-                proportions = {feed: (amount / total_feed_amount) * 100 for feed, amount in optimized_amounts.items()}
-                for feed, proportion in proportions.items():
-                    st.write(f"{feed}: {proportion:.2f}%")
-                
-                # Visualize feed proportions
-                st.subheader("Visualisasi Proporsi Bahan Pakan")
-                chart_data = pd.DataFrame({
-                    'Bahan Pakan': list(proportions.keys()),
-                    'Proporsi (%)': list(proportions.values())
-                })
-                chart = alt.Chart(chart_data).mark_bar().encode(
-                    x=alt.X('Bahan Pakan', sort='-y'),
-                    y='Proporsi (%)',
-                    color='Bahan Pakan',
-                    tooltip=['Bahan Pakan', 'Proporsi (%)']
-                ).properties(
-                    width=600,
-                    height=400
-                )
-                st.altair_chart(chart)
             else:
                 st.error(f"❌ Optimasi ransum gagal: {result.message}")
                 
+                # Solve the linear programming problem
                 # Validate inputs for linprog
+                # Initialize result with a default "failed" state
+                result = type('obj', (object,), {'success': False, 'message': 'Optimization not attempted'})
+                
                 if len(c) == 0 or len(A_ub) != len(b_ub):
-                    st.error("Input optimasi tidak valid: Pastikan vektor biaya dan batasan telah didefinisikan dengan benar.")
+                    st.error("Invalid input for optimization: Ensure cost vector and constraints are properly defined.")
                 else:
                     # Ensure bounds are correctly defined
                     bounds = [(0, None) for _ in range(len(c))]
@@ -1348,7 +1321,7 @@ elif mode == "Optimalisasi Otomatis":
                     
                     # Check for success and handle errors
                     if not result.success:
-                        st.error(f"Optimasi gagal: {result.message}")
+                        st.error(f"Optimization failed: {result.message}")
                 
                 # Process optimization results
                 if result.success:
