@@ -1165,6 +1165,37 @@ elif mode == "Optimalisasi Otomatis":
         st.subheader("Optimasi Standar (Protein dan TDN)")
         st.write("Optimasi ransum untuk memenuhi kebutuhan protein dan TDN dengan biaya minimal")
         
+        # Filter the feed dataframe by category
+        if 'Kategori' in df_pakan.columns:
+            hijauan_feeds = df_pakan[df_pakan['Kategori'] == 'Hijauan']['Nama Pakan'].tolist()
+            konsentrat_feeds = df_pakan[df_pakan['Kategori'] == 'Konsentrat']['Nama Pakan'].tolist()
+        else:
+            # If no category column exists, provide empty lists
+            hijauan_feeds = []
+            konsentrat_feeds = []
+            st.warning("Kolom 'Kategori' tidak ditemukan dalam data pakan. Silakan tambahkan kategori untuk setiap pakan.")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("Pilih Hijauan")
+            selected_hijauan = st.multiselect(
+                "Pilih bahan hijauan yang tersedia:", 
+                hijauan_feeds,
+                default=hijauan_feeds[:min(2, len(hijauan_feeds))]
+            )
+
+        with col2:
+            st.subheader("Pilih Konsentrat")
+            selected_konsentrat = st.multiselect(
+                "Pilih bahan konsentrat yang tersedia:", 
+                konsentrat_feeds,
+                default=konsentrat_feeds[:min(2, len(konsentrat_feeds))]
+            )
+
+        # Combine the selected feeds for the optimization function
+        available_feeds = selected_hijauan + selected_konsentrat
+        
         col1, col2 = st.columns(2)
         with col1:
             # Pilih bahan pakan yang tersedia untuk optimasi
