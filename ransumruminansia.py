@@ -1477,6 +1477,8 @@ elif mode == "Optimalisasi Otomatis":
                     #    else:
                     #        st.warning("Harap masukkan nama untuk formula ini.")
                     
+                    st.metric("Kandungan Protein Ransum", f"{total_protein:.2f}%")
+                    st.metric("Kandungan TDN Ransum", f"{total_tdn:.2f}%")
                 else:
                     st.error(f"❌ Optimasi ransum gagal: {result.message}")
                     st.warning("""
@@ -1487,6 +1489,10 @@ elif mode == "Optimalisasi Otomatis":
                     
                     Coba ubah batasan atau tambahkan lebih banyak pilihan pakan.
                     """)
+
+
+
+elif mode == "Mineral Supplement":
 
     with opt_tabs[1]:
         st.subheader("Optimasi dengan Mineral")
