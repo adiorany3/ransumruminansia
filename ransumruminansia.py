@@ -1390,81 +1390,24 @@ elif mode == "Optimalisasi Otomatis":
                 for feed, proportion in proportions.items():
                     st.write(f"{feed}: {proportion:.2f}%")
                 
-
-                                # Visualize feed proportions
-                                st.subheader("Visualisasi Proporsi Bahan Pakan")
-                                chart_data = pd.DataFrame({
-                                    'Bahan Pakan': list(proportions.keys()),
-                                    'Proporsi (%)': list(proportions.values())
-                                })
-                                chart = alt.Chart(chart_data).mark_bar().encode(
-                                    x=alt.X('Bahan Pakan', sort='-y'),
-                                    y='Proporsi (%)',
-                                    color='Bahan Pakan',
-                                    tooltip=['Bahan Pakan', 'Proporsi (%)']
-                                ).properties(
-                                    width=600,
-                                    height=400
-                                )
-                                st.altair_chart(chart)
-
-                                # Additional Information
-                                st.subheader("Informasi Tambahan")
-                                
-                                # Protein and TDN levels in the optimized ration
-                                total_protein = 0
-                                total_tdn = 0
-                                for feed, amount in optimized_amounts.items():
-                                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                                    total_protein += amount * feed_data['Protein (%)']
-                                    total_tdn += amount * feed_data['TDN (%)']
-                                
-                                protein_percentage = total_protein / total_feed_amount if total_feed_amount > 0 else 0
-                                tdn_percentage = total_tdn / total_feed_amount if total_feed_amount > 0 else 0
-                                
-                                st.write(f"**Protein dalam Ransum:** {protein_percentage:.2f}%")
-                                st.write(f"**TDN dalam Ransum:** {tdn_percentage:.2f}%")
-                                
-                                # Compare with required levels
-                                required_protein = nutrient_req.get('Protein (%)', 0)
-                                required_tdn = nutrient_req.get('TDN (%)', 0)
-                                
-                                if protein_percentage < required_protein:
-                                    st.warning(f"⚠️ Protein ransum kurang dari kebutuhan ({required_protein}%)")
-                                else:
-                                    st.success(f"✅ Protein ransum memenuhi kebutuhan ({required_protein}%)")
-                                
-                                if tdn_percentage < required_tdn:
-                                    st.warning(f"⚠️ TDN ransum kurang dari kebutuhan ({required_tdn}%)")
-                                else:
-                                    st.success(f"✅ TDN ransum memenuhi kebutuhan ({required_tdn}%)")
-                                
-                                # Cost per day for all animals
-                                total_cost_per_day = total_cost * jumlah_ternak
-                                st.write(f"**Total Biaya Pakan per Hari untuk {jumlah_ternak} Ekor:** Rp {total_cost_per_day:,.0f}")
-                                
-                                # Cost per animal per day
-                                cost_per_animal = total_cost
-                                st.write(f"**Biaya Pakan per Ekor per Hari:** Rp {cost_per_animal:,.0f}")
-                                
-                                # Check for potential anti-nutrients
-                                st.subheader("Potensi Anti-Nutrisi")
-                                antinutrient_present = False
-                                for feed in available_feeds:
-                                    if feed in antinutrient_data:
-                                        antinutrient_present = True
-                                        st.write(f"⚠️ Pakan '{feed}' mengandung anti-nutrisi: {', '.join(antinutrient_data[feed].keys())}")
-                                        for antinutrient, level in antinutrient_data[feed].items():
-                                            st.write(f"- {antinutrient}: {level}")
-                                            if antinutrient in antinutrient_info:
-                                                st.write(f"  - Deskripsi: {antinutrient_info[antinutrient]['Deskripsi']}")
-                                                st.write(f"  - Batas Aman: {antinutrient_info[antinutrient]['Batas Aman']}")
-                                
-                                if not antinutrient_present:
-                                    st.success("✅ Tidak ada anti-nutrisi yang terdeteksi pada pakan yang dipilih.")
-                    
-                            else:
-                                st.error(f"❌ Optimasi ransum gagal: {result.message}")
+                # Visualize feed proportions
+                st.subheader("Visualisasi Proporsi Bahan Pakan")
+                chart_data = pd.DataFrame({
+                    'Bahan Pakan': list(proportions.keys()),
+                    'Proporsi (%)': list(proportions.values())
+                })
+                chart = alt.Chart(chart_data).mark_bar().encode(
+                    x=alt.X('Bahan Pakan', sort='-y'),
+                    y='Proporsi (%)',
+                    color='Bahan Pakan',
+                    tooltip=['Bahan Pakan', 'Proporsi (%)']
+                ).properties(
+                    width=600,
+                    height=400
+                )
+                st.altair_chart(chart)
+            else:
+                st.error(f"❌ Optimasi ransum gagal: {result.message}")
                 
                 # Validate inputs for linprog
                 if len(c) == 0 or len(A_ub) != len(b_ub):
