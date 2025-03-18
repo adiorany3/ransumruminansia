@@ -860,8 +860,14 @@ if use_default_data:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-# Application modes
-mode = st.sidebar.radio("Mode Aplikasi", ["Formulasi Manual", "Optimalisasi Otomatis", "Mineral Supplement"])
+# Application modes with enhanced UI
+st.sidebar.markdown('<p class="medium-font">Pilih Mode Aplikasi:</p>', unsafe_allow_html=True)
+mode = st.sidebar.radio(
+    "",
+    ["Formulasi Manual", "Optimalisasi Otomatis", "Mineral Supplement"],
+    index=0,  # Set default mode
+    help="Pilih mode yang sesuai dengan kebutuhan Anda."
+)
 
 if mode == "Formulasi Manual":
     # Feed selection
