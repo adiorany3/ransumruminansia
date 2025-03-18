@@ -869,6 +869,43 @@ mode = st.sidebar.radio(
     help="Pilih mode yang sesuai dengan kebutuhan Anda."
 )
 
+# Add a description for each mode
+if mode == "Formulasi Manual":
+    st.sidebar.info(
+        "**Formulasi Manual:** Pilih dan atur sendiri komposisi pakan. Cocok untuk Anda yang ingin kontrol penuh atas ransum ternak."
+    )
+elif mode == "Optimalisasi Otomatis":
+    st.sidebar.info(
+        "**Optimalisasi Otomatis:** Biarkan sistem menghitung komposisi pakan terbaik berdasarkan kebutuhan nutrisi dan biaya. Ideal untuk efisiensi dan hasil optimal."
+    )
+elif mode == "Mineral Supplement":
+    st.sidebar.info(
+        "**Mineral Supplement:** Analisis dan hitung kebutuhan mineral untuk ternak Anda. Bantu penuhi kebutuhan nutrisi mikro dan makro yang penting."
+    )
+
+# Add a touch of color to the radio buttons
+st.markdown(
+    """
+    <style>
+    div.stRadio > label > div {
+        background-color: #f0f2f6;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 8px;
+        margin-bottom: 5px;
+    }
+    div.stRadio > label > div:hover {
+        background-color: #e1e1e1;
+    }
+    div.stRadio > label > div.checked {
+        background-color: #c9e2ff;
+        border: 2px solid #4A90E2;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 if mode == "Formulasi Manual":
     # Feed selection
     st.subheader("Pilih Kombinasi Bahan Pakan")
