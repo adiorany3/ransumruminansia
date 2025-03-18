@@ -85,13 +85,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Title and header with enhanced styling and visual elements
-st.markdown('<p class="big-font center">🐄 Aplikasi Perhitungan Ransum Ruminansia 🐐</p>', unsafe_allow_html=True)
-st.markdown('<p class="medium-font center">✨ Solusi Nutrisi untuk Sapi, Kambing, dan Domba 🐑</p>', unsafe_allow_html=True)
+# Enhanced Title and Header with Emojis and Styling
+st.markdown('<p class="big-font center">🐄 RansumRuminansia: Ahli Gizi Ternak Anda 🐐</p>', unsafe_allow_html=True)
+st.markdown('<p class="medium-font center">🌱 Formulasi Ransum Optimal untuk Sapi, Kambing, Domba! 🐑</p>', unsafe_allow_html=True)
+
+# Introduction with Icon and Italicized Text
 st.markdown("""
 <div class="center">
     <p class="small-font italic">
-        🌾 <b>Optimalkan pakan ternak Anda dengan mudah dan efisien!</b> 🌟
+        ✨ Rencanakan ransum terbaik untuk hasil maksimal dan biaya minimal! 💰
     </p>
 </div>
 """, unsafe_allow_html=True)
