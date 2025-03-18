@@ -1490,9 +1490,12 @@ elif mode == "Optimalisasi Otomatis":
                     Coba ubah batasan atau tambahkan lebih banyak pilihan pakan.
                     """)
 
+# Either add a pass statement if you want to keep the empty else, or remove it completely
+# Remove the empty else statement
 
 
 elif mode == "Mineral Supplement":
+    st.header("Perhitungan Mineral Supplement")
 
     with opt_tabs[1]:
         st.subheader("Optimasi dengan Mineral")
