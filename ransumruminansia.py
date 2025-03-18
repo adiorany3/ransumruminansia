@@ -1213,6 +1213,7 @@ elif mode == "Optimalisasi Otomatis":
                 with col2:
                     min_konsentrat = st.number_input("Minimal proporsi konsentrat (%)", min_value=0, max_value=100, value=30)
 
+# ...existing code...
         # Fungsi optimasi
         if st.button("Optimasi Ransum", key="optimize_standard_button") and available_feeds:
             with st.spinner("Menghitung optimasi ransum..."):
@@ -1234,81 +1235,121 @@ elif mode == "Optimalisasi Otomatis":
                 A_ub.append(protein_constraint)
                 required_protein = nutrient_req.get('Protein (%)', 0)
                 b_ub.append(-required_protein * min_amount)
+# ...rest of the code with proper indentation...
 
-                # TDN minimum constraint
-                tdn_constraint = []
+            # TDN minimum constraint
+            tdn_constraint = []
+            for feed in available_feeds:
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                tdn_constraint.append(-feed_data['TDN (%)'])
+            A_ub.append(tdn_constraint)
+            required_tdn = nutrient_req.get('TDN (%)', 0)
+            b_ub.append(-required_tdn * min_amount)
+
+            # Tambahkan constraint untuk proporsi hijauan-konsentrat jika diaktifkan
+            if use_ratio_constraint and 'Kategori' in df_pakan.columns:
+                # Hijauan constraint (minimal min_hijauan%)
+                hijauan_constraint = []
                 for feed in available_feeds:
                     feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                    tdn_constraint.append(-feed_data['TDN (%)'])
-                A_ub.append(tdn_constraint)
-                required_tdn = nutrient_req.get('TDN (%)', 0)
-                b_ub.append(-required_tdn * min_amount)
+                    if feed_data['Kategori'] == 'Hijauan':
+                        hijauan_constraint.append(-1)
+                    else:
+                        hijauan_constraint.append(0)
+                A_ub.append(hijauan_constraint)
+                b_ub.append(-min_hijauan / 100 * min_amount)
 
-                # Tambahkan constraint untuk proporsi hijauan-konsentrat jika diaktifkan
-                if use_ratio_constraint and 'Kategori' in df_pakan.columns:
-                    # Hijauan constraint (minimal min_hijauan%)
-                    hijauan_constraint = []
-                    for feed in available_feeds:
-                        feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                        if feed_data['Kategori'] == 'Hijauan':
-                            hijauan_constraint.append(-1)
-                        else:
-                            hijauan_constraint.append(0)
-                    A_ub.append(hijauan_constraint)
-                    b_ub.append(-min_hijauan / 100 * min_amount)
+                # Konsentrat constraint (minimal min_konsentrat%)
+                konsentrat_constraint = []
+                for feed in available_feeds:
+                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                    if feed_data['Kategori'] == 'Konsentrat':
+                        konsentrat_constraint.append(-1)
+                    else:
+                        konsentrat_constraint.append(0)
+                A_ub.append(konsentrat_constraint)
+                b_ub.append(-min_konsentrat / 100 * min_amount)
+            
+            # Total amount constraint
+            total_min_constraint = [-1] * len(available_feeds)
+            A_ub.append(total_min_constraint)
+            b_ub.append(-min_amount)
+            
+            total_max_constraint = [1] * len(available_feeds)
+            A_ub.append(total_max_constraint)
+            b_ub.append(max_amount)
 
-                    # Konsentrat constraint (minimal min_konsentrat%)
-                    konsentrat_constraint = []
-                    for feed in available_feeds:
-                        feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                        if feed_data['Kategori'] == 'Konsentrat':
-                            konsentrat_constraint.append(-1)
-                        else:
-                            konsentrat_constraint.append(0)
-                    A_ub.append(konsentrat_constraint)
-                    b_ub.append(-min_konsentrat / 100 * min_amount)
+            # Solve the linear programming problem
+            result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None) for _ in c], method='highs')
+
+            # Process optimization results
+            if result.success:
+                st.success("✅ Optimasi ransum berhasil!")
                 
-                # Total amount constraint
-                total_min_constraint = [-1] * len(available_feeds)
-                A_ub.append(total_min_constraint)
-                b_ub.append(-min_amount)
+                # Create dictionary of feed amounts
+                optimized_amounts = {feed: result.x[i] for i, feed in enumerate(available_feeds) if result.x[i] > 0.001}
                 
-                total_max_constraint = [1] * len(available_feeds)
-                A_ub.append(total_max_constraint)
-                b_ub.append(max_amount)
-
+                # Display results
+                st.subheader("Hasil Optimasi Ransum")
+                result_data = {
+                'Bahan Pakan': list(optimized_amounts.keys()),
+                'Jumlah (kg)': list(optimized_amounts.values()),
+                'Biaya (Rp)': [optimized_amounts[feed] * df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]['Harga (Rp/kg)'] for feed in optimized_amounts]
+                }
+                df_result = pd.DataFrame(result_data)
+                st.dataframe(df_result)
+                
+                # Display total cost
+                total_cost = sum(result_data['Biaya (Rp)'])
+                st.metric("Total Biaya Ransum", f"Rp {total_cost:,.0f}")
+            else:
+                st.error(f"❌ Optimasi ransum gagal: {result.message}")
+                
                 # Solve the linear programming problem
-                result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None) for _ in c], method='highs')
-
+                # Validate inputs for linprog
+                # Initialize result with a default "failed" state
+                result = type('obj', (object,), {'success': False, 'message': 'Optimization not attempted'})
+                
+                if len(c) == 0 or len(A_ub) != len(b_ub):
+                    st.error("Invalid input for optimization: Ensure cost vector and constraints are properly defined.")
+                else:
+                    # Ensure bounds are correctly defined
+                    bounds = [(0, None) for _ in range(len(c))]
+                    
+                    # Solve the linear programming problem
+                    result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs')
+                    
+                    # Check for success and handle errors
+                    if not result.success:
+                        st.error(f"Optimization failed: {result.message}")
+                
                 # Process optimization results
                 if result.success:
                     st.success("✅ Optimasi ransum berhasil!")
                     
                     # Create dictionary of feed amounts
-                    optimized_amounts = {feed: result.x[i] for i, feed in enumerate(available_feeds) if result.x[i] > 0.001}
+                    optimized_amounts = {}
+                    for i, feed in enumerate(available_feeds):
+                        if result.x[i] > 0.001:  # Only show feeds with non-zero amounts
+                            optimized_amounts[feed] = result.x[i]
                     
                     # Display results
                     st.subheader("Hasil Optimasi Ransum")
-                    result_data = {
-                        'Bahan Pakan': list(optimized_amounts.keys()),
-                        'Jumlah (kg)': list(optimized_amounts.values()),
-                        'Biaya (Rp)': [optimized_amounts[feed] * df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]['Harga (Rp/kg)'] for feed in optimized_amounts]
-                    }
-                    df_result = pd.DataFrame(result_data)
-                    st.dataframe(df_result)
                     
-                    # Display total cost
-                    total_cost = sum(result_data['Biaya (Rp)'])
-                    st.metric("Total Biaya Ransum", f"Rp {total_cost:,.0f}")
+                    # Prepare data for display
+                    feeds_used = []
+                    amounts_used = []
+                    feed_type_list = []
+                    nutrition_data = {}
                     
-                    # Display total protein and TDN
-                    total_protein = sum(df_result['Jumlah (kg)'] * df_result['Bahan Pakan'].apply(lambda x: df_pakan[df_pakan['Nama Pakan'] == x].iloc[0]['Protein (%)'])) / sum(df_result['Jumlah (kg)'])
-                    total_tdn = sum(df_result['Jumlah (kg)'] * df_result['Bahan Pakan'].apply(lambda x: df_pakan[df_pakan['Nama Pakan'] == x].iloc[0]['TDN (%)'])) / sum(df_result['Jumlah (kg)'])
+                    # Initialize nutrition columns
+                    nutrition_columns = ['Protein (%)', 'TDN (%)']
+                    for column in nutrition_columns:
+                        nutrition_data[column] = []
                     
-                    st.metric("Kandungan Protein Ransum", f"{total_protein:.2f}%")
-                    st.metric("Kandungan TDN Ransum", f"{total_tdn:.2f}%")
-                else:
-                    st.error(f"❌ Optimasi ransum gagal: {result.message}")
+                    nutrition_data['Harga (Rp/kg)'] = []
+                    total_cost = 0
+                    total_amount = 0
                     
                     # Collect data for each feed in the optimal solution
                     for feed, amount in optimized_amounts.items():
@@ -1477,8 +1518,6 @@ elif mode == "Optimalisasi Otomatis":
                     #    else:
                     #        st.warning("Harap masukkan nama untuk formula ini.")
                     
-                    st.metric("Kandungan Protein Ransum", f"{total_protein:.2f}%")
-                    st.metric("Kandungan TDN Ransum", f"{total_tdn:.2f}%")
                 else:
                     st.error(f"❌ Optimasi ransum gagal: {result.message}")
                     st.warning("""
@@ -1489,13 +1528,6 @@ elif mode == "Optimalisasi Otomatis":
                     
                     Coba ubah batasan atau tambahkan lebih banyak pilihan pakan.
                     """)
-
-# Either add a pass statement if you want to keep the empty else, or remove it completely
-# Remove the empty else statement
-
-
-elif mode == "Mineral Supplement":
-    st.header("Perhitungan Mineral Supplement")
 
     with opt_tabs[1]:
         st.subheader("Optimasi dengan Mineral")
