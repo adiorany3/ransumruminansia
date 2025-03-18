@@ -1193,7 +1193,6 @@ elif mode == "Optimalisasi Otomatis":
                 default=konsentrat_feeds[:min(2, len(konsentrat_feeds))]
             )
 
-    # ...existing code...
         # Combine the selected feeds for the optimization function
         available_feeds = selected_hijauan + selected_konsentrat
         
@@ -1207,79 +1206,96 @@ elif mode == "Optimalisasi Otomatis":
         # Batasan tambahan untuk proporsi hijauan-konsentrat
         with st.expander("Batasan proporsi hijauan-konsentrat"):
             use_ratio_constraint = st.checkbox("Aktifkan batasan proporsi", value=False)
-# ...existing code...
         
         # Fungsi optimasi
         if st.button("Optimasi Ransum", key="optimize_standard_button") and available_feeds:
             with st.spinner("Menghitung optimasi ransum..."):
-                # Persiapkan data untuk optimasi
-                c = []  # Biaya per kg
-                A_ub = []  # Matriks ketidaksetaraan
-                b_ub = []  # Batas kanan ketidaksetaraan
-                
-                # Biaya tiap pakan (fungsi objektif)
-                for feed in available_feeds:
-                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                    c.append(feed_data['Harga (Rp/kg)'])
-                
-                # Protein minimum constraint
-                protein_constraint = []
-                for feed in available_feeds:
-                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                    protein_constraint.append(-feed_data['Protein (%)'])
-                A_ub.append(protein_constraint)
-                # Ensure nutrient_req is defined
-                nutrient_req = locals().get('nutrient_req', {'Protein (%)': 0, 'TDN (%)': 0})
-                required_protein = nutrient_req.get('Protein (%)', 0)
-                b_ub.append(-required_protein * min_amount)
+            # Persiapkan data untuk optimasi
+            c = []  # Biaya per kg
+            A_ub = []  # Matriks ketidaksetaraan
+            b_ub = []  # Batas kanan ketidaksetaraan
+            
+            # Biaya tiap pakan (fungsi objektif)
+            for feed in available_feeds:
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                c.append(feed_data['Harga (Rp/kg)'])
+            
+            # Protein minimum constraint
+            protein_constraint = []
+            for feed in available_feeds:
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                protein_constraint.append(-feed_data['Protein (%)'])
+            A_ub.append(protein_constraint)
+            required_protein = nutrient_req.get('Protein (%)', 0)
+            b_ub.append(-required_protein * min_amount)
 
-                # TDN minimum constraint
-                tdn_constraint = []
+            # TDN minimum constraint
+            tdn_constraint = []
+            for feed in available_feeds:
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                tdn_constraint.append(-feed_data['TDN (%)'])
+            A_ub.append(tdn_constraint)
+            required_tdn = nutrient_req.get('TDN (%)', 0)
+            b_ub.append(-required_tdn * min_amount)
+
+            # Tambahkan constraint untuk proporsi hijauan-konsentrat jika diaktifkan
+            if use_ratio_constraint and 'Kategori' in df_pakan.columns:
+                # Hijauan constraint (minimal min_hijauan%)
+                hijauan_constraint = []
                 for feed in available_feeds:
-                    feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                    tdn_constraint.append(-feed_data['TDN (%)'])
-                A_ub.append(tdn_constraint)
-                required_tdn = nutrient_req.get('TDN (%)', 0)
-                # Tambahkan constraint untuk proporsi hijauan-konsentrat jika diaktifkan
-                if use_ratio_constraint and 'Kategori' in df_pakan.columns:
-                    # Default values for min_hijauan and min_konsentrat
-                    min_hijauan = locals().get('min_hijauan', 0)
-                    min_konsentrat = locals().get('min_konsentrat', 0)
-        
-                    # Hijauan constraint (minimal min_hijauan%)
-                    if min_hijauan > 0:
-                        hijauan_constraint = []
-                        for feed in available_feeds:
-                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                            if feed_data['Kategori'] == 'Hijauan':
-                                hijauan_constraint.append(-1 + min_hijauan / 100)
-                            else:
-                                hijauan_constraint.append(min_hijauan / 100)
-                        A_ub.append(hijauan_constraint)
-                        b_ub.append(0)
-        
-                    # Konsentrat constraint (minimal min_konsentrat%)
-                    if min_konsentrat > 0:
-                        konsentrat_constraint = []
-                        for feed in available_feeds:
-                            feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                            if feed_data['Kategori'] == 'Konsentrat':
-                                konsentrat_constraint.append(-1 + min_konsentrat / 100)
-                            else:
-                                konsentrat_constraint.append(min_konsentrat / 100)
-                        A_ub.append(konsentrat_constraint)
-                        b_ub.append(0)
-                        A_ub.append(konsentrat_constraint)
-                        b_ub.append(0)
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                if feed_data['Kategori'] == 'Hijauan':
+                    hijauan_constraint.append(-1)
+                else:
+                    hijauan_constraint.append(0)
+                A_ub.append(hijauan_constraint)
+                b_ub.append(-min_hijauan / 100 * min_amount)
+
+                # Konsentrat constraint (minimal min_konsentrat%)
+                konsentrat_constraint = []
+                for feed in available_feeds:
+                feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
+                if feed_data['Kategori'] == 'Konsentrat':
+                    konsentrat_constraint.append(-1)
+                else:
+                    konsentrat_constraint.append(0)
+                A_ub.append(konsentrat_constraint)
+                b_ub.append(-min_konsentrat / 100 * min_amount)
+            
+            # Total amount constraint
+            total_min_constraint = [-1] * len(available_feeds)
+            A_ub.append(total_min_constraint)
+            b_ub.append(-min_amount)
+            
+            total_max_constraint = [1] * len(available_feeds)
+            A_ub.append(total_max_constraint)
+            b_ub.append(max_amount)
+
+            # Solve the linear programming problem
+            result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None) for _ in c], method='highs')
+
+            # Process optimization results
+            if result.success:
+                st.success("✅ Optimasi ransum berhasil!")
                 
-                # Total amount constraint
-                total_min_constraint = [-1] * len(available_feeds)
-                A_ub.append(total_min_constraint)
-                b_ub.append(-min_amount)
+                # Create dictionary of feed amounts
+                optimized_amounts = {feed: result.x[i] for i, feed in enumerate(available_feeds) if result.x[i] > 0.001}
                 
-                total_max_constraint = [1] * len(available_feeds)
-                A_ub.append(total_max_constraint)
-                b_ub.append(max_amount)
+                # Display results
+                st.subheader("Hasil Optimasi Ransum")
+                result_data = {
+                'Bahan Pakan': list(optimized_amounts.keys()),
+                'Jumlah (kg)': list(optimized_amounts.values()),
+                'Biaya (Rp)': [optimized_amounts[feed] * df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]['Harga (Rp/kg)'] for feed in optimized_amounts]
+                }
+                df_result = pd.DataFrame(result_data)
+                st.dataframe(df_result)
+                
+                # Display total cost
+                total_cost = sum(result_data['Biaya (Rp)'])
+                st.metric("Total Biaya Ransum", f"Rp {total_cost:,.0f}")
+            else:
+                st.error(f"❌ Optimasi ransum gagal: {result.message}")
                 
                 # Solve the linear programming problem
                 # Validate inputs for linprog
