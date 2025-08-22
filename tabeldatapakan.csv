@@ -164,3 +164,52 @@ Daun Kelor,Domba,Hijauan,26.5,75.0,2.0,0.6,0.5,350,8,30,1800
 Rumput Mott,Sapi,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
 Rumput Mott,Kambing,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
 Rumput Mott,Domba,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
+Tepung Kedelai,Sapi,Konsentrat,48.0,85.0,0.3,0.7,0.3,130,15,55,9500
+Tepung Kedelai,Kambing,Konsentrat,48.0,85.0,0.3,0.7,0.3,130,15,55,9500
+Tepung Kedelai,Domba,Konsentrat,48.0,85.0,0.3,0.7,0.3,130,15,55,9500
+Single Cell Protein,Sapi,Konsentrat,70.0,85.0,0.4,0.8,0.3,150,18,60,12000
+Single Cell Protein,Kambing,Konsentrat,70.0,85.0,0.4,0.8,0.3,150,18,60,12000
+Single Cell Protein,Domba,Konsentrat,70.0,85.0,0.4,0.8,0.3,150,18,60,12000
+Dried Brewers Yeast,Sapi,Konsentrat,45.0,80.0,0.3,0.7,0.3,180,15,65,8500
+Dried Brewers Yeast,Kambing,Konsentrat,45.0,80.0,0.3,0.7,0.3,180,15,65,8500
+Dried Brewers Yeast,Domba,Konsentrat,45.0,80.0,0.3,0.7,0.3,180,15,65,8500
+Blood Meal,Sapi,Konsentrat,80.0,75.0,0.3,0.3,0.2,2500,10,35,13000
+Blood Meal,Kambing,Konsentrat,80.0,75.0,0.3,0.3,0.2,2500,10,35,13000
+Blood Meal,Domba,Konsentrat,80.0,75.0,0.3,0.3,0.2,2500,10,35,13000
+Kedelai Full Fat,Sapi,Konsentrat,38.0,90.0,0.3,0.6,0.3,120,14,45,9000
+Kedelai Full Fat,Kambing,Konsentrat,38.0,90.0,0.3,0.6,0.3,120,14,45,9000
+Kedelai Full Fat,Domba,Konsentrat,38.0,90.0,0.3,0.6,0.3,120,14,45,9000
+Gluten Meal 60,Sapi,Konsentrat,60.0,85.0,0.2,0.5,0.2,130,8,45,10500
+Gluten Meal 60,Kambing,Konsentrat,60.0,85.0,0.2,0.5,0.2,130,8,45,10500
+Gluten Meal 60,Domba,Konsentrat,60.0,85.0,0.2,0.5,0.2,130,8,45,10500
+Fish Meal Premium,Sapi,Konsentrat,68.0,80.0,5.5,3.2,0.5,350,12,85,14000
+Fish Meal Premium,Kambing,Konsentrat,68.0,80.0,5.5,3.2,0.5,350,12,85,14000
+Fish Meal Premium,Domba,Konsentrat,68.0,80.0,5.5,3.2,0.5,350,12,85,14000
+Protected Soybean Meal,Sapi,Konsentrat,52.0,88.0,0.4,0.8,0.3,140,16,58,11000
+Protected Soybean Meal,Kambing,Konsentrat,52.0,88.0,0.4,0.8,0.3,140,16,58,11000
+Protected Soybean Meal,Domba,Konsentrat,52.0,88.0,0.4,0.8,0.3,140,16,58,11000
+Poultry By-Product Meal,Sapi,Konsentrat,58.0,82.0,4.0,2.5,0.3,450,25,75,9500
+Poultry By-Product Meal,Kambing,Konsentrat,58.0,82.0,4.0,2.5,0.3,450,25,75,9500
+Poultry By-Product Meal,Domba,Konsentrat,58.0,82.0,4.0,2.5,0.3,450,25,75,9500
+High Protein Distillers Grain,Sapi,Konsentrat,45.0,88.0,0.3,0.9,0.4,280,12,80,8500
+High Protein Distillers Grain,Kambing,Konsentrat,45.0,88.0,0.3,0.9,0.4,280,12,80,8500
+High Protein Distillers Grain,Domba,Konsentrat,45.0,88.0,0.3,0.9,0.4,280,12,80,8500
+Hydrolyzed Feather Meal,Sapi,Konsentrat,85.0,75.0,0.3,0.5,0.2,450,10,70,9000
+Hydrolyzed Feather Meal,Kambing,Konsentrat,85.0,75.0,0.3,0.5,0.2,450,10,70,9000
+Hydrolyzed Feather Meal,Domba,Konsentrat,85.0,75.0,0.3,0.5,0.2,450,10,70,9000
+Bypass Protein Mix,Sapi,Konsentrat,55.0,86.0,1.2,0.9,0.4,300,20,65,12000
+Bypass Protein Mix,Kambing,Konsentrat,55.0,86.0,1.2,0.9,0.4,300,20,65,12000
+Bypass Protein Mix,Domba,Konsentrat,55.0,86.0,1.2,0.9,0.4,300,20,65,12000
+Bungkil Canola,Sapi,Konsentrat,38.0,78.0,0.7,1.0,0.3,150,12,45,7800
+Bungkil Canola,Kambing,Konsentrat,38.0,78.0,0.7,1.0,0.3,150,12,45,7800
+Bungkil Canola,Domba,Konsentrat,38.0,78.0,0.7,1.0,0.3,150,12,45,7800
+Corn Gluten Meal,Sapi,Konsentrat,65.0,83.0,0.2,0.5,0.2,140,10,60,11000
+Corn Gluten Meal,Kambing,Konsentrat,65.0,83.0,0.2,0.5,0.2,140,10,60,11000
+Corn Gluten Meal,Domba,Konsentrat,65.0,83.0,0.2,0.5,0.2,140,10,60,11000
+Bungkil Kedelai Bypass,Sapi,Konsentrat,47.0,88.0,0.4,0.8,0.3,140,16,52,10500
+Cotton Seed Whole,Sapi,Konsentrat,23.0,85.0,0.2,0.6,0.4,180,12,45,8000
+Dried Brewers Grain,Sapi,Konsentrat,29.0,83.0,0.3,0.6,0.2,190,16,70,4200
+Dried Distillers Grain Plus,Sapi,Konsentrat,30.0,87.0,0.2,0.8,0.3,260,10,80,7000
+Bungkil Kedelai Terproteksi,Sapi,Konsentrat,45.0,86.0,0.3,0.7,0.3,135,15,53,11000
+High Protein Corn Meal,Sapi,Konsentrat,45.0,85.0,0.1,0.4,0.2,120,9,35,9800
+Tepung Rapeseed Terproteksi,Sapi,Konsentrat,40.0,84.0,0.8,1.1,0.3,160,13,48,8500

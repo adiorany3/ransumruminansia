@@ -466,7 +466,7 @@ def validasi_data_pakan_extended(df):
 
 # Animal type selection
 jenis_hewan = st.selectbox(
-    "Pilih jenis ternak:", 
+    "Pilih jenis hewan:", 
     ["Sapi Potong", "Sapi Perah", "Kambing Potong", "Kambing Perah", "Domba Potong", "Domba Perah"]
 )
 
@@ -833,488 +833,6 @@ if search_term:
             )
             
             st.altair_chart(chart)
-            # PEMBATAS VISUAL
-            st.divider()
-
-            # Ambil hasil optimasi dari blok sebelumnya
-            try:
-                # Pastikan variabel hasil optimasi tersedia
-                optimized_amounts = {row['Bahan Pakan']: row['Jumlah (kg)'] for _, row in df_result.iterrows()}
-                total_feed_amount = sum(optimized_amounts.values())
-            except Exception:
-                optimized_amounts = None
-                total_feed_amount = None
-
-                if optimized_amounts is not None and total_feed_amount is not None:
-                    st.subheader("Tabel Kandungan Gizi Ransum Optimal")
-                    nutrition_columns = ['Protein (%)', 'TDN (%)', 'Ca (%)', 'P (%)', 'Mg (%)']
-                    kandungan_gizi = {}
-                    for col in nutrition_columns:
-                        kandungan_gizi[col] = sum(df_result['Jumlah (kg)'] * df_result[col]) / total_feed_amount if total_feed_amount > 0 else 0
-                    gizi_table = pd.DataFrame({
-                        'Kandungan (%)': [kandungan_gizi['Protein (%)'], kandungan_gizi['TDN (%)'], kandungan_gizi['Ca (%)'], kandungan_gizi['P (%)'], kandungan_gizi['Mg (%)']]
-                    }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                    st.table(gizi_table)
-
-                    # Saran jika kandungan gizi masih kurang dari kebutuhan minimal
-                    rekomendasi = []
-                    required_protein = nutrient_req.get('Protein (%)', 0)
-                    required_tdn = nutrient_req.get('TDN (%)', 0)
-                    if kandungan_gizi['Protein (%)'] < required_protein:
-                        df_pakan_protein = df_pakan.copy()
-                        df_pakan_protein = df_pakan_protein[~df_pakan_protein['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                        df_pakan_protein = df_pakan_protein.sort_values('Protein (%)', ascending=False)
-                        if not df_pakan_protein.empty:
-                            rekomendasi.append(f"Tambahkan bahan pakan berprotein tinggi seperti {df_pakan_protein.iloc[0]['Nama Pakan']} (Protein: {df_pakan_protein.iloc[0]['Protein (%)']}%) sekitar 0.5-1 kg.")
-                    if kandungan_gizi['TDN (%)'] < required_tdn:
-                        df_pakan_tdn = df_pakan.copy()
-                        df_pakan_tdn = df_pakan_tdn[~df_pakan_tdn['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                        df_pakan_tdn = df_pakan_tdn.sort_values('TDN (%)', ascending=False)
-                        if not df_pakan_tdn.empty:
-                            rekomendasi.append(f"Tambahkan bahan pakan dengan TDN tinggi seperti {df_pakan_tdn.iloc[0]['Nama Pakan']} (TDN: {df_pakan_tdn.iloc[0]['TDN (%)']}%) sekitar 0.5-1 kg.")
-                    if rekomendasi:
-                        st.warning("Kandungan gizi ransum optimal masih lebih rendah dari kebutuhan minimal ternak.")
-                        for rec in rekomendasi:
-                            st.info(rec)
-
-                        # Simulasi penambahan bahan pakan yang direkomendasikan
-                        tambahan_pakan = {}
-                        if kandungan_gizi['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                            nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                            tambahan_pakan[nama_pakan_protein] = 1.0
-                        if kandungan_gizi['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                            nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                            if nama_pakan_tdn in tambahan_pakan:
-                                tambahan_pakan[nama_pakan_tdn] += 1.0
-                            else:
-                                tambahan_pakan[nama_pakan_tdn] = 1.0
-
-                        hasil_pakan = optimized_amounts.copy()
-                        for k, v in tambahan_pakan.items():
-                            if k in hasil_pakan:
-                                hasil_pakan[k] += v
-                            else:
-                                hasil_pakan[k] = v
-
-                        result_data_tambah = {
-                            'Bahan Pakan': list(hasil_pakan.keys()),
-                            'Jumlah (kg)': list(hasil_pakan.values())
-                        }
-                        for col in nutrition_columns:
-                            result_data_tambah[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan]
-                        df_result_tambah = pd.DataFrame(result_data_tambah)
-                        total_feed_amount_tambah = sum(result_data_tambah['Jumlah (kg)'])
-                        kandungan_gizi_tambah = {}
-                        for col in nutrition_columns:
-                            kandungan_gizi_tambah[col] = sum(df_result_tambah['Jumlah (kg)'] * df_result_tambah[col]) / total_feed_amount_tambah if total_feed_amount_tambah > 0 else 0
-
-                        st.subheader("Simulasi Hasil Setelah Penambahan Bahan Pakan")
-                        gizi_table_tambah = pd.DataFrame({
-                            'Kandungan (%)': [kandungan_gizi_tambah['Protein (%)'], kandungan_gizi_tambah['TDN (%)'], kandungan_gizi_tambah['Ca (%)'], kandungan_gizi_tambah['P (%)'], kandungan_gizi_tambah['Mg (%)']]
-                        }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                        st.table(gizi_table_tambah)
-
-                        status_protein = "✅" if kandungan_gizi_tambah['Protein (%)'] >= required_protein else "❌"
-                        status_tdn = "✅" if kandungan_gizi_tambah['TDN (%)'] >= required_tdn else "❌"
-                        st.write(f"Status Protein: {status_protein} {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                        st.write(f"Status TDN: {status_tdn} {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-
-                        max_iter = 10
-                        iterasi = 0
-                        hasil_pakan_iter = hasil_pakan.copy()
-                        while (kandungan_gizi_tambah['Protein (%)'] < required_protein or kandungan_gizi_tambah['TDN (%)'] < required_tdn) and iterasi < max_iter:
-                            iterasi += 1
-                            if kandungan_gizi_tambah['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                                nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                                if nama_pakan_protein in hasil_pakan_iter:
-                                    hasil_pakan_iter[nama_pakan_protein] += 0.5
-                                else:
-                                    hasil_pakan_iter[nama_pakan_protein] = 0.5
-                            if kandungan_gizi_tambah['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                                nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                                if nama_pakan_tdn in hasil_pakan_iter:
-                                    hasil_pakan_iter[nama_pakan_tdn] += 0.5
-                                else:
-                                    hasil_pakan_iter[nama_pakan_tdn] = 0.5
-                            result_data_iter = {
-                                'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                                'Jumlah (kg)': list(hasil_pakan_iter.values())
-                            }
-                            for col in nutrition_columns:
-                                result_data_iter[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan_iter]
-                            df_result_iter = pd.DataFrame(result_data_iter)
-                            total_feed_amount_iter = sum(result_data_iter['Jumlah (kg)'])
-                            kandungan_gizi_tambah = {}
-                            for col in nutrition_columns:
-                                kandungan_gizi_tambah[col] = sum(df_result_iter['Jumlah (kg)'] * df_result_iter[col]) / total_feed_amount_iter if total_feed_amount_iter > 0 else 0
-
-                        if kandungan_gizi_tambah['Protein (%)'] >= required_protein and kandungan_gizi_tambah['TDN (%)'] >= required_tdn:
-                            st.success(f"Kebutuhan Protein dan TDN sudah terpenuhi setelah penambahan bahan pakan berikut:")
-                            rekom_table = pd.DataFrame({
-                                'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                                'Jumlah (kg)': list(hasil_pakan_iter.values())
-                            })
-                            st.table(rekom_table)
-                            st.write(f"Protein: {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                            st.write(f"TDN: {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-                        else:
-                            st.error("Kebutuhan Protein dan TDN belum dapat terpenuhi dengan bahan pakan yang tersedia. Silakan cek data pakan atau tambahkan bahan lain.")
-                # PEMBATAS VISUAL
-                st.divider()
-
-                # Tabel kandungan gizi total hasil optimasi
-                st.subheader("Tabel Kandungan Gizi Ransum Optimal")
-                nutrition_columns = ['Protein (%)', 'TDN (%)', 'Ca (%)', 'P (%)', 'Mg (%)']
-                kandungan_gizi = {}
-                for col in nutrition_columns:
-                    kandungan_gizi[col] = sum(df_result['Jumlah (kg)'] * df_result[col]) / total_feed_amount if total_feed_amount > 0 else 0
-                gizi_table = pd.DataFrame({
-                    'Kandungan (%)': [kandungan_gizi['Protein (%)'], kandungan_gizi['TDN (%)'], kandungan_gizi['Ca (%)'], kandungan_gizi['P (%)'], kandungan_gizi['Mg (%)']]
-                }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                st.table(gizi_table)
-
-                # Saran jika kandungan gizi masih kurang dari kebutuhan minimal
-                rekomendasi = []
-                required_protein = nutrient_req.get('Protein (%)', 0)
-                required_tdn = nutrient_req.get('TDN (%)', 0)
-                if kandungan_gizi['Protein (%)'] < required_protein:
-                    df_pakan_protein = df_pakan.copy()
-                    df_pakan_protein = df_pakan_protein[~df_pakan_protein['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                    df_pakan_protein = df_pakan_protein.sort_values('Protein (%)', ascending=False)
-                    if not df_pakan_protein.empty:
-                        rekomendasi.append(f"Tambahkan bahan pakan berprotein tinggi seperti {df_pakan_protein.iloc[0]['Nama Pakan']} (Protein: {df_pakan_protein.iloc[0]['Protein (%)']}%) sekitar 0.5-1 kg.")
-                if kandungan_gizi['TDN (%)'] < required_tdn:
-                    df_pakan_tdn = df_pakan.copy()
-                    df_pakan_tdn = df_pakan_tdn[~df_pakan_tdn['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                    df_pakan_tdn = df_pakan_tdn.sort_values('TDN (%)', ascending=False)
-                    if not df_pakan_tdn.empty:
-                        rekomendasi.append(f"Tambahkan bahan pakan dengan TDN tinggi seperti {df_pakan_tdn.iloc[0]['Nama Pakan']} (TDN: {df_pakan_tdn.iloc[0]['TDN (%)']}%) sekitar 0.5-1 kg.")
-                if rekomendasi:
-                    st.warning("Kandungan gizi ransum optimal masih lebih rendah dari kebutuhan minimal ternak.")
-                    for rec in rekomendasi:
-                        st.info(rec)
-
-                    # Simulasi penambahan bahan pakan yang direkomendasikan
-                    tambahan_pakan = {}
-                    if kandungan_gizi['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                        nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                        tambahan_pakan[nama_pakan_protein] = 1.0
-                    if kandungan_gizi['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                        nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                        if nama_pakan_tdn in tambahan_pakan:
-                            tambahan_pakan[nama_pakan_tdn] += 1.0
-                        else:
-                            tambahan_pakan[nama_pakan_tdn] = 1.0
-
-                    hasil_pakan = optimized_amounts.copy()
-                    for k, v in tambahan_pakan.items():
-                        if k in hasil_pakan:
-                            hasil_pakan[k] += v
-                        else:
-                            hasil_pakan[k] = v
-
-                    result_data_tambah = {
-                        'Bahan Pakan': list(hasil_pakan.keys()),
-                        'Jumlah (kg)': list(hasil_pakan.values())
-                    }
-                    for col in nutrition_columns:
-                        result_data_tambah[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan]
-                    df_result_tambah = pd.DataFrame(result_data_tambah)
-                    total_feed_amount_tambah = sum(result_data_tambah['Jumlah (kg)'])
-                    kandungan_gizi_tambah = {}
-                    for col in nutrition_columns:
-                        kandungan_gizi_tambah[col] = sum(df_result_tambah['Jumlah (kg)'] * df_result_tambah[col]) / total_feed_amount_tambah if total_feed_amount_tambah > 0 else 0
-
-                    st.subheader("Simulasi Hasil Setelah Penambahan Bahan Pakan")
-                    gizi_table_tambah = pd.DataFrame({
-                        'Kandungan (%)': [kandungan_gizi_tambah['Protein (%)'], kandungan_gizi_tambah['TDN (%)'], kandungan_gizi_tambah['Ca (%)'], kandungan_gizi_tambah['P (%)'], kandungan_gizi_tambah['Mg (%)']]
-                    }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                    st.table(gizi_table_tambah)
-
-                    status_protein = "✅" if kandungan_gizi_tambah['Protein (%)'] >= required_protein else "❌"
-                    status_tdn = "✅" if kandungan_gizi_tambah['TDN (%)'] >= required_tdn else "❌"
-                    st.write(f"Status Protein: {status_protein} {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                    st.write(f"Status TDN: {status_tdn} {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-
-                    max_iter = 10
-                    iterasi = 0
-                    hasil_pakan_iter = hasil_pakan.copy()
-                    while (kandungan_gizi_tambah['Protein (%)'] < required_protein or kandungan_gizi_tambah['TDN (%)'] < required_tdn) and iterasi < max_iter:
-                        iterasi += 1
-                        if kandungan_gizi_tambah['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                            nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                            if nama_pakan_protein in hasil_pakan_iter:
-                                hasil_pakan_iter[nama_pakan_protein] += 0.5
-                            else:
-                                hasil_pakan_iter[nama_pakan_protein] = 0.5
-                        if kandungan_gizi_tambah['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                            nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                            if nama_pakan_tdn in hasil_pakan_iter:
-                                hasil_pakan_iter[nama_pakan_tdn] += 0.5
-                            else:
-                                hasil_pakan_iter[nama_pakan_tdn] = 0.5
-                        result_data_iter = {
-                            'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                            'Jumlah (kg)': list(hasil_pakan_iter.values())
-                        }
-                        for col in nutrition_columns:
-                            result_data_iter[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan_iter]
-                        df_result_iter = pd.DataFrame(result_data_iter)
-                        total_feed_amount_iter = sum(result_data_iter['Jumlah (kg)'])
-                        kandungan_gizi_tambah = {}
-                        for col in nutrition_columns:
-                            kandungan_gizi_tambah[col] = sum(df_result_iter['Jumlah (kg)'] * df_result_iter[col]) / total_feed_amount_iter if total_feed_amount_iter > 0 else 0
-
-                    if kandungan_gizi_tambah['Protein (%)'] >= required_protein and kandungan_gizi_tambah['TDN (%)'] >= required_tdn:
-                        st.success(f"Kebutuhan Protein dan TDN sudah terpenuhi setelah penambahan bahan pakan berikut:")
-                        rekom_table = pd.DataFrame({
-                            'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                            'Jumlah (kg)': list(hasil_pakan_iter.values())
-                        })
-                        st.table(rekom_table)
-                        st.write(f"Protein: {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                        st.write(f"TDN: {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-                    else:
-                        st.error("Kebutuhan Protein dan TDN belum dapat terpenuhi dengan bahan pakan yang tersedia. Silakan cek data pakan atau tambahkan bahan lain.")
-                # PEMBATAS VISUAL
-                st.divider()
-
-                # Tabel kandungan gizi total hasil optimasi
-                if kandungan_gizi['Protein (%)'] < required_protein:
-                    df_pakan_protein = df_pakan.copy()
-                    df_pakan_protein = df_pakan_protein[~df_pakan_protein['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                    df_pakan_protein = df_pakan_protein.sort_values('Protein (%)', ascending=False)
-                    if not df_pakan_protein.empty:
-                        rekomendasi.append(f"Tambahkan bahan pakan berprotein tinggi seperti {df_pakan_protein.iloc[0]['Nama Pakan']} (Protein: {df_pakan_protein.iloc[0]['Protein (%)']}%) sekitar 0.5-1 kg.")
-                if kandungan_gizi['TDN (%)'] < required_tdn:
-                    # Cari bahan pakan dengan TDN tertinggi yang belum dipakai
-                    df_pakan_tdn = df_pakan.copy()
-                    df_pakan_tdn = df_pakan_tdn[~df_pakan_tdn['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                    df_pakan_tdn = df_pakan_tdn.sort_values('TDN (%)', ascending=False)
-                    if not df_pakan_tdn.empty:
-                        rekomendasi.append(f"Tambahkan bahan pakan dengan TDN tinggi seperti {df_pakan_tdn.iloc[0]['Nama Pakan']} (TDN: {df_pakan_tdn.iloc[0]['TDN (%)']}%) sekitar 0.5-1 kg.")
-                if rekomendasi:
-                    st.warning("Kandungan gizi ransum optimal masih lebih rendah dari kebutuhan minimal ternak.")
-                    for rec in rekomendasi:
-                        st.info(rec)
-
-                    # Simulasi penambahan bahan pakan yang direkomendasikan
-                    tambahan_pakan = {}
-                    # Tambahkan protein jika kurang
-                    if kandungan_gizi['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                        nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                        tambahan_pakan[nama_pakan_protein] = 1.0
-                    # Tambahkan TDN jika kurang
-                    if kandungan_gizi['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                        nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                        if nama_pakan_tdn in tambahan_pakan:
-                            tambahan_pakan[nama_pakan_tdn] += 1.0
-                        else:
-                            tambahan_pakan[nama_pakan_tdn] = 1.0
-
-                    # Gabungkan dengan hasil optimasi
-                    hasil_pakan = optimized_amounts.copy()
-                    for k, v in tambahan_pakan.items():
-                        if k in hasil_pakan:
-                            hasil_pakan[k] += v
-                        else:
-                            hasil_pakan[k] = v
-
-                    # Hitung ulang kandungan gizi
-                    result_data_tambah = {
-                        'Bahan Pakan': list(hasil_pakan.keys()),
-                        'Jumlah (kg)': list(hasil_pakan.values())
-                    }
-                    for col in nutrition_columns:
-                        result_data_tambah[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan]
-                    df_result_tambah = pd.DataFrame(result_data_tambah)
-                    total_feed_amount_tambah = sum(result_data_tambah['Jumlah (kg)'])
-                    kandungan_gizi_tambah = {}
-                    for col in nutrition_columns:
-                        kandungan_gizi_tambah[col] = sum(df_result_tambah['Jumlah (kg)'] * df_result_tambah[col]) / total_feed_amount_tambah if total_feed_amount_tambah > 0 else 0
-
-                    st.subheader("Simulasi Hasil Setelah Penambahan Bahan Pakan")
-                    gizi_table_tambah = pd.DataFrame({
-                        'Kandungan (%)': [kandungan_gizi_tambah['Protein (%)'], kandungan_gizi_tambah['TDN (%)'], kandungan_gizi_tambah['Ca (%)'], kandungan_gizi_tambah['P (%)'], kandungan_gizi_tambah['Mg (%)']]
-                    }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                    st.table(gizi_table_tambah)
-
-                    # Status pemenuhan kebutuhan
-                    status_protein = "✅" if kandungan_gizi_tambah['Protein (%)'] >= required_protein else "❌"
-                    status_tdn = "✅" if kandungan_gizi_tambah['TDN (%)'] >= required_tdn else "❌"
-                    st.write(f"Status Protein: {status_protein} {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                    st.write(f"Status TDN: {status_tdn} {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-
-                    # Simulasi berulang jika masih belum terpenuhi
-                    max_iter = 10
-                    iterasi = 0
-                    hasil_pakan_iter = hasil_pakan.copy()
-                    while (kandungan_gizi_tambah['Protein (%)'] < required_protein or kandungan_gizi_tambah['TDN (%)'] < required_tdn) and iterasi < max_iter:
-                        iterasi += 1
-                        # Tambah bahan pakan protein jika kurang
-                        if kandungan_gizi_tambah['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                            nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                            if nama_pakan_protein in hasil_pakan_iter:
-                                hasil_pakan_iter[nama_pakan_protein] += 0.5
-                            else:
-                                hasil_pakan_iter[nama_pakan_protein] = 0.5
-                        # Tambah bahan pakan TDN jika kurang
-                        if kandungan_gizi_tambah['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                            nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                            if nama_pakan_tdn in hasil_pakan_iter:
-                                hasil_pakan_iter[nama_pakan_tdn] += 0.5
-                            else:
-                                hasil_pakan_iter[nama_pakan_tdn] = 0.5
-                        # Hitung ulang kandungan gizi
-                        result_data_iter = {
-                            'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                            'Jumlah (kg)': list(hasil_pakan_iter.values())
-                        }
-                        for col in nutrition_columns:
-                            result_data_iter[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan_iter]
-                        df_result_iter = pd.DataFrame(result_data_iter)
-                        total_feed_amount_iter = sum(result_data_iter['Jumlah (kg)'])
-                        kandungan_gizi_tambah = {}
-                        for col in nutrition_columns:
-                            kandungan_gizi_tambah[col] = sum(df_result_iter['Jumlah (kg)'] * df_result_iter[col]) / total_feed_amount_iter if total_feed_amount_iter > 0 else 0
-
-                    if kandungan_gizi_tambah['Protein (%)'] >= required_protein and kandungan_gizi_tambah['TDN (%)'] >= required_tdn:
-                        st.success(f"Kebutuhan Protein dan TDN sudah terpenuhi setelah penambahan bahan pakan berikut:")
-                        rekom_table = pd.DataFrame({
-                            'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                            'Jumlah (kg)': list(hasil_pakan_iter.values())
-                        })
-                        st.table(rekom_table)
-                        st.write(f"Protein: {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                        st.write(f"TDN: {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-                    else:
-                        st.error("Kebutuhan Protein dan TDN belum dapat terpenuhi dengan bahan pakan yang tersedia. Silakan cek data pakan atau tambahkan bahan lain.")
-                # PEMBATAS VISUAL
-                st.divider()
-
-                # Tabel kandungan gizi total hasil optimasi
-                st.subheader("Tabel Kandungan Gizi Ransum Optimal")
-                total_feed_amount = sum(result_data['Jumlah (kg)'])
-                total_cost = sum(result_data['Biaya (Rp)'])
-                kandungan_gizi = {}
-                for col in nutrition_columns:
-                    kandungan_gizi[col] = sum(df_result['Jumlah (kg)'] * df_result[col]) / total_feed_amount if total_feed_amount > 0 else 0
-                gizi_table = pd.DataFrame({
-                    'Kandungan (%)': [kandungan_gizi['Protein (%)'], kandungan_gizi['TDN (%)'], kandungan_gizi['Ca (%)'], kandungan_gizi['P (%)'], kandungan_gizi['Mg (%)']]
-                }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                st.table(gizi_table)
-                # Saran jika kandungan gizi masih kurang dari kebutuhan minimal
-                rekomendasi = []
-                if kandungan_gizi['Protein (%)'] < required_protein:
-                    # Cari bahan pakan dengan protein tertinggi yang belum dipakai
-                    df_pakan_protein = df_pakan.copy()
-                    df_pakan_protein = df_pakan_protein[~df_pakan_protein['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                    df_pakan_protein = df_pakan_protein.sort_values('Protein (%)', ascending=False)
-                    if not df_pakan_protein.empty:
-                        rekomendasi.append(f"Tambahkan bahan pakan berprotein tinggi seperti {df_pakan_protein.iloc[0]['Nama Pakan']} (Protein: {df_pakan_protein.iloc[0]['Protein (%)']}%) sekitar 0.5-1 kg.")
-                if kandungan_gizi['TDN (%)'] < required_tdn:
-                    # Cari bahan pakan dengan TDN tertinggi yang belum dipakai
-                    df_pakan_tdn = df_pakan.copy()
-                    df_pakan_tdn = df_pakan_tdn[~df_pakan_tdn['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                    df_pakan_tdn = df_pakan_tdn.sort_values('TDN (%)', ascending=False)
-                    if not df_pakan_tdn.empty:
-                        rekomendasi.append(f"Tambahkan bahan pakan dengan TDN tinggi seperti {df_pakan_tdn.iloc[0]['Nama Pakan']} (TDN: {df_pakan_tdn.iloc[0]['TDN (%)']}%) sekitar 0.5-1 kg.")
-                if rekomendasi:
-                    st.warning("Kandungan gizi ransum optimal masih lebih rendah dari kebutuhan minimal ternak.")
-                    for rec in rekomendasi:
-                        st.info(rec)
-
-                    # Simulasi penambahan bahan pakan yang direkomendasikan
-                    tambahan_pakan = {}
-                    # Tambahkan protein jika kurang
-                    if kandungan_gizi['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                        nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                        tambahan_pakan[nama_pakan_protein] = 1.0
-                    # Tambahkan TDN jika kurang
-                    if kandungan_gizi['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                        nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                        if nama_pakan_tdn in tambahan_pakan:
-                            tambahan_pakan[nama_pakan_tdn] += 1.0
-                        else:
-                            tambahan_pakan[nama_pakan_tdn] = 1.0
-
-                    # Gabungkan dengan hasil optimasi
-                    hasil_pakan = optimized_amounts.copy()
-                    for k, v in tambahan_pakan.items():
-                        if k in hasil_pakan:
-                            hasil_pakan[k] += v
-                        else:
-                            hasil_pakan[k] = v
-
-                    # Hitung ulang kandungan gizi
-                    result_data_tambah = {
-                        'Bahan Pakan': list(hasil_pakan.keys()),
-                        'Jumlah (kg)': list(hasil_pakan.values())
-                    }
-                    for col in nutrition_columns:
-                        result_data_tambah[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan]
-                    df_result_tambah = pd.DataFrame(result_data_tambah)
-                    total_feed_amount_tambah = sum(result_data_tambah['Jumlah (kg)'])
-                    kandungan_gizi_tambah = {}
-                    for col in nutrition_columns:
-                        kandungan_gizi_tambah[col] = sum(df_result_tambah['Jumlah (kg)'] * df_result_tambah[col]) / total_feed_amount_tambah if total_feed_amount_tambah > 0 else 0
-
-                    st.subheader("Simulasi Hasil Setelah Penambahan Bahan Pakan")
-                    gizi_table_tambah = pd.DataFrame({
-                        'Kandungan (%)': [kandungan_gizi_tambah['Protein (%)'], kandungan_gizi_tambah['TDN (%)'], kandungan_gizi_tambah['Ca (%)'], kandungan_gizi_tambah['P (%)'], kandungan_gizi_tambah['Mg (%)']]
-                    }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                    st.table(gizi_table_tambah)
-
-                    # Status pemenuhan kebutuhan
-                    status_protein = "✅" if kandungan_gizi_tambah['Protein (%)'] >= required_protein else "❌"
-                    status_tdn = "✅" if kandungan_gizi_tambah['TDN (%)'] >= required_tdn else "❌"
-                    st.write(f"Status Protein: {status_protein} {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                    st.write(f"Status TDN: {status_tdn} {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-
-                    # Simulasi berulang jika masih belum terpenuhi
-                    max_iter = 10
-                    iterasi = 0
-                    hasil_pakan_iter = hasil_pakan.copy()
-                    while (kandungan_gizi_tambah['Protein (%)'] < required_protein or kandungan_gizi_tambah['TDN (%)'] < required_tdn) and iterasi < max_iter:
-                        iterasi += 1
-                        # Tambah bahan pakan protein jika kurang
-                        if kandungan_gizi_tambah['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                            nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                            if nama_pakan_protein in hasil_pakan_iter:
-                                hasil_pakan_iter[nama_pakan_protein] += 0.5
-                            else:
-                                hasil_pakan_iter[nama_pakan_protein] = 0.5
-                        # Tambah bahan pakan TDN jika kurang
-                        if kandungan_gizi_tambah['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                            nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                            if nama_pakan_tdn in hasil_pakan_iter:
-                                hasil_pakan_iter[nama_pakan_tdn] += 0.5
-                            else:
-                                hasil_pakan_iter[nama_pakan_tdn] = 0.5
-                        # Hitung ulang kandungan gizi
-                        result_data_iter = {
-                            'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                            'Jumlah (kg)': list(hasil_pakan_iter.values())
-                        }
-                        for col in nutrition_columns:
-                            result_data_iter[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan_iter]
-                        df_result_iter = pd.DataFrame(result_data_iter)
-                        total_feed_amount_iter = sum(result_data_iter['Jumlah (kg)'])
-                        kandungan_gizi_tambah = {}
-                        for col in nutrition_columns:
-                            kandungan_gizi_tambah[col] = sum(df_result_iter['Jumlah (kg)'] * df_result_iter[col]) / total_feed_amount_iter if total_feed_amount_iter > 0 else 0
-
-                    if kandungan_gizi_tambah['Protein (%)'] >= required_protein and kandungan_gizi_tambah['TDN (%)'] >= required_tdn:
-                        st.success(f"Kebutuhan Protein dan TDN sudah terpenuhi setelah penambahan bahan pakan berikut:")
-                        rekom_table = pd.DataFrame({
-                            'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                            'Jumlah (kg)': list(hasil_pakan_iter.values())
-                        })
-                        st.table(rekom_table)
-                        st.write(f"Protein: {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                        st.write(f"TDN: {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-                    else:
-                        st.error("Kebutuhan Protein dan TDN belum dapat terpenuhi dengan bahan pakan yang tersedia. Silakan cek data pakan atau tambahkan bahan lain.")
     else:
         st.warning(f"Tidak ditemukan bahan pakan dengan kata kunci '{search_term}'")
 
@@ -1771,16 +1289,7 @@ elif mode == "Optimalisasi Otomatis":
 # ...existing code...
         # Fungsi optimasi
         if st.button("Optimasi Ransum", key="optimize_standard_button") and available_feeds:
-            # Validasi minimal satu hijauan dan satu konsentrat harus dipilih
-            if len(selected_hijauan) == 0 or len(selected_konsentrat) == 0:
-                st.error("Silakan pilih minimal satu hijauan dan satu konsentrat untuk optimasi ransum.")
-            else:
-                with st.spinner("Menghitung optimasi ransum..."):
-                    # Persiapkan data untuk optimasi
-                    c = []  # Biaya per kg
-                    A_ub = []  # Matriks ketidaksetaraan
-                    b_ub = []  # Batas kanan ketidaksetaraan
-                    # ...existing code...
+            with st.spinner("Menghitung optimasi ransum..."):
                 # Persiapkan data untuk optimasi
                 c = []  # Biaya per kg
                 A_ub = []  # Matriks ketidaksetaraan
@@ -1812,27 +1321,27 @@ elif mode == "Optimalisasi Otomatis":
 
             # Tambahkan constraint untuk proporsi hijauan-konsentrat jika diaktifkan
             if use_ratio_constraint and 'Kategori' in df_pakan.columns:
-                # Hijauan constraint (maksimal max_hijauan%)
+                # Hijauan constraint (minimal min_hijauan%)
                 hijauan_constraint = []
                 for feed in available_feeds:
                     feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                     if feed_data['Kategori'] == 'Hijauan':
-                        hijauan_constraint.append(1)
+                        hijauan_constraint.append(-1)
                     else:
                         hijauan_constraint.append(0)
                 A_ub.append(hijauan_constraint)
-                b_ub.append((min_hijauan / 100) * max_amount)  # min_hijauan di UI jadi max_hijauan
+                b_ub.append(-min_hijauan / 100 * min_amount)
 
-                # Konsentrat constraint (maksimal max_konsentrat%)
+                # Konsentrat constraint (minimal min_konsentrat%)
                 konsentrat_constraint = []
                 for feed in available_feeds:
                     feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                     if feed_data['Kategori'] == 'Konsentrat':
-                        konsentrat_constraint.append(1)
+                        konsentrat_constraint.append(-1)
                     else:
                         konsentrat_constraint.append(0)
                 A_ub.append(konsentrat_constraint)
-                b_ub.append((min_konsentrat / 100) * max_amount)  # min_konsentrat di UI jadi max_konsentrat
+                b_ub.append(-min_konsentrat / 100 * min_amount)
             
             # Total amount constraint
             total_min_constraint = [-1] * len(available_feeds)
@@ -1855,160 +1364,32 @@ elif mode == "Optimalisasi Otomatis":
                 
                 # Display results
                 st.subheader("Hasil Optimasi Ransum")
-                
-                # Prepare result data with nutrition info
                 result_data = {
                     'Bahan Pakan': list(optimized_amounts.keys()),
                     'Jumlah (kg)': list(optimized_amounts.values()),
                     'Biaya (Rp)': [optimized_amounts[feed] * df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]['Harga (Rp/kg)'] for feed in optimized_amounts]
                 }
-                
-                # Add nutrition columns
-                nutrition_columns = ['Protein (%)', 'TDN (%)', 'Ca (%)', 'P (%)', 'Mg (%)']
-                for col in nutrition_columns:
-                    result_data[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in optimized_amounts]
-                
-                # Create and display result table
                 df_result = pd.DataFrame(result_data)
                 st.dataframe(df_result)
                 
-                # Calculate and display summary metrics
+                # Display total cost
                 total_cost = sum(result_data['Biaya (Rp)'])
-                total_feed_amount = sum(result_data['Jumlah (kg)'])
-                avg_cost_per_kg = total_cost / total_feed_amount if total_feed_amount > 0 else 0
-                
-                # Tabel kandungan gizi total hasil optimasi
-                st.subheader("Tabel Kandungan Gizi Ransum Optimal")
-                kandungan_gizi = {}
-                for col in nutrition_columns:
-                    kandungan_gizi[col] = sum(df_result['Jumlah (kg)'] * df_result[col]) / total_feed_amount if total_feed_amount > 0 else 0
-                gizi_table = pd.DataFrame({
-                    'Kandungan (%)': [kandungan_gizi['Protein (%)'], kandungan_gizi['TDN (%)'], kandungan_gizi['Ca (%)'], kandungan_gizi['P (%)'], kandungan_gizi['Mg (%)']]
-                }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                st.table(gizi_table)
-                # Saran jika kandungan gizi masih kurang dari kebutuhan minimal
-                rekomendasi = []
-                if kandungan_gizi['Protein (%)'] < required_protein:
-                    # Cari bahan pakan dengan protein tertinggi yang belum dipakai
-                    df_pakan_protein = df_pakan.copy()
-                    df_pakan_protein = df_pakan_protein[~df_pakan_protein['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                    df_pakan_protein = df_pakan_protein.sort_values('Protein (%)', ascending=False)
-                    if not df_pakan_protein.empty:
-                        rekomendasi.append(f"Tambahkan bahan pakan berprotein tinggi seperti {df_pakan_protein.iloc[0]['Nama Pakan']} (Protein: {df_pakan_protein.iloc[0]['Protein (%)']}%) sekitar 0.5-1 kg.")
-                if kandungan_gizi['TDN (%)'] < required_tdn:
-                    # Cari bahan pakan dengan TDN tertinggi yang belum dipakai
-                    df_pakan_tdn = df_pakan.copy()
-                    df_pakan_tdn = df_pakan_tdn[~df_pakan_tdn['Nama Pakan'].isin(list(optimized_amounts.keys()))]
-                    df_pakan_tdn = df_pakan_tdn.sort_values('TDN (%)', ascending=False)
-                    if not df_pakan_tdn.empty:
-                        rekomendasi.append(f"Tambahkan bahan pakan dengan TDN tinggi seperti {df_pakan_tdn.iloc[0]['Nama Pakan']} (TDN: {df_pakan_tdn.iloc[0]['TDN (%)']}%) sekitar 0.5-1 kg.")
-                if rekomendasi:
-                    st.warning("Kandungan gizi ransum optimal masih lebih rendah dari kebutuhan minimal ternak.")
-                    for rec in rekomendasi:
-                        st.info(rec)
-
-                    # Simulasi penambahan bahan pakan yang direkomendasikan
-                    tambahan_pakan = {}
-                    # Tambahkan protein jika kurang
-                    if kandungan_gizi['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                        nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                        tambahan_pakan[nama_pakan_protein] = 1.0
-                    # Tambahkan TDN jika kurang
-                    if kandungan_gizi['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                        nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                        if nama_pakan_tdn in tambahan_pakan:
-                            tambahan_pakan[nama_pakan_tdn] += 1.0
-                        else:
-                            tambahan_pakan[nama_pakan_tdn] = 1.0
-
-                    # Gabungkan dengan hasil optimasi
-                    hasil_pakan = optimized_amounts.copy()
-                    for k, v in tambahan_pakan.items():
-                        if k in hasil_pakan:
-                            hasil_pakan[k] += v
-                        else:
-                            hasil_pakan[k] = v
-
-                    # Hitung ulang kandungan gizi
-                    result_data_tambah = {
-                        'Bahan Pakan': list(hasil_pakan.keys()),
-                        'Jumlah (kg)': list(hasil_pakan.values())
-                    }
-                    for col in nutrition_columns:
-                        result_data_tambah[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan]
-                    df_result_tambah = pd.DataFrame(result_data_tambah)
-                    total_feed_amount_tambah = sum(result_data_tambah['Jumlah (kg)'])
-                    kandungan_gizi_tambah = {}
-                    for col in nutrition_columns:
-                        kandungan_gizi_tambah[col] = sum(df_result_tambah['Jumlah (kg)'] * df_result_tambah[col]) / total_feed_amount_tambah if total_feed_amount_tambah > 0 else 0
-
-                    st.subheader("Simulasi Hasil Setelah Penambahan Bahan Pakan")
-                    gizi_table_tambah = pd.DataFrame({
-                        'Kandungan (%)': [kandungan_gizi_tambah['Protein (%)'], kandungan_gizi_tambah['TDN (%)'], kandungan_gizi_tambah['Ca (%)'], kandungan_gizi_tambah['P (%)'], kandungan_gizi_tambah['Mg (%)']]
-                    }, index=['Protein', 'TDN', 'Ca', 'P', 'Mg'])
-                    st.table(gizi_table_tambah)
-
-                    # Status pemenuhan kebutuhan
-                    status_protein = "✅" if kandungan_gizi_tambah['Protein (%)'] >= required_protein else "❌"
-                    status_tdn = "✅" if kandungan_gizi_tambah['TDN (%)'] >= required_tdn else "❌"
-                    st.write(f"Status Protein: {status_protein} {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                    st.write(f"Status TDN: {status_tdn} {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-
-                    # Simulasi berulang jika masih belum terpenuhi
-                    max_iter = 10
-                    iterasi = 0
-                    hasil_pakan_iter = hasil_pakan.copy()
-                    while (kandungan_gizi_tambah['Protein (%)'] < required_protein or kandungan_gizi_tambah['TDN (%)'] < required_tdn) and iterasi < max_iter:
-                        iterasi += 1
-                        # Tambah bahan pakan protein jika kurang
-                        if kandungan_gizi_tambah['Protein (%)'] < required_protein and not df_pakan_protein.empty:
-                            nama_pakan_protein = df_pakan_protein.iloc[0]['Nama Pakan']
-                            if nama_pakan_protein in hasil_pakan_iter:
-                                hasil_pakan_iter[nama_pakan_protein] += 0.5
-                            else:
-                                hasil_pakan_iter[nama_pakan_protein] = 0.5
-                        # Tambah bahan pakan TDN jika kurang
-                        if kandungan_gizi_tambah['TDN (%)'] < required_tdn and not df_pakan_tdn.empty:
-                            nama_pakan_tdn = df_pakan_tdn.iloc[0]['Nama Pakan']
-                            if nama_pakan_tdn in hasil_pakan_iter:
-                                hasil_pakan_iter[nama_pakan_tdn] += 0.5
-                            else:
-                                hasil_pakan_iter[nama_pakan_tdn] = 0.5
-                        # Hitung ulang kandungan gizi
-                        result_data_iter = {
-                            'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                            'Jumlah (kg)': list(hasil_pakan_iter.values())
-                        }
-                        for col in nutrition_columns:
-                            result_data_iter[col] = [df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0][col] if col in df_pakan.columns else 0 for feed in hasil_pakan_iter]
-                        df_result_iter = pd.DataFrame(result_data_iter)
-                        total_feed_amount_iter = sum(result_data_iter['Jumlah (kg)'])
-                        kandungan_gizi_tambah = {}
-                        for col in nutrition_columns:
-                            kandungan_gizi_tambah[col] = sum(df_result_iter['Jumlah (kg)'] * df_result_iter[col]) / total_feed_amount_iter if total_feed_amount_iter > 0 else 0
-
-                    if kandungan_gizi_tambah['Protein (%)'] >= required_protein and kandungan_gizi_tambah['TDN (%)'] >= required_tdn:
-                        st.success(f"Kebutuhan Protein dan TDN sudah terpenuhi setelah penambahan bahan pakan berikut:")
-                        rekom_table = pd.DataFrame({
-                            'Bahan Pakan': list(hasil_pakan_iter.keys()),
-                            'Jumlah (kg)': list(hasil_pakan_iter.values())
-                        })
-                        st.table(rekom_table)
-                        st.write(f"Protein: {kandungan_gizi_tambah['Protein (%)']:.2f}% (Kebutuhan: {required_protein}%)")
-                        st.write(f"TDN: {kandungan_gizi_tambah['TDN (%)']:.2f}% (Kebutuhan: {required_tdn}%)")
-                    else:
-                        st.error("Kebutuhan Protein dan TDN belum dapat terpenuhi dengan bahan pakan yang tersedia. Silakan cek data pakan atau tambahkan bahan lain.")
-
                 st.metric("Total Biaya Ransum", f"Rp {total_cost:,.0f}")
+                
+                # Calculate total feed amount
+                total_feed_amount = sum(result_data['Jumlah (kg)'])
                 st.metric("Total Jumlah Pakan", f"{total_feed_amount:.2f} kg")
+                
+                # Calculate and display average cost per kg
                 avg_cost_per_kg = total_cost / total_feed_amount if total_feed_amount > 0 else 0
                 st.metric("Biaya Rata-rata per kg", f"Rp {avg_cost_per_kg:,.2f}")
-
+                
                 # Display feed proportions
                 st.subheader("Proporsi Bahan Pakan")
                 proportions = {feed: (amount / total_feed_amount) * 100 for feed, amount in optimized_amounts.items()}
                 for feed, proportion in proportions.items():
                     st.write(f"{feed}: {proportion:.2f}%")
+                
                 # Visualize feed proportions
                 st.subheader("Visualisasi Proporsi Bahan Pakan")
                 chart_data = pd.DataFrame({
@@ -2025,6 +1406,23 @@ elif mode == "Optimalisasi Otomatis":
                     height=400
                 )
                 st.altair_chart(chart)
+            else:
+                st.error(f"❌ Optimasi ransum gagal: {result.message}")
+                
+                # Validate inputs for linprog
+                if len(c) == 0 or len(A_ub) != len(b_ub):
+                    st.error("Input optimasi tidak valid: Pastikan vektor biaya dan batasan telah didefinisikan dengan benar.")
+                else:
+                    # Ensure bounds are correctly defined
+                    bounds = [(0, None) for _ in range(len(c))]
+                    
+                    # Solve the linear programming problem
+                    result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs')
+                    
+                    # Check for success and handle errors
+                    if not result.success:
+                        st.error(f"Optimasi gagal: {result.message}")
+                
                 # Process optimization results
                 if result.success:
                     st.success("✅ Optimasi ransum berhasil!")
@@ -2282,18 +1680,7 @@ elif mode == "Optimalisasi Otomatis":
         
         # Fungsi optimasi dengan mineral
         if st.button("Optimasi Ransum dengan Mineral", key="optimize_mineral_button") and all_available_feeds:
-            # Validasi minimal satu hijauan dan satu konsentrat harus dipilih
-            feeds_from_pakan = [feed for feed in available_feeds if feed in df_pakan[df_pakan['Kategori'] == 'Hijauan']['Nama Pakan'].tolist()]
-            feeds_from_konsentrat = [feed for feed in available_feeds if feed in df_pakan[df_pakan['Kategori'] == 'Konsentrat']['Nama Pakan'].tolist()]
-            if len(feeds_from_pakan) == 0 or len(feeds_from_konsentrat) == 0:
-                st.error("Silakan pilih minimal satu hijauan dan satu konsentrat untuk optimasi ransum dengan mineral.")
-            else:
-                with st.spinner("Menghitung optimasi ransum dengan mineral..."):
-                    # Persiapkan data untuk optimasi
-                    c = []  # Biaya per kg
-                    A_ub = []  # Matriks ketidaksetaraan
-                    b_ub = []  # Batas kanan ketidaksetaraan
-                    # ...existing code...
+            with st.spinner("Menghitung optimasi ransum dengan mineral..."):
                 # Persiapkan data untuk optimasi
                 c = []  # Biaya per kg
                 A_ub = []  # Matriks ketidaksetaraan
