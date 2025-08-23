@@ -2073,8 +2073,8 @@ elif mode == "Optimalisasi Otomatis":
                             nutrition_data[column].append(feed_data[column])
                         
                         # Calculate cost
-                        feed_cost = feed_data['Harga (Rp/kg)']
-                        nutrition_data['Harga (Rp/kg)'].append(feed_cost)
+                        feed_cost = feed_data['Harga (Rp/satuan)']
+                        nutrition_data['Harga (Rp/satuan)'].append(feed_cost)
                         total_cost += amount * feed_cost
                     
                     # Create dataframe for display
@@ -3041,7 +3041,7 @@ elif mode == "Mineral Supplement":
                                         protein_feeds = df_pakan.sort_values(by='Protein (%)', ascending=False).head(5)
                                         st.write("Bahan pakan kaya protein:")
                                         for i, row in protein_feeds.iterrows():
-                                            st.write(f"- {row['Nama Pakan']}: {row['Protein (%)']}% protein, Rp{row['Harga (Rp/kg)']:,.0f}/kg")
+                                            st.write(f"- {row['Nama Pakan']}: {row['Protein (%)']}% protein, Rp{row['Harga (Rp/satuan)']:,.0f}/satuan")
                                         
                                         st.write("""
                                         **Tips:**
@@ -3055,7 +3055,7 @@ elif mode == "Mineral Supplement":
                                         energy_feeds = df_pakan.sort_values(by='TDN (%)', ascending=False).head(5)
                                         st.write("Bahan pakan kaya energi:")
                                         for i, row in energy_feeds.iterrows():
-                                            st.write(f"- {row['Nama Pakan']}: {row['TDN (%)']}% TDN, Rp{row['Harga (Rp/kg)']:,.0f}/kg")
+                                            st.write(f"- {row['Nama Pakan']}: {row['TDN (%)']}% TDN, Rp{row['Harga (Rp/satuan)']:,.0f}/satuan")
                                         
                                         st.write("""
                                         **Tips:**
@@ -3167,7 +3167,7 @@ elif mode == "Mineral Supplement":
                                         rationale.append(f"- Berkontribusi TDN: +{tdn_contribution:.2f}% pada ransum")
                                     
                                     # Calculate cost
-                                    cost = required_amount * mineral_data['Harga (Rp/kg)']
+                                    cost = required_amount * mineral_data['Harga (Rp/satuan)']
                                     recommendations.append({
                                         'mineral': mineral,
                                         'amount': required_amount,
