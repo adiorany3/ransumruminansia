@@ -176,3 +176,27 @@ Bungkil Jarak,Domba,Konsentrat,38.0,75.0,0.7,0.9,0.4,380,18,65,4000
 Tepung Bulu,Sapi,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
 Tepung Bulu,Kambing,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
 Tepung Bulu,Domba,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
+Single Cell Protein,Sapi,Konsentrat,70.0,85.0,0.4,0.8,0.3,250,15,60,12000
+Single Cell Protein,Kambing,Konsentrat,70.0,85.0,0.4,0.8,0.3,250,15,60,12000
+Single Cell Protein,Domba,Konsentrat,70.0,85.0,0.4,0.8,0.3,250,15,60,12000
+Ragi Bir Kering,Sapi,Konsentrat,45.0,80.0,0.2,1.4,0.2,150,12,45,7500
+Ragi Bir Kering,Kambing,Konsentrat,45.0,80.0,0.2,1.4,0.2,150,12,45,7500
+Ragi Bir Kering,Domba,Konsentrat,45.0,80.0,0.2,1.4,0.2,150,12,45,7500
+Bungkil Kedelai Hidrolisat,Sapi,Konsentrat,55.0,82.0,0.3,0.7,0.3,180,16,55,9000
+Bungkil Kedelai Hidrolisat,Kambing,Konsentrat,55.0,82.0,0.3,0.7,0.3,180,16,55,9000
+Bungkil Kedelai Hidrolisat,Domba,Konsentrat,55.0,82.0,0.3,0.7,0.3,180,16,55,9000
+Konsentrat Protein Jagung,Sapi,Konsentrat,65.0,85.0,0.2,0.6,0.3,200,14,50,11000
+Konsentrat Protein Jagung,Kambing,Konsentrat,65.0,85.0,0.2,0.6,0.3,200,14,50,11000
+Konsentrat Protein Jagung,Domba,Konsentrat,65.0,85.0,0.2,0.6,0.3,200,14,50,11000
+Dried Distillers Yeast,Sapi,Konsentrat,48.0,86.0,0.2,1.5,0.3,180,15,65,8500
+Dried Distillers Yeast,Kambing,Konsentrat,48.0,86.0,0.2,1.5,0.3,180,15,65,8500
+Dried Distillers Yeast,Domba,Konsentrat,48.0,86.0,0.2,1.5,0.3,180,15,65,8500
+Protein Hidrolisat Kedelai,Sapi,Konsentrat,75.0,88.0,0.3,0.8,0.3,200,16,58,13000
+Protein Hidrolisat Kedelai,Kambing,Konsentrat,75.0,88.0,0.3,0.8,0.3,200,16,58,13000
+Protein Hidrolisat Kedelai,Domba,Konsentrat,75.0,88.0,0.3,0.8,0.3,200,16,58,13000
+Protein Concentrate Peas,Sapi,Konsentrat,55.0,84.0,0.4,0.9,0.4,220,18,52,9500
+Protein Concentrate Peas,Kambing,Konsentrat,55.0,84.0,0.4,0.9,0.4,220,18,52,9500
+Protein Concentrate Peas,Domba,Konsentrat,55.0,84.0,0.4,0.9,0.4,220,18,52,9500
+High Protein Corn Extract,Sapi,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
+High Protein Corn Extract,Kambing,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
+High Protein Corn Extract,Domba,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
