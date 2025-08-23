@@ -392,3 +392,27 @@ Gliserol,Domba,Konsentrat,0.0,160.0,0.0,0.0,0.0,20,0,0,8000
 Gula Tebu,Sapi,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
 Gula Tebu,Kambing,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
 Gula Tebu,Domba,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
+Tepung Ikan Premium,Sapi,Konsentrat,65.0,75.0,5.5,3.0,0.5,15,20,60,18000
+Tepung Ikan Premium,Kambing,Konsentrat,65.0,75.0,5.5,3.0,0.5,15,20,60,18000
+Tepung Ikan Premium,Domba,Konsentrat,65.0,75.0,5.5,3.0,0.5,15,20,60,18000
+Bungkil Kedelai Impor,Sapi,Konsentrat,48.0,84.0,0.3,0.7,0.3,35,15,45,12000
+Bungkil Kedelai Impor,Kambing,Konsentrat,48.0,84.0,0.3,0.7,0.3,35,15,45,12000
+Bungkil Kedelai Impor,Domba,Konsentrat,48.0,84.0,0.3,0.7,0.3,35,15,45,12000
+DDGS Jagung,Sapi,Konsentrat,27.0,88.0,0.2,0.8,0.3,30,10,30,8000
+DDGS Jagung,Kambing,Konsentrat,27.0,88.0,0.2,0.8,0.3,30,10,30,8000
+DDGS Jagung,Domba,Konsentrat,27.0,88.0,0.2,0.8,0.3,30,10,30,8000
+CGM (Corn Gluten Meal),Sapi,Konsentrat,60.0,83.0,0.2,0.5,0.2,20,15,45,15000
+CGM (Corn Gluten Meal),Kambing,Konsentrat,60.0,83.0,0.2,0.5,0.2,20,15,45,15000
+CGM (Corn Gluten Meal),Domba,Konsentrat,60.0,83.0,0.2,0.5,0.2,20,15,45,15000
+MBM (Meat Bone Meal),Sapi,Konsentrat,50.0,72.0,8.0,4.0,0.3,10,15,45,11000
+MBM (Meat Bone Meal),Kambing,Konsentrat,50.0,72.0,8.0,4.0,0.3,10,15,45,11000
+MBM (Meat Bone Meal),Domba,Konsentrat,50.0,72.0,8.0,4.0,0.3,10,15,45,11000
+Tepung Darah,Sapi,Konsentrat,80.0,75.0,0.3,0.3,0.1,8,10,30,14000
+Tepung Darah,Kambing,Konsentrat,80.0,75.0,0.3,0.3,0.1,8,10,30,14000
+Tepung Darah,Domba,Konsentrat,80.0,75.0,0.3,0.3,0.1,8,10,30,14000
+Yeast Culture,Sapi,Konsentrat,40.0,85.0,0.2,1.5,0.2,5,8,24,20000
+Yeast Culture,Kambing,Konsentrat,40.0,85.0,0.2,1.5,0.2,5,8,24,20000
+Yeast Culture,Domba,Konsentrat,40.0,85.0,0.2,1.5,0.2,5,8,24,20000
+Single Cell Protein,Sapi,Konsentrat,70.0,83.0,0.1,0.8,0.2,5,10,30,25000
+Single Cell Protein,Kambing,Konsentrat,70.0,83.0,0.1,0.8,0.2,5,10,30,25000
+Single Cell Protein,Domba,Konsentrat,70.0,83.0,0.1,0.8,0.2,5,10,30,25000
