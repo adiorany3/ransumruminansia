@@ -2049,7 +2049,7 @@ elif mode == "Optimalisasi Otomatis":
                     for column in nutrition_columns:
                         nutrition_data[column] = []
                     
-                    nutrition_data['Harga (Rp/kg)'] = []
+                    nutrition_data['Harga (Rp/satuan)'] = []
                     total_cost = 0
                     total_amount = 0
                     
