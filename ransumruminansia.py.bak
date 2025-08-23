@@ -707,8 +707,8 @@ if df_pakan is None or df_pakan.empty:
                     step=0.1,
                     format="%.1f"
                 ),
-                "Harga (Rp/satuan)": st.column_config.NumberColumn(
-                    "Harga (Rp/satuan)",
+                "Harga (Rp/kg)": st.column_config.NumberColumn(
+                    "Harga (Rp/kg)",
                     help="Harga per kilogram",
                     min_value=0,
                     step=100,
@@ -2090,8 +2090,8 @@ elif mode == "Optimalisasi Otomatis":
                         result_data[column] = nutrition_data[column]
                     
                     # Add cost column
-                    result_data['Harga (Rp/satuan)'] = nutrition_data['Harga (Rp/satuan)']
-                    result_data['Biaya (Rp)'] = [amounts_used[i] * nutrition_data['Harga (Rp/satuan)'][i] for i in range(len(feeds_used))]
+                    result_data['Harga (Rp/kg)'] = nutrition_data['Harga (Rp/kg)']
+                    result_data['Biaya (Rp)'] = [amounts_used[i] * nutrition_data['Harga (Rp/kg)'][i] for i in range(len(feeds_used))]
                     
                     df_result = pd.DataFrame(result_data)
                     st.dataframe(df_result)
@@ -2188,7 +2188,7 @@ elif mode == "Optimalisasi Otomatis":
                     # Bar chart for cost breakdown
                     cost_bar_data = pd.DataFrame({
                         'Bahan': feeds_used,
-                        'Biaya (Rp)': [amounts_used[i] * nutrition_data['Harga (Rp/satuan)'][i] for i in range(len(feeds_used))]
+                        'Biaya (Rp)': [amounts_used[i] * nutrition_data['Harga (Rp/kg)'][i] for i in range(len(feeds_used))]
                     })
                     
                     cost_bar = alt.Chart(cost_bar_data).mark_bar().encode(
@@ -2305,7 +2305,7 @@ elif mode == "Optimalisasi Otomatis":
                         feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
                     else:
                         feed_data = mineral_df[mineral_df['Nama Pakan'] == feed].iloc[0]
-                    c.append(feed_data['Harga (Rp/satuan)'])
+                    c.append(feed_data['Harga (Rp/kg)'])
                 
                 # Protein minimum constraint
                 protein_constraint = []
@@ -2480,7 +2480,7 @@ elif mode == "Optimalisasi Otomatis":
                     for column in nutrition_columns:
                         nutrition_data[column] = []
                     
-                    nutrition_data['Harga (Rp/satuan)'] = []
+                    nutrition_data['Harga (Rp/kg)'] = []
                     total_cost = 0
                     total_amount = 0
                     
@@ -2506,8 +2506,8 @@ elif mode == "Optimalisasi Otomatis":
                                 nutrition_data[column].append(0)
                         
                         # Calculate cost
-                        feed_cost = feed_data['Harga (Rp/satuan)']
-                        nutrition_data['Harga (Rp/satuan)'].append(feed_cost)
+                        feed_cost = feed_data['Harga (Rp/kg)']
+                        nutrition_data['Harga (Rp/kg)'].append(feed_cost)
                         total_cost += amount * feed_cost
                     
                     # Create dataframe for display
@@ -2523,8 +2523,8 @@ elif mode == "Optimalisasi Otomatis":
                         result_data[column] = nutrition_data[column]
                     
                     # Add cost column
-                    result_data['Harga (Rp/satuan)'] = nutrition_data['Harga (Rp/satuan)']
-                    result_data['Biaya (Rp)'] = [amounts_used[i] * nutrition_data['Harga (Rp/satuan)'][i] for i in range(len(feeds_used))]
+                    result_data['Harga (Rp/kg)'] = nutrition_data['Harga (Rp/kg)']
+                    result_data['Biaya (Rp)'] = [amounts_used[i] * nutrition_data['Harga (Rp/kg)'][i] for i in range(len(feeds_used))]
                     
                     df_result = pd.DataFrame(result_data)
                     st.dataframe(df_result)
@@ -2755,8 +2755,8 @@ elif mode == "Mineral Supplement":
                     step=100,
                     format="%d"
                 ),
-                "Harga (Rp/satuan)": st.column_config.NumberColumn(
-                    "Harga (Rp/satuan)",
+                "Harga (Rp/kg)": st.column_config.NumberColumn(
+                    "Harga (Rp/kg)",
                     help="Harga per kilogram",
                     min_value=0,
                     step=100,
@@ -2837,7 +2837,7 @@ elif mode == "Mineral Supplement":
                     "Fe (ppm)": [new_fe],
                     "Cu (ppm)": [new_cu],
                     "Zn (ppm)": [new_zn],
-                    "Harga (Rp/satuan)": [new_price]
+                    "Harga (Rp/kg)": [new_price]
                 })
                 
                 # Tambahkan ke dataframe
@@ -2877,7 +2877,7 @@ elif mode == "Mineral Supplement":
                         'fe': feed_row['Fe (ppm)'],
                         'cu': feed_row['Cu (ppm)'],
                         'zn': feed_row['Zn (ppm)'],
-                        'harga': feed_row['Harga (Rp/satuan)']
+                        'harga': feed_row['Harga (Rp/kg)']
                     }
                     st.write(f"**{feed_name}**")
                     st.write(f"Ca: {feed_row['Ca (%)']}%, P: {feed_row['P (%)']}%, Mg: {feed_row['Mg (%)']}%")
