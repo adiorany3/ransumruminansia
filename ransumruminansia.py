@@ -616,7 +616,7 @@ else:
     st.info("📤 Menggunakan data pakan dari file yang diupload")
 
 # Display feed data table
-st.subheader("Tabel Data Pakan")
+st.subheader("Tabel Data Pakan (update Agustus 2025)")
 
 # Check if table exists and has data
 if df_pakan is None or df_pakan.empty:
