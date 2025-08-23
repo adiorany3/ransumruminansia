@@ -120,7 +120,7 @@ def load_feed_data(animal_type):
             "Fe (ppm)": [250, 200, 120, 300, 50],
             "Cu (ppm)": [10, 5, 15, 20, 8],
             "Zn (ppm)": [40, 30, 50, 70, 25],
-            "Harga (Rp/kg)": [1000, 800, 8000, 3500, 5000]
+            "Harga (Rp/satuan)": [1000, 800, 8000, 3500, 5000]
         }
         return pd.DataFrame(default_data)
 
@@ -143,7 +143,7 @@ def load_mineral_data():
             "Fe (ppm)": [100, 500, 2000, 50, 4000],
             "Cu (ppm)": [0, 20, 1500, 5, 2000],
             "Zn (ppm)": [0, 50, 1800, 10, 5000],
-            "Harga (Rp/kg)": [2500, 5000, 15000, 8000, 25000]
+            "Harga (Rp/satuan)": [2500, 5000, 15000, 8000, 25000]
         }
         return pd.DataFrame(default_data)
 
@@ -424,7 +424,7 @@ def load_antinutrient_data():
 def validasi_data_pakan_extended(df):
     """Validate feed data with comprehensive checks"""
     # Check required columns
-    required_cols = ['Nama Pakan', 'Protein (%)', 'TDN (%)', 'Harga (Rp/kg)']
+    required_cols = ['Nama Pakan', 'Protein (%)', 'TDN (%)', 'Harga (Rp/satuan)']
     
     # Add missing columns with default values if needed
     for col in required_cols:
@@ -438,7 +438,7 @@ def validasi_data_pakan_extended(df):
     try:
         df['Protein (%)'] = df['Protein (%)'].astype(float)
         df['TDN (%)'] = df['TDN (%)'].astype(float)
-        df['Harga (Rp/kg)'] = df['Harga (Rp/kg)'].astype(float)
+        df['Harga (Rp/satuan)'] = df['Harga (Rp/satuan)'].astype(float)
         
         # Check mineral columns if present
         mineral_cols = ['Ca (%)', 'P (%)', 'Mg (%)', 'Fe (ppm)', 'Cu (ppm)', 'Zn (ppm)']
@@ -455,7 +455,7 @@ def validasi_data_pakan_extended(df):
         return False, "Protein tidak boleh > 100%"
     if (df['TDN (%)'] > 100).any():
         return False, "TDN tidak boleh > 100%"
-    if (df['Harga (Rp/kg)'] < 0).any():
+    if (df['Harga (Rp/satuan)'] < 0).any():
         return False, "Harga tidak boleh negatif"
     if df['Nama Pakan'].duplicated().any():
         return False, "Terdapat duplikasi nama pakan"
@@ -571,7 +571,7 @@ with st.expander("Lihat format data yang diharapkan"):
     - `Nama Pakan` (teks): Nama bahan pakan
     - `Protein (%)` (numerik): Kandungan protein
     - `TDN (%)` (numerik): Kandungan TDN (Total Digestible Nutrient)
-    - `Harga (Rp/kg)` (numerik): Harga per kilogram
+    - `Harga (Rp/satuan)` (numerik): Harga per satuan (kg atau L)
     
     Kolom tambahan yang direkomendasikan:
     - `Ca (%)`: Kandungan kalsium
@@ -652,7 +652,7 @@ if df_pakan is None or df_pakan.empty:
                     "Fe (ppm)": [250, 200, 120, 300, 50, 320, 290, 150, 120, 100],
                     "Cu (ppm)": [10, 5, 15, 20, 8, 15, 12, 10, 5, 15],
                     "Zn (ppm)": [40, 30, 50, 70, 25, 42, 40, 40, 15, 20],
-                    "Harga (Rp/kg)": [1000, 800, 8000, 3500, 5000, 1500, 1400, 2500, 2000, 3000]
+                    "Harga (Rp/satuan)": [1000, 800, 8000, 3500, 5000, 1500, 1400, 2500, 2000, 3000]
                 }
                 df_pakan = pd.DataFrame(sample_data)
                 st.success("✅ Tabel data pakan contoh berhasil dibuat!")
@@ -670,7 +670,7 @@ if df_pakan is None or df_pakan.empty:
                     "Fe (ppm)": [0] * num_feeds,
                     "Cu (ppm)": [0] * num_feeds,
                     "Zn (ppm)": [0] * num_feeds,
-                    "Harga (Rp/kg)": [0] * num_feeds
+                    "Harga (Rp/satuan)": [0] * num_feeds
                 }
                 df_pakan = pd.DataFrame(empty_data)
                 st.success("✅ Tabel data pakan kosong berhasil dibuat! Silakan isi data di bawah.")
@@ -769,8 +769,8 @@ else:
     edited_df = st.data_editor(
         filtered_df,
         column_config={
-            "Harga (Rp/kg)": st.column_config.NumberColumn(
-                "Harga (Rp/kg)",
+            "Harga (Rp/satuan)": st.column_config.NumberColumn(
+                "Harga (Rp/satuan)",
                 help="Anda dapat mengedit harga pakan",
                 min_value=0,
                 step=100,
@@ -785,7 +785,7 @@ else:
     if edited_df is not None and not edited_df.empty:
         for i, row in edited_df.iterrows():
             if 'Nama Pakan' in row and row['Nama Pakan'] in df_pakan['Nama Pakan'].values:
-                df_pakan.loc[df_pakan['Nama Pakan'] == row['Nama Pakan'], 'Harga (Rp/kg)'] = row['Harga (Rp/kg)']
+                df_pakan.loc[df_pakan['Nama Pakan'] == row['Nama Pakan'], 'Harga (Rp/satuan)'] = row['Harga (Rp/satuan)']
 
     st.info("💡 Klik pada nilai harga untuk mengedit secara langsung. Perubahan akan otomatis tersimpan.")
 
@@ -1443,7 +1443,7 @@ if mode == "Formulasi Manual":
                     'ca': feed_row['Ca (%)'] if 'Ca (%)' in feed_row else 0,
                     'p': feed_row['P (%)'] if 'P (%)' in feed_row else 0,
                     'mg': feed_row['Mg (%)'] if 'Mg (%)' in feed_row else 0,
-                    'harga': feed_row['Harga (Rp/kg)']
+                    'harga': feed_row['Harga (Rp/satuan)']
                 }
                 st.write(f"**{feed_name}**")
                 st.write(f"Protein: {feed_data[feed_name]['protein']}%")
@@ -1860,7 +1860,7 @@ elif mode == "Optimalisasi Otomatis":
                 result_data = {
                     'Bahan Pakan': list(optimized_amounts.keys()),
                     'Jumlah (kg)': list(optimized_amounts.values()),
-                    'Biaya (Rp)': [optimized_amounts[feed] * df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]['Harga (Rp/kg)'] for feed in optimized_amounts]
+                    'Biaya (Rp)': [optimized_amounts[feed] * df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]['Harga (Rp/satuan)'] for feed in optimized_amounts]
                 }
                 
                 # Add nutrition columns
