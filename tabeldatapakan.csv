@@ -200,3 +200,42 @@ Protein Concentrate Peas,Domba,Konsentrat,55.0,84.0,0.4,0.9,0.4,220,18,52,9500
 High Protein Corn Extract,Sapi,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
 High Protein Corn Extract,Kambing,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
 High Protein Corn Extract,Domba,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
+Protein Plus Mix,Sapi,Konsentrat,82.0,90.0,0.5,1.0,0.4,250,20,65,15000
+Protein Plus Mix,Kambing,Konsentrat,82.0,90.0,0.5,1.0,0.4,250,20,65,15000
+Protein Plus Mix,Domba,Konsentrat,82.0,90.0,0.5,1.0,0.4,250,20,65,15000
+Super Protein Concentrate,Sapi,Konsentrat,90.0,85.0,0.6,0.9,0.4,280,22,70,16000
+Super Protein Concentrate,Kambing,Konsentrat,90.0,85.0,0.6,0.9,0.4,280,22,70,16000
+Super Protein Concentrate,Domba,Konsentrat,90.0,85.0,0.6,0.9,0.4,280,22,70,16000
+High Energy Protein Mix,Sapi,Konsentrat,75.0,92.0,0.4,0.8,0.3,240,18,60,14500
+High Energy Protein Mix,Kambing,Konsentrat,75.0,92.0,0.4,0.8,0.3,240,18,60,14500
+High Energy Protein Mix,Domba,Konsentrat,75.0,92.0,0.4,0.8,0.3,240,18,60,14500
+Premium Bypass Protein,Sapi,Konsentrat,85.0,88.0,0.5,0.9,0.4,260,20,68,15500
+Premium Bypass Protein,Kambing,Konsentrat,85.0,88.0,0.5,0.9,0.4,260,20,68,15500
+Premium Bypass Protein,Domba,Konsentrat,85.0,88.0,0.5,0.9,0.4,260,20,68,15500
+Daun Petai Cina,Sapi,Hijauan,25.2,69.0,1.3,0.3,0.4,290,12,40,1000
+Daun Petai Cina,Kambing,Hijauan,25.2,69.0,1.3,0.3,0.4,290,12,40,1000
+Daun Petai Cina,Domba,Hijauan,25.2,69.0,1.3,0.3,0.4,290,12,40,1000
+Ampas Tempe,Sapi,Konsentrat,22.5,76.0,0.3,0.2,0.2,180,12,45,2000
+Ampas Tempe,Kambing,Konsentrat,22.5,76.0,0.3,0.2,0.2,180,12,45,2000
+Ampas Tempe,Domba,Konsentrat,22.5,76.0,0.3,0.2,0.2,180,12,45,2000
+Kulit Tempe,Sapi,Konsentrat,18.5,72.0,0.2,0.2,0.2,160,10,40,1500
+Kulit Tempe,Kambing,Konsentrat,18.5,72.0,0.2,0.2,0.2,160,10,40,1500
+Kulit Tempe,Domba,Konsentrat,18.5,72.0,0.2,0.2,0.2,160,10,40,1500
+Daun Rami,Sapi,Hijauan,23.0,67.0,2.2,0.4,0.3,320,14,42,900
+Daun Rami,Kambing,Hijauan,23.0,67.0,2.2,0.4,0.3,320,14,42,900
+Daun Rami,Domba,Hijauan,23.0,67.0,2.2,0.4,0.3,320,14,42,900
+Daun Trembesi,Sapi,Hijauan,24.0,68.0,1.5,0.3,0.4,280,12,38,850
+Daun Trembesi,Kambing,Hijauan,24.0,68.0,1.5,0.3,0.4,280,12,38,850
+Daun Trembesi,Domba,Hijauan,24.0,68.0,1.5,0.3,0.4,280,12,38,850
+Daun Sirsak,Sapi,Hijauan,19.5,65.0,1.2,0.3,0.3,240,10,35,800
+Daun Sirsak,Kambing,Hijauan,19.5,65.0,1.2,0.3,0.3,240,10,35,800
+Daun Sirsak,Domba,Hijauan,19.5,65.0,1.2,0.3,0.3,240,10,35,800
+Kulit Melinjo,Sapi,Hijauan,15.8,63.0,0.8,0.2,0.2,220,9,32,600
+Kulit Melinjo,Kambing,Hijauan,15.8,63.0,0.8,0.2,0.2,220,9,32,600
+Kulit Melinjo,Domba,Hijauan,15.8,63.0,0.8,0.2,0.2,220,9,32,600
+Kedelai Sangrai,Sapi,Konsentrat,37.5,85.0,0.3,0.6,0.3,240,16,52,8500
+Kedelai Sangrai,Kambing,Konsentrat,37.5,85.0,0.3,0.6,0.3,240,16,52,8500
+Kedelai Sangrai,Domba,Konsentrat,37.5,85.0,0.3,0.6,0.3,240,16,52,8500
+Ampas Kecambah,Sapi,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
+Ampas Kecambah,Kambing,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
+Ampas Kecambah,Domba,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
