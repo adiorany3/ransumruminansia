@@ -1,7 +1,8 @@
 ﻿Nama Pakan,Jenis Hewan,Kategori,Protein (%),TDN (%),Ca (%),P (%),Mg (%),Fe (ppm),Cu (ppm),Zn (ppm),Harga (Rp/satuan)
 Rumput Gajah,Sapi,Hijauan,10.2,55.0,0.5,0.3,0.2,250,10,40,1000
 Jerami Padi,Sapi,Hijauan,4.5,43.0,0.4,0.2,0.1,200,5,30,800
-Bungkil Kedelai,Sapi,Konsentrat,42.0,75.0,0.3,0.6,0.3,120,15,50,8Minyak Kelapa (L),Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,18000
+Bungkil Kedelai,Sapi,Konsentrat,42.0,75.0,0.3,0.6,0.3,120,15,50,8000
+Minyak Kelapa (L),Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,18000
 Minyak Kelapa (L),Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,18000
 Minyak Kelapa (L),Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,18000
 Dedak Padi,Sapi,Konsentrat,12.5,65.0,0.1,0.5,0.4,300,20,70,3500
@@ -307,15 +308,7 @@ HPDDG (High Protein DDG),Domba,Konsentrat,45.0,85.0,0.2,0.8,0.3,280,15,65,8000
 Bungkil Kanola Premium,Sapi,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
 Bungkil Kanola Premium,Kambing,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
 Bungkil Kanola Premium,Domba,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
-Minyak Kelapa,Sapi,Konsentrat,0.0,180.0,0.0,0.0,0.0,0,0,0,15000
-Minyak Kelapa,Kambing,Konsentrat,0.0,180.0,0.0,0.0,0.0,0,0,0,15000
-Minyak Kelapa,Domba,Konsentrat,0.0,180.0,0.0,0.0,0.0,0,0,0,15000
-Minyak Sawit (L),Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,15000
-Minyak Sawit (L),Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,15000
-Minyak Sawit (L),Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,15000
-Minyak Jagung,Sapi,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,14000
-Minyak Jagung,Kambing,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,14000
-Minyak Jagung,Domba,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,14000
+
 Lemak Sapi (Tallow),Sapi,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
 Lemak Sapi (Tallow),Kambing,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
 Lemak Sapi (Tallow),Domba,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
@@ -376,12 +369,12 @@ Beras Ketan Pecah,Domba,Konsentrat,7.5,87.0,0.1,0.2,0.1,40,5,15,5000
 Molases (L),Sapi,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,4000
 Molases (L),Kambing,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,4000
 Molases (L),Domba,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,4000
-Palm Oil,Sapi,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,12000
-Palm Oil,Kambing,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,12000
-Palm Oil,Domba,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,12000
-Minyak Kelapa,Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,15000
-Minyak Kelapa,Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,15000
-Minyak Kelapa,Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,15000
+Minyak Sawit (L),Sapi,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,15000
+Minyak Sawit (L),Kambing,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,15000
+Minyak Sawit (L),Domba,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,15000
+Minyak Kelapa (L),Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,18000
+Minyak Kelapa (L),Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,18000
+Minyak Kelapa (L),Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,18000
 Minyak Jagung (L),Sapi,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,20000
 Minyak Jagung (L),Kambing,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,20000
 Minyak Jagung (L),Domba,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,20000
