@@ -1789,7 +1789,7 @@ elif mode == "Optimalisasi Otomatis":
                 # Biaya tiap pakan (fungsi objektif)
                 for feed in available_feeds:
                     feed_data = df_pakan[df_pakan['Nama Pakan'] == feed].iloc[0]
-                    c.append(feed_data['Harga (Rp/kg)'])
+                    c.append(feed_data['Harga (Rp/satuan)'])
                 
                 # Protein minimum constraint
                 protein_constraint = []
@@ -2660,7 +2660,7 @@ elif mode == "Mineral Supplement":
             if mineral_df is None or mineral_df.empty:
                 st.error("Data mineral tidak tersedia. Pastikan file tabeldatamineral.csv ada dalam direktori yang sama.")
                 filtered_minerals = pd.DataFrame(columns=["Nama Pakan", "Protein (%)", "TDN (%)", "Ca (%)", "P (%)", 
-                                                         "Mg (%)", "Fe (ppm)", "Cu (ppm)", "Zn (ppm)", "Harga (Rp/kg)"])
+                                                         "Mg (%)", "Fe (ppm)", "Cu (ppm)", "Zn (ppm)", "Harga (Rp/satuan)"])
             else:
                 # Check if necessary columns exist
                 required_cols = ["Ca (%)", "P (%)", "Mg (%)", "Fe (ppm)", "Cu (ppm)", "Zn (ppm)"]
@@ -2707,7 +2707,7 @@ elif mode == "Mineral Supplement":
         except Exception as e:
             st.error(f"Terjadi kesalahan: {e}")
             filtered_minerals = pd.DataFrame(columns=["Nama Pakan", "Protein (%)", "TDN (%)", "Ca (%)", "P (%)", 
-                                                     "Mg (%)", "Fe (ppm)", "Cu (ppm)", "Zn (ppm)", "Harga (Rp/kg)"])
+                                                     "Mg (%)", "Fe (ppm)", "Cu (ppm)", "Zn (ppm)", "Harga (Rp/satuan)"])
 
         # Display the data editor regardless of errors
         edited_mineral_df = st.data_editor(
@@ -2823,7 +2823,7 @@ elif mode == "Mineral Supplement":
                 new_zn = st.number_input("Zn (ppm)", min_value=0, step=100)
             
             with col3:
-                new_price = st.number_input("Harga (Rp/kg)", min_value=0, step=100)
+                new_price = st.number_input("Harga (Rp/satuan)", min_value=0, step=100)
                 
             if st.button("Tambahkan Mineral") and new_mineral_name:
                 # Buat baris baru
