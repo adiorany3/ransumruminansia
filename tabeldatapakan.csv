@@ -287,3 +287,36 @@ Bonggol Pisang Fermentasi,Domba,Konsentrat,8.2,74.0,0.3,0.2,0.2,160,7,28,800
 Daun Lamtoro Gung,Sapi,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
 Daun Lamtoro Gung,Kambing,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
 Daun Lamtoro Gung,Domba,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
+CGM (Corn Gluten Meal) Premium,Sapi,Konsentrat,65.0,83.0,0.2,0.5,0.3,220,15,50,9500
+CGM (Corn Gluten Meal) Premium,Kambing,Konsentrat,65.0,83.0,0.2,0.5,0.3,220,15,50,9500
+CGM (Corn Gluten Meal) Premium,Domba,Konsentrat,65.0,83.0,0.2,0.5,0.3,220,15,50,9500
+Tepung Kedelai Full Fat,Sapi,Konsentrat,43.0,88.0,0.3,0.6,0.3,250,18,55,9000
+Tepung Kedelai Full Fat,Kambing,Konsentrat,43.0,88.0,0.3,0.6,0.3,250,18,55,9000
+Tepung Kedelai Full Fat,Domba,Konsentrat,43.0,88.0,0.3,0.6,0.3,250,18,55,9000
+Bungkil Kacang Hijau Premium,Sapi,Konsentrat,32.0,82.0,0.2,0.4,0.2,180,12,42,6500
+Bungkil Kacang Hijau Premium,Kambing,Konsentrat,32.0,82.0,0.2,0.4,0.2,180,12,42,6500
+Bungkil Kacang Hijau Premium,Domba,Konsentrat,32.0,82.0,0.2,0.4,0.2,180,12,42,6500
+MBM (Meat Bone Meal) Premium,Sapi,Konsentrat,55.0,72.0,8.0,4.0,0.3,350,25,80,8500
+MBM (Meat Bone Meal) Premium,Kambing,Konsentrat,55.0,72.0,8.0,4.0,0.3,350,25,80,8500
+MBM (Meat Bone Meal) Premium,Domba,Konsentrat,55.0,72.0,8.0,4.0,0.3,350,25,80,8500
+HPDDG (High Protein DDG),Sapi,Konsentrat,45.0,85.0,0.2,0.8,0.3,280,15,65,8000
+HPDDG (High Protein DDG),Kambing,Konsentrat,45.0,85.0,0.2,0.8,0.3,280,15,65,8000
+HPDDG (High Protein DDG),Domba,Konsentrat,45.0,85.0,0.2,0.8,0.3,280,15,65,8000
+Bungkil Kanola Premium,Sapi,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
+Bungkil Kanola Premium,Kambing,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
+Bungkil Kanola Premium,Domba,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
+Minyak Kelapa,Sapi,Konsentrat,0.0,180.0,0.0,0.0,0.0,0,0,0,15000
+Minyak Kelapa,Kambing,Konsentrat,0.0,180.0,0.0,0.0,0.0,0,0,0,15000
+Minyak Kelapa,Domba,Konsentrat,0.0,180.0,0.0,0.0,0.0,0,0,0,15000
+Minyak Sawit,Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,13000
+Minyak Sawit,Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,13000
+Minyak Sawit,Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,13000
+Minyak Jagung,Sapi,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,14000
+Minyak Jagung,Kambing,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,14000
+Minyak Jagung,Domba,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,14000
+Lemak Sapi (Tallow),Sapi,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
+Lemak Sapi (Tallow),Kambing,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
+Lemak Sapi (Tallow),Domba,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
+Minyak Ikan,Sapi,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,16000
+Minyak Ikan,Kambing,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,16000
+Minyak Ikan,Domba,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,16000
