@@ -320,3 +320,75 @@ Lemak Sapi (Tallow),Domba,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
 Minyak Ikan,Sapi,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,16000
 Minyak Ikan,Kambing,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,16000
 Minyak Ikan,Domba,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,16000
+Minyak Kopra,Sapi,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,12000
+Minyak Kopra,Kambing,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,12000
+Minyak Kopra,Domba,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,12000
+Tepung Tapioka,Sapi,Konsentrat,2.5,85.0,0.1,0.1,0.1,40,4,12,4000
+Tepung Tapioka,Kambing,Konsentrat,2.5,85.0,0.1,0.1,0.1,40,4,12,4000
+Tepung Tapioka,Domba,Konsentrat,2.5,85.0,0.1,0.1,0.1,40,4,12,4000
+Pati Sagu,Sapi,Konsentrat,1.8,87.0,0.1,0.0,0.1,35,3,10,3500
+Pati Sagu,Kambing,Konsentrat,1.8,87.0,0.1,0.0,0.1,35,3,10,3500
+Pati Sagu,Domba,Konsentrat,1.8,87.0,0.1,0.0,0.1,35,3,10,3500
+Tepung Sagu,Sapi,Konsentrat,2.2,86.0,0.1,0.1,0.1,38,4,11,3800
+Tepung Sagu,Kambing,Konsentrat,2.2,86.0,0.1,0.1,0.1,38,4,11,3800
+Tepung Sagu,Domba,Konsentrat,2.2,86.0,0.1,0.1,0.1,38,4,11,3800
+Gula Kelapa,Sapi,Konsentrat,0.0,95.0,0.5,0.0,0.1,10,2,5,8000
+Gula Kelapa,Kambing,Konsentrat,0.0,95.0,0.5,0.0,0.1,10,2,5,8000
+Gula Kelapa,Domba,Konsentrat,0.0,95.0,0.5,0.0,0.1,10,2,5,8000
+Gula Aren,Sapi,Konsentrat,0.0,93.0,0.4,0.0,0.1,12,2,6,7500
+Gula Aren,Kambing,Konsentrat,0.0,93.0,0.4,0.0,0.1,12,2,6,7500
+Gula Aren,Domba,Konsentrat,0.0,93.0,0.4,0.0,0.1,12,2,6,7500
+Tetes Tebu Premium,Sapi,Konsentrat,5.5,85.0,1.0,0.1,0.4,120,18,25,4000
+Tetes Tebu Premium,Kambing,Konsentrat,5.5,85.0,1.0,0.1,0.4,120,18,25,4000
+Tetes Tebu Premium,Domba,Konsentrat,5.5,85.0,1.0,0.1,0.4,120,18,25,4000
+Cassava Starch,Sapi,Konsentrat,1.5,88.0,0.1,0.0,0.1,30,3,8,3200
+Cassava Starch,Kambing,Konsentrat,1.5,88.0,0.1,0.0,0.1,30,3,8,3200
+Cassava Starch,Domba,Konsentrat,1.5,88.0,0.1,0.0,0.1,30,3,8,3200
+Beras Pecah,Sapi,Konsentrat,8.0,85.0,0.1,0.2,0.1,45,5,15,4500
+Beras Pecah,Kambing,Konsentrat,8.0,85.0,0.1,0.2,0.1,45,5,15,4500
+Beras Pecah,Domba,Konsentrat,8.0,85.0,0.1,0.2,0.1,45,5,15,4500
+Menir,Sapi,Konsentrat,9.0,86.0,0.1,0.2,0.1,50,6,18,4000
+Menir,Kambing,Konsentrat,9.0,86.0,0.1,0.2,0.1,50,6,18,4000
+Menir,Domba,Konsentrat,9.0,86.0,0.1,0.2,0.1,50,6,18,4000
+Tepung Singkong Premium,Sapi,Konsentrat,2.8,87.0,0.1,0.1,0.1,35,4,10,3500
+Tepung Singkong Premium,Kambing,Konsentrat,2.8,87.0,0.1,0.1,0.1,35,4,10,3500
+Tepung Singkong Premium,Domba,Konsentrat,2.8,87.0,0.1,0.1,0.1,35,4,10,3500
+Singkong Kukus,Sapi,Konsentrat,2.5,83.0,0.1,0.1,0.1,40,4,12,2500
+Singkong Kukus,Kambing,Konsentrat,2.5,83.0,0.1,0.1,0.1,40,4,12,2500
+Singkong Kukus,Domba,Konsentrat,2.5,83.0,0.1,0.1,0.1,40,4,12,2500
+Ubi Jalar Kukus,Sapi,Konsentrat,4.5,85.0,0.1,0.2,0.1,55,5,15,3000
+Ubi Jalar Kukus,Kambing,Konsentrat,4.5,85.0,0.1,0.2,0.1,55,5,15,3000
+Ubi Jalar Kukus,Domba,Konsentrat,4.5,85.0,0.1,0.2,0.1,55,5,15,3000
+Tepung Ubi Jalar,Sapi,Konsentrat,4.0,86.0,0.1,0.2,0.1,50,5,14,4000
+Tepung Ubi Jalar,Kambing,Konsentrat,4.0,86.0,0.1,0.2,0.1,50,5,14,4000
+Tepung Ubi Jalar,Domba,Konsentrat,4.0,86.0,0.1,0.2,0.1,50,5,14,4000
+Jagung Pipil Kukus,Sapi,Konsentrat,9.5,85.0,0.1,0.3,0.2,55,8,28,5500
+Jagung Pipil Kukus,Kambing,Konsentrat,9.5,85.0,0.1,0.3,0.2,55,8,28,5500
+Jagung Pipil Kukus,Domba,Konsentrat,9.5,85.0,0.1,0.3,0.2,55,8,28,5500
+Tepung Garut,Sapi,Konsentrat,1.0,85.0,0.1,0.1,0.1,30,3,8,4500
+Tepung Garut,Kambing,Konsentrat,1.0,85.0,0.1,0.1,0.1,30,3,8,4500
+Tepung Garut,Domba,Konsentrat,1.0,85.0,0.1,0.1,0.1,30,3,8,4500
+Beras Ketan Pecah,Sapi,Konsentrat,7.5,87.0,0.1,0.2,0.1,40,5,15,5000
+Beras Ketan Pecah,Kambing,Konsentrat,7.5,87.0,0.1,0.2,0.1,40,5,15,5000
+Beras Ketan Pecah,Domba,Konsentrat,7.5,87.0,0.1,0.2,0.1,40,5,15,5000
+Molases,Sapi,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,3000
+Molases,Kambing,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,3000
+Molases,Domba,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,3000
+Palm Oil,Sapi,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,12000
+Palm Oil,Kambing,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,12000
+Palm Oil,Domba,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,12000
+Minyak Kelapa,Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,15000
+Minyak Kelapa,Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,15000
+Minyak Kelapa,Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,15000
+Minyak Jagung,Sapi,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,18000
+Minyak Jagung,Kambing,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,18000
+Minyak Jagung,Domba,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,18000
+Lemak Sapi (Tallow),Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,10000
+Lemak Sapi (Tallow),Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,10000
+Lemak Sapi (Tallow),Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,10000
+Gliserol,Sapi,Konsentrat,0.0,160.0,0.0,0.0,0.0,20,0,0,8000
+Gliserol,Kambing,Konsentrat,0.0,160.0,0.0,0.0,0.0,20,0,0,8000
+Gliserol,Domba,Konsentrat,0.0,160.0,0.0,0.0,0.0,20,0,0,8000
+Gula Tebu,Sapi,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
+Gula Tebu,Kambing,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
+Gula Tebu,Domba,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
