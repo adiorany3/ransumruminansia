@@ -164,3 +164,15 @@ Daun Kelor,Domba,Hijauan,26.5,75.0,2.0,0.6,0.5,350,8,30,1800
 Rumput Mott,Sapi,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
 Rumput Mott,Kambing,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
 Rumput Mott,Domba,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
+Kacang Hijau Afkir,Sapi,Konsentrat,24.0,81.0,0.2,0.4,0.3,280,15,55,4500
+Kacang Hijau Afkir,Kambing,Konsentrat,24.0,81.0,0.2,0.4,0.3,280,15,55,4500
+Kacang Hijau Afkir,Domba,Konsentrat,24.0,81.0,0.2,0.4,0.3,280,15,55,4500
+Tepung Darah,Sapi,Konsentrat,80.0,75.0,0.3,0.3,0.2,2800,12,40,10000
+Tepung Darah,Kambing,Konsentrat,80.0,75.0,0.3,0.3,0.2,2800,12,40,10000
+Tepung Darah,Domba,Konsentrat,80.0,75.0,0.3,0.3,0.2,2800,12,40,10000
+Bungkil Jarak,Sapi,Konsentrat,38.0,75.0,0.7,0.9,0.4,380,18,65,4000
+Bungkil Jarak,Kambing,Konsentrat,38.0,75.0,0.7,0.9,0.4,380,18,65,4000
+Bungkil Jarak,Domba,Konsentrat,38.0,75.0,0.7,0.9,0.4,380,18,65,4000
+Tepung Bulu,Sapi,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
+Tepung Bulu,Kambing,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
+Tepung Bulu,Domba,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
