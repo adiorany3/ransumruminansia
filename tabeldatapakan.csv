@@ -239,3 +239,51 @@ Kedelai Sangrai,Domba,Konsentrat,37.5,85.0,0.3,0.6,0.3,240,16,52,8500
 Ampas Kecambah,Sapi,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
 Ampas Kecambah,Kambing,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
 Ampas Kecambah,Domba,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
+Daun Waru,Sapi,Hijauan,21.5,64.0,1.4,0.3,0.3,260,11,38,750
+Daun Waru,Kambing,Hijauan,21.5,64.0,1.4,0.3,0.3,260,11,38,750
+Daun Waru,Domba,Hijauan,21.5,64.0,1.4,0.3,0.3,260,11,38,750
+Ampas Cincau,Sapi,Hijauan,16.5,60.0,0.9,0.2,0.2,180,8,30,600
+Ampas Cincau,Kambing,Hijauan,16.5,60.0,0.9,0.2,0.2,180,8,30,600
+Ampas Cincau,Domba,Hijauan,16.5,60.0,0.9,0.2,0.2,180,8,30,600
+Ampas Sereh,Sapi,Hijauan,7.2,52.0,0.4,0.1,0.2,150,6,25,400
+Ampas Sereh,Kambing,Hijauan,7.2,52.0,0.4,0.1,0.2,150,6,25,400
+Ampas Sereh,Domba,Hijauan,7.2,52.0,0.4,0.1,0.2,150,6,25,400
+Kulit Kedelai,Sapi,Konsentrat,17.5,70.0,0.5,0.2,0.2,190,10,35,1800
+Kulit Kedelai,Kambing,Konsentrat,17.5,70.0,0.5,0.2,0.2,190,10,35,1800
+Kulit Kedelai,Domba,Konsentrat,17.5,70.0,0.5,0.2,0.2,190,10,35,1800
+Ampas Toge,Sapi,Konsentrat,15.0,68.0,0.3,0.2,0.2,170,9,32,1200
+Ampas Toge,Kambing,Konsentrat,15.0,68.0,0.3,0.2,0.2,170,9,32,1200
+Ampas Toge,Domba,Konsentrat,15.0,68.0,0.3,0.2,0.2,170,9,32,1200
+Daun Eceng Gondok,Sapi,Hijauan,19.2,63.0,1.0,0.3,0.3,280,12,38,500
+Daun Eceng Gondok,Kambing,Hijauan,19.2,63.0,1.0,0.3,0.3,280,12,38,500
+Daun Eceng Gondok,Domba,Hijauan,19.2,63.0,1.0,0.3,0.3,280,12,38,500
+Ketela Karet,Sapi,Hijauan,17.8,65.0,1.1,0.2,0.3,240,10,35,600
+Ketela Karet,Kambing,Hijauan,17.8,65.0,1.1,0.2,0.3,240,10,35,600
+Ketela Karet,Domba,Hijauan,17.8,65.0,1.1,0.2,0.3,240,10,35,600
+Daun Mangga,Sapi,Hijauan,16.5,62.0,0.9,0.2,0.2,220,9,32,450
+Daun Mangga,Kambing,Hijauan,16.5,62.0,0.9,0.2,0.2,220,9,32,450
+Daun Mangga,Domba,Hijauan,16.5,62.0,0.9,0.2,0.2,220,9,32,450
+Daun Sukun,Sapi,Hijauan,18.5,64.0,1.2,0.3,0.3,250,11,36,550
+Daun Sukun,Kambing,Hijauan,18.5,64.0,1.2,0.3,0.3,250,11,36,550
+Daun Sukun,Domba,Hijauan,18.5,64.0,1.2,0.3,0.3,250,11,36,550
+Daun Pohon Asam,Sapi,Hijauan,20.8,66.0,1.3,0.3,0.3,260,12,38,700
+Daun Pohon Asam,Kambing,Hijauan,20.8,66.0,1.3,0.3,0.3,260,12,38,700
+Daun Pohon Asam,Domba,Hijauan,20.8,66.0,1.3,0.3,0.3,260,12,38,700
+Ampas Jagung Muda,Sapi,Konsentrat,12.5,72.0,0.2,0.3,0.2,180,8,30,1500
+Ampas Jagung Muda,Kambing,Konsentrat,12.5,72.0,0.2,0.3,0.2,180,8,30,1500
+Ampas Jagung Muda,Domba,Konsentrat,12.5,72.0,0.2,0.3,0.2,180,8,30,1500
+Ampas Bihun,Sapi,Konsentrat,8.5,75.0,0.1,0.2,0.1,150,7,25,1200
+Ampas Bihun,Kambing,Konsentrat,8.5,75.0,0.1,0.2,0.1,150,7,25,1200
+Ampas Bihun,Domba,Konsentrat,8.5,75.0,0.1,0.2,0.1,150,7,25,1200
+Bungkil Kopra Fermentasi,Sapi,Konsentrat,25.5,78.0,0.3,0.5,0.3,220,15,45,3500
+Bungkil Kopra Fermentasi,Kambing,Konsentrat,25.5,78.0,0.3,0.5,0.3,220,15,45,3500
+Bungkil Kopra Fermentasi,Domba,Konsentrat,25.5,78.0,0.3,0.5,0.3,220,15,45,3500
+Ampas Kopi,Sapi,Konsentrat,13.5,70.0,0.4,0.2,0.2,290,18,42,1000
+Ampas Kopi,Kambing,Konsentrat,13.5,70.0,0.4,0.2,0.2,290,18,42,1000
+Ampas Kopi,Domba,Konsentrat,13.5,70.0,0.4,0.2,0.2,290,18,42,1000
+Bonggol Pisang Fermentasi,Sapi,Konsentrat,8.2,74.0,0.3,0.2,0.2,160,7,28,800
+Bonggol Pisang Fermentasi,Kambing,Konsentrat,8.2,74.0,0.3,0.2,0.2,160,7,28,800
+Bonggol Pisang Fermentasi,Domba,Konsentrat,8.2,74.0,0.3,0.2,0.2,160,7,28,800
+Daun Lamtoro Gung,Sapi,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
+Daun Lamtoro Gung,Kambing,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
+Daun Lamtoro Gung,Domba,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
