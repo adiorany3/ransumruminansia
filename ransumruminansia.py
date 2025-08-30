@@ -3695,7 +3695,11 @@ st.markdown("""
 current_year = datetime.datetime.now().year
 
 st.markdown(f"""
+<hr style="height:1px;border:none;color:#333;background-color:#333;margin-top:30px;margin-bottom:20px">
 <div style="text-align:center; padding:15px; margin-top:10px; margin-bottom:20px">
+    <p style="font-size:14px; color:#777">
+        Sapi perah - Research by Prof. Dr. Ir. Budi Prasetyo Widyobroto, DESS., DEA., IPU., ASEAN Eng.
+    </p>
     <p style="font-size:16px; color:#555">
         © {current_year} Developed by: 
         <a href="https://www.linkedin.com/in/galuh-adi-insani-1aa0a5105/" target="_blank" 
